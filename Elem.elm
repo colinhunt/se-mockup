@@ -32,6 +32,47 @@ type Elem
     | StyListAttrListElmntElmnt StyListAttrListElmntElmntFn Style (List Attr) (List El)
 
 
+{-| Case statement template:
+-}
+caseElem elem =
+    case elem of
+        Elmnt f ->
+            elem
+
+        FltElmnt f flt0 ->
+            elem
+
+        StrElmnt f str0 ->
+            elem
+
+        StyElmnt f sty0 ->
+            elem
+
+        ElmntElmnt f el0 ->
+            elem
+
+        StrElmntElmnt f str0 el1 ->
+            elem
+
+        BoolElmntElmnt f bool0 el1 ->
+            elem
+
+        ListElmntElmntElmnt f els0 el1 ->
+            elem
+
+        StyListAttrStrElmnt f sty0 attrs1 str2 ->
+            elem
+
+        StyListAttrElmntElmnt f sty0 attrs1 el2 ->
+            elem
+
+        FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3 ->
+            elem
+
+        StyListAttrListElmntElmnt f sty0 attrs1 els2 ->
+            elem
+
+
 type alias ElmntFn =
     Element Style Variation Msg
 
@@ -323,6 +364,26 @@ type Attr
     | FltFltAttr FltFltAttrFn Float Float
 
 
+{-| Case statement template:
+-}
+caseAttr attr =
+    case attr of
+        Attr f ->
+            attr
+
+        FltAttr f flt0 ->
+            attr
+
+        LngAttr f lng0 ->
+            attr
+
+        StrAttr f str0 ->
+            attr
+
+        FltFltAttr f flt0 flt1 ->
+            attr
+
+
 type alias AttrFn =
     Attribute Variation Msg
 
@@ -522,6 +583,20 @@ type Lngth
     = Lng LngFn
     | FltLng FltLngFn Float
     | IntLng IntLngFn Int
+
+
+{-| Case statement template:
+-}
+caseLngth lngth =
+    case lngth of
+        Lng f ->
+            lngth
+
+        FltLng f flt0 ->
+            lngth
+
+        IntLng f int0 ->
+            lngth
 
 
 type alias LngFn =

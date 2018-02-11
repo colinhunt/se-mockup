@@ -20,28 +20,18 @@ FILE_PATHS = [
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
 
 ARG_LOOKUP = {
-    'Style': 'Style',
-    'String': 'String',
-    'Float': 'Float',
-    'Bool': 'Bool',
-    'Length': 'Lngth',
-    'Int': 'Int',
-    'ListElementStyleVariationMsg': '(List El)',
-    'ListAttributeVariationMsg': '(List Attr)',
-    'ElementStyleVariationMsg': 'El'
+    'Style': { 'type': 'Style', 'var_name': 'sty' },
+    'String': { 'type': 'String', 'var_name': 'str' },
+    'Float': { 'type': 'Float', 'var_name': 'flt' },
+    'Bool': { 'type': 'Bool', 'var_name': 'bool' },
+    'Length': { 'type': 'Lngth', 'var_name': 'lng' },
+    'Int': { 'type': 'Int', 'var_name': 'int' },
+    'ListElementStyleVariationMsg': { 'type': '(List El)', 'var_name': 'els' },
+    'ListAttributeVariationMsg': { 'type': '(List Attr)', 'var_name': 'attrs' },
+    'ElementStyleVariationMsg': { 'type': 'El', 'var_name': 'el' },
+    'AttributeVariationMsg': { 'type': 'Attr', 'var_name': 'attr' }
+
 }
-
-# TYPE_LOOKUP = AttrDict()
-# TYPE_LOOKUP.update({
-#     'Style': { 'type': 'Style', 'value': 'style' }
-#     'String': { 'type': 'String', 'value': 'string' }
-#     'Float': { 'type': 'Float', 'value': 'float' }
-#     'Bool': { 'type': 'Bool', 'value': 'bool' }
-#     'ListElementStyleVariationMsg': { 'type': '(List El)', 'value': 'children' }
-#     'ListAttributeVariationMsg': '(List Attr)',
-#     'ElementStyleVariationMsg': 'El'
-# })
-
 
 def excluded(fcn_name, fcn_sig, suffix):
     return (
@@ -120,7 +110,7 @@ for file_path, kind, suffix in FILE_PATHS:
 
         # print type_name_parts
 
-        arguments = [ARG_LOOKUP[part] for part in type_name_parts[:-1]]
+        arguments = [ARG_LOOKUP[part]['type'] for part in type_name_parts[:-1]]
 
         type_name = ''.join(type_name_parts) \
             .replace('StyleVariationMsg', '') \
@@ -141,6 +131,7 @@ for file_path, kind, suffix in FILE_PATHS:
                 'sig': fcn_sig,
                 'sig_types': types,
                 'type_name': type_name,
+                'type_name_parts': type_name_parts,
                 'fcn_type_alias_name': fcn_type_alias_name,
                 'arguments': arguments,
                 'members': []
@@ -163,6 +154,15 @@ for file_path, kind, suffix in FILE_PATHS:
         print '    =' if i == 0 else '    |', fcn_type.type_name, fcn_type.fcn_type_alias_name, ' '.join(fcn_type.arguments)
 
     print
+    print
+
+    print '{-| Case statement template: -}'
+    print 'case' + kind, kind.lower(), '='
+    print '    case', kind.lower(), 'of'
+    for fcn_type in fcn_types:
+        print '        ', fcn_type.type_name, 'f', ' '.join([ARG_LOOKUP[arg]['var_name'] + str(i) for i, arg in enumerate(fcn_type.type_name_parts[:-1])]), '->'
+        print '            ', kind.lower()
+
     print
 
     for fcn_type in fcn_types:
