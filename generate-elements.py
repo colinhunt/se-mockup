@@ -57,25 +57,10 @@ def excluded(fcn_name, fcn_sig, suffix):
 
 # def make_arg(part):
 
-print 'module Elem exposing (..)'
-print
+print 'module Layout.Element exposing (..)'
+
 print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
-print 'import View.Stylesheet exposing (..)'
-print
-print
-print '''
-type alias Elid =
-    Int
-
-
-type alias El =
-    { id : Elid, el : Elem }
-
-
-type Msg
-    = Msg
-'''
 
 
 for file_path, kind, suffix in FILE_PATHS:
@@ -95,11 +80,11 @@ for file_path, kind, suffix in FILE_PATHS:
         if excluded(fcn_name, fcn_sig, suffix):
             continue
 
-        fcn_sig = fcn_sig.title()
+        fcn_sig_title = fcn_sig.title()
 
         arg_names = fcn_def.split()[1:]
 
-        types = fcn_sig.split(' -> ')
+        types = fcn_sig_title.split(' -> ')
 
         # print fcn_sig
         # print types
@@ -160,13 +145,14 @@ for file_path, kind, suffix in FILE_PATHS:
     print 'case' + kind, kind.lower(), '='
     print '    case', kind.lower(), 'of'
     for fcn_type in fcn_types:
-        print '        ', fcn_type.type_name, 'f', ' '.join([ARG_LOOKUP[arg]['var_name'] + str(i) for i, arg in enumerate(fcn_type.type_name_parts[:-1])]), '->'
-        print '            ', kind.lower()
+        args = ' '.join([ARG_LOOKUP[arg]['var_name'] + str(i) for i, arg in enumerate(fcn_type.type_name_parts[:-1])])
+        print '        ', fcn_type.type_name, 'f', args, '->'
+        print '            ', fcn_type.type_name, 'f', args
 
     print
 
     for fcn_type in fcn_types:
-        print 'type alias', fcn_type.fcn_type_alias_name, '=', fcn_type.sig
+        print 'type alias', fcn_type.fcn_type_alias_name, 'msg style variation', '=', fcn_type.sig
         print
         print
 

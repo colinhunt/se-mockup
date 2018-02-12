@@ -1,20 +1,7 @@
-module Elem exposing (..)
+module Layout.Element exposing (..)
 
 import Element exposing (..)
 import Element.Attributes exposing (..)
-import View.Stylesheet exposing (..)
-
-
-type alias Elid =
-    Int
-
-
-type alias El =
-    { id : Elid, elem : Elem }
-
-
-type Msg
-    = Msg
 
 
 type Elem
@@ -37,88 +24,88 @@ type Elem
 caseElem elem =
     case elem of
         Elmnt f ->
-            elem
+            Elmnt f
 
         FltElmnt f flt0 ->
-            elem
+            FltElmnt f flt0
 
         StrElmnt f str0 ->
-            elem
+            StrElmnt f str0
 
         StyElmnt f sty0 ->
-            elem
+            StyElmnt f sty0
 
         ElmntElmnt f el0 ->
-            elem
+            ElmntElmnt f el0
 
         StrElmntElmnt f str0 el1 ->
-            elem
+            StrElmntElmnt f str0 el1
 
         BoolElmntElmnt f bool0 el1 ->
-            elem
+            BoolElmntElmnt f bool0 el1
 
         ListElmntElmntElmnt f els0 el1 ->
-            elem
+            ListElmntElmntElmnt f els0 el1
 
         StyListAttrStrElmnt f sty0 attrs1 str2 ->
-            elem
+            StyListAttrStrElmnt f sty0 attrs1 str2
 
         StyListAttrElmntElmnt f sty0 attrs1 el2 ->
-            elem
+            StyListAttrElmntElmnt f sty0 attrs1 el2
 
         FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3 ->
-            elem
+            FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3
 
         StyListAttrListElmntElmnt f sty0 attrs1 els2 ->
-            elem
+            StyListAttrListElmntElmnt f sty0 attrs1 els2
 
 
 type alias ElmntFn =
-    Element Style Variation Msg
+    Element style variation msg
 
 
 type alias FltElmntFn =
-    Float -> Element Style Variation Msg
+    Float -> Element style variation msg
 
 
 type alias StrElmntFn =
-    String -> Element Style Variation Msg
+    String -> Element style variation msg
 
 
 type alias StyElmntFn =
-    Style -> Element Style Variation Msg
+    style -> Element style variation msg
 
 
 type alias ElmntElmntFn =
-    Element Style Variation Msg -> Element Style Variation Msg
+    Element style variation msg -> Element style variation msg
 
 
 type alias StrElmntElmntFn =
-    String -> Element Style Variation Msg -> Element Style Variation Msg
+    String -> Element style variation msg -> Element style variation msg
 
 
 type alias BoolElmntElmntFn =
-    Bool -> Element Style Variation Msg -> Element Style Variation Msg
+    Bool -> Element style variation msg -> Element style variation msg
 
 
 type alias ListElmntElmntElmntFn =
-    List (Element Style Variation Msg) -> Element Style Variation Msg -> Element Style Variation Msg
+    List (Element style variation msg) -> Element style variation msg -> Element style variation msg
 
 
 type alias StyListAttrStrElmntFn =
-    Style -> List (Attribute Variation Msg) -> String -> Element Style Variation Msg
+    style -> List (Attribute variation msg) -> String -> Element style variation msg
 
 
 type alias StyListAttrElmntElmntFn =
-    Style -> List (Attribute Variation Msg) -> Element Style Variation Msg -> Element Style Variation Msg
+    style -> List (Attribute variation msg) -> Element style variation msg -> Element style variation msg
 
 
 type alias FltStyListAttrElmntElmntFn =
-    Float -> Style -> List (Attribute Variation Msg) -> Element Style Variation Msg -> Element Style Variation Msg
+    Float -> style -> List (Attribute variation msg) -> Element style variation msg -> Element style variation msg
 
 
 type alias StyListAttrListElmntElmntFn =
-    Style -> List (Attribute Variation Msg) -> List (Element Style Variation Msg) -> Element Style Variation Msg
+    style -> List (Attribute variation msg) -> List (Element style variation msg) -> Element style variation msg
 
 
 newEmpty : Elem
@@ -369,39 +356,39 @@ type Attr
 caseAttr attr =
     case attr of
         Attr f ->
-            attr
+            Attr f
 
         FltAttr f flt0 ->
-            attr
+            FltAttr f flt0
 
         LngAttr f lng0 ->
-            attr
+            LngAttr f lng0
 
         StrAttr f str0 ->
-            attr
+            StrAttr f str0
 
         FltFltAttr f flt0 flt1 ->
-            attr
+            FltFltAttr f flt0 flt1
 
 
 type alias AttrFn =
-    Attribute Variation Msg
+    Attribute variation msg
 
 
 type alias FltAttrFn =
-    Float -> Attribute Variation Msg
+    Float -> Attribute variation msg
 
 
 type alias LngAttrFn =
-    Length -> Attribute Variation Msg
+    Length -> Attribute variation msg
 
 
 type alias StrAttrFn =
-    String -> Attribute Variation Msg
+    String -> Attribute variation msg
 
 
 type alias FltFltAttrFn =
-    Float -> Float -> Attribute Variation Msg
+    Float -> Float -> Attribute variation msg
 
 
 newCenter : Attr
@@ -590,13 +577,13 @@ type Lngth
 caseLngth lngth =
     case lngth of
         Lng f ->
-            lngth
+            Lng f
 
         FltLng f flt0 ->
-            lngth
+            FltLng f flt0
 
         IntLng f int0 ->
-            lngth
+            IntLng f int0
 
 
 type alias LngFn =

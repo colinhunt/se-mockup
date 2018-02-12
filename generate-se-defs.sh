@@ -1,1 +1,1 @@
-python generate-elements.py > Elem.elm && elm-format Elem.elm --yes && elm-make Elem.elm --output=/dev/null
+python generate-elements.py > Layout/Element.elm && elm-format Layout/Element.elm --yes && elm-make Layout/Element.elm --output=/dev/null

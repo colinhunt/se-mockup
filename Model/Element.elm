@@ -1,20 +1,9 @@
-module Elem exposing (..)
+module Model.Element exposing (..)
 
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import View.Stylesheet exposing (..)
-
-
-type alias Elid =
-    Int
-
-
-type alias El =
-    { id : Elid, elem : Elem }
-
-
-type Msg
-    = Msg
+import Model.Model exposing (..)
 
 
 type Elem
