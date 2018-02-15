@@ -1,114 +1,102 @@
 module Layout.El exposing (..)
 
-import Model.Model exposing (..)
-import Layout.Element exposing (..)
+import Element exposing (Attribute, Element)
 import Layout.Attr exposing (..)
+import Layout.Element exposing (..)
 
 
-insertEl : El -> El -> El
-insertEl el node =
+insert : El sty var msg -> El sty var msg -> El sty var msg
+insert el_ node =
     let
         debug0 =
-            Debug.log "insertEl" ( el.id, node.id )
+            Debug.log "insertEl" ( el_.id, node.id )
     in
-        case node.elem of
-            Elmnt f ->
-                el
-
-            FltElmnt f flt0 ->
-                el
-
-            StrElmnt f str0 ->
-                el
-
-            StyElmnt f sty0 ->
-                el
-
-            ElmntElmnt f el0 ->
-                El node.id <|
-                    ElmntElmnt f <|
-                        if el.id == node.id then
-                            el
-                        else
-                            (insertEl el el0)
-
-            StrElmntElmnt f str0 el1 ->
-                El node.id <|
-                    ElmntElmnt f <|
-                        if el.id == node.id then
-                            el
-                        else
-                            (insertEl el el1)
-
-            BoolElmntElmnt f bool0 el1 ->
-                El node.id <|
-                    ElmntElmnt f <|
-                        if el.id == node.id then
-                            el
-                        else
-                            (insertEl el el0)
-
-            ListElmntElmntElmnt f els0 el1 ->
-                El node.id <|
-                    ElmntElmnt f <|
-                        if el.id == node.id then
-                            el
-                        else
-                            (insertEl el el0)
-
-            StyListAttrStrElmnt f sty0 attrs1 str2 ->
-                el
-
-            StyListAttrElmntElmnt f sty0 attrs1 el2 ->
-                el
-
-            FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3 ->
-                el
-
-            StyListAttrListElmntElmnt f sty0 attrs1 els2 ->
-                el
-
-
-viewEl : El -> Element Style Variation Msg
-viewEl { id, el } =
-    case el.elem of
+    case node.elem of
         Elmnt f ->
-            f
+            el_
 
-        FltElmnt f flt0 ->
-            f flt0
+        FltElmnt f flt ->
+            el_
 
-        StrElmnt f str0 ->
-            f str0
+        StrElmnt f str ->
+            el_
 
-        StyElmnt f sty0 ->
-            f sty0
+        StyElmnt f sty ->
+            el_
 
-        ElmntElmnt f el0 ->
-            f (viewEl el0)
+        ElmntElmnt f el ->
+            El node.id node.name <| ElmntElmnt f el_
 
-        StrElmntElmnt f str0 el1 ->
-            f str0 (viewEl el1)
+        StrElmntElmnt f str el ->
+            El node.id node.name <| StrElmntElmnt f str el_
 
-        BoolElmntElmnt f bool0 el1 ->
-            f bool0 (viewEl el1)
+        BoolElmntElmnt f bool el ->
+            El node.id node.name <| BoolElmntElmnt f bool el_
 
-        ListElmntElmntElmnt f els0 el1 ->
-            f (viewEls els0) (viewEl el1)
+        ListElmntElmntElmnt f els el ->
+            El node.id node.name <| ListElmntElmntElmnt f (el_ :: els) el
 
-        StyListAttrStrElmnt f sty0 attrs1 str2 ->
-            f sty0 (viewAttrs attrs1) str2
+        StyListAttrStrElmnt f sty attrs str ->
+            el_
 
-        StyListAttrElmntElmnt f sty0 attrs1 el2 ->
-            f sty0 (viewAttrs attrs1) (viewEl el2)
+        StyListAttrElmntElmnt f sty attrs el ->
+            El node.id node.name <| StyListAttrElmntElmnt f sty attrs el_
 
-        FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3 ->
-            f flt0 sty1 (viewAttrs attrs2) (viewEl el3)
+        FltStyListAttrElmntElmnt f flt sty attrs el ->
+            El node.id node.name <| FltStyListAttrElmntElmnt f flt sty attrs el_
 
-        StyListAttrListElmntElmnt f sty0 attrs1 els2 ->
-            f sty0 (viewAttrs attrs1) (viewEls els2)
+        StyListAttrListElmntElmnt f sty attrs els ->
+            El node.id node.name <| StyListAttrListElmntElmnt f sty attrs (el_ :: els)
 
 
-viewEls : List El -> List (Element Style Variation Msg)
-viewEls els =
-    List.map handleEl els
+view : (Elid -> List (Attribute var msg)) -> El sty var msg -> Element sty var msg
+view extraAttrs el_ =
+    let
+        viewEls : List (El sty var msg) -> List (Element sty var msg)
+        viewEls els =
+            List.map viewElR els
+
+        viewElR : El sty var msg -> Element sty var msg
+        viewElR { id, elem } =
+            let
+                viewAttrsE attrs =
+                    viewAttrs attrs ++ extraAttrs id
+            in
+            case elem of
+                Elmnt f ->
+                    f
+
+                FltElmnt f flt ->
+                    f flt
+
+                StrElmnt f str ->
+                    f str
+
+                StyElmnt f sty ->
+                    f sty
+
+                ElmntElmnt f el ->
+                    f (viewElR el)
+
+                StrElmntElmnt f str el ->
+                    f str (viewElR el)
+
+                BoolElmntElmnt f bool el ->
+                    f bool (viewElR el)
+
+                ListElmntElmntElmnt f els el ->
+                    f (viewEls els) (viewElR el)
+
+                StyListAttrStrElmnt f sty attrs str ->
+                    f sty (viewAttrsE attrs) str
+
+                StyListAttrElmntElmnt f sty attrs el ->
+                    f sty (viewAttrsE attrs) (viewElR el)
+
+                FltStyListAttrElmntElmnt f flt sty attrs el ->
+                    f flt sty (viewAttrsE attrs) (viewElR el)
+
+                StyListAttrListElmntElmnt f sty attrs els ->
+                    f sty (viewAttrsE attrs) (viewEls els)
+    in
+    viewElR el_

@@ -3,35 +3,29 @@ module Model.Model exposing (..)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events as Events
-import View.Stylesheet exposing (..)
+import Layout.El exposing (..)
 import Layout.Element exposing (..)
+import View.Stylesheet exposing (..)
 
 
 type Msg
-    = OnAddEl El
+    = OnAddEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
 
 
-type alias Elid =
-    Int
-
-
-type alias El =
-    { id : Elid, name : String, el : Elem }
-
-
 type alias Model =
-    { layout : El
+    { layout : El Style Variation Msg
     , mousedOver : List Elid
     , selected : Elid
     , newId : Elid
     }
 
 
+initModel : Model
 initModel =
-    { layout = { id = 0, name = "empty", el = newEmpty }
+    { layout = { id = 0, name = "empty", elem = newEmpty }
     , mousedOver = []
     , selected = -1
     , newId = 42

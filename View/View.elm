@@ -1,12 +1,13 @@
 module View.View exposing (..)
 
-import Html
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
-import View.Stylesheet exposing (..)
+import Html
+import Layout.El as El
+import Layout.Element exposing (El)
 import Model.Model exposing (..)
-import Layout.El exposing (viewEl)
+import View.Stylesheet exposing (..)
 
 
 button1 : List (Attribute variation msg) -> String -> Element Style variation msg
@@ -20,20 +21,21 @@ view model =
         row None
             [ width fill, height fill ]
             [ renderLayout model
-            , sideBar model.selected
+
+            --, sideBar model.selected
             ]
 
 
-sideBar : El -> Element Style Variation Msg
+sideBar : El Style Variation Msg -> Element Style Variation Msg
 sideBar el =
     column None
         [ spacing 20 ]
         (elementInfo el)
 
 
-elementInfo : El -> List (Element Style Variation Msg)
+elementInfo : El Style Variation Msg -> List (Element Style Variation Msg)
 elementInfo el =
-    [ button1 [ onClick OnAddEl ] "add el"
+    [ text el.name
     ]
 
 
@@ -46,45 +48,12 @@ renderLayout model =
         selected =
             model.selected
 
-        handleAttr : Attr -> Attribute Variation Msg
-        handleAttr attr =
-            case attr of
-                A f ->
-                    f
-
-                LA f lngth ->
-                    f (handleLngth lngth)
-
-                FA f float ->
-                    f float
-
-                FFA f float1 float2 ->
-                    f float1 float2
-
-        handleLngth : Lngth -> Length
-        handleLngth lngth =
-            case lngth of
-                L f ->
-                    f
-
-                FL f float ->
-                    f float
-
-                IL f int ->
-                    f int
-
-        handleEls : List El -> List (Element Style Variation Msg)
-        handleEls els =
-            List.map handleEl els
-
-        handleAttrs : Elid -> List Attr -> List (Attribute Variation Msg)
-        handleAttrs id attrs =
+        extraAttrs id =
             [ vary Hover (mouseOver == id)
             , vary Selected (selected == id)
             , onMouseEnter <| OnMouseEnter id
             , onMouseLeave OnMouseLeave
             , onClick <| OnClick id
             ]
-                ++ (List.map handleAttr attrs)
     in
-        handleEl model.layout
+    El.view extraAttrs model.layout

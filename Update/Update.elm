@@ -1,6 +1,9 @@
 module Update.Update exposing (..)
 
+import Layout.El as El
+import Layout.Element exposing (El)
 import Model.Model exposing (..)
+import View.Stylesheet exposing (Style, Variation)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -16,16 +19,16 @@ update msg model =
             onMouseLeave model
 
         OnClick id ->
-            onClick
+            onClick id model
 
 
-onAddEl : El -> ( Model, Cmd Msg )
+onAddEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onAddEl elem m =
     let
         debug0 =
-            Debug.log "onAddEl" newEl
+            Debug.log "onAddEl" elem
     in
-        { m | layout = insertEl elem m.layout } ! []
+    { m | layout = El.insert elem m.layout } ! []
 
 
 onMouseEnter id model =
@@ -41,10 +44,10 @@ onClick id model =
         mouseOver =
             List.head model.mousedOver |> Maybe.withDefault -1
     in
-        if id == mouseOver then
-            if id == model.selected then
-                { model | selected = -1 } ! []
-            else
-                { model | selected = id } ! []
+    if id == mouseOver then
+        if id == model.selected then
+            { model | selected = -1 } ! []
         else
-            model ! []
+            { model | selected = id } ! []
+    else
+        model ! []

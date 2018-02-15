@@ -27,9 +27,9 @@ ARG_LOOKUP = {
     'Bool': { 'type': 'Bool', 'var_name': 'bool' },
     'Length': { 'type': 'Lngth', 'var_name': 'lng' },
     'Int': { 'type': 'Int', 'var_name': 'int' },
-    'ListElementStyVarMsg': { 'type': '(List el)', 'var_name': 'els' },
+    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els' },
     'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs' },
-    'ElementStyVarMsg': { 'type': 'el', 'var_name': 'el' },
+    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el' },
     'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr' }
 
 }
@@ -66,6 +66,15 @@ print 'module Layout.Element exposing (..)'
 
 print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
+
+print '''
+type alias Elid =
+    Int
+
+
+type alias El sty var msg =
+    { id : Elid, name : String, elem : Elem sty var msg }
+'''
 
 
 for file_path, kind, var, suffix in FILE_PATHS:
@@ -145,7 +154,7 @@ for file_path, kind, var, suffix in FILE_PATHS:
     # exit(0)
     fcn_types = sorted(functions.values(), cmp=lambda x,y: len(x.type_name) - len(y.type_name))
 
-    kind_full = '{} {} {}'.format(kind, var, fcn_types[0].type_vars)
+    kind_full = '{} {}'.format(kind, fcn_types[0].type_vars)
 
     print 'type', kind_full
     for i, fcn_type in enumerate(fcn_types):
