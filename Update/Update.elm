@@ -1,25 +1,25 @@
 module Update.Update exposing (..)
 
-import Element exposing (..)
-import Element.Attributes exposing (..)
-import Element.Events exposing (..)
-import Utils as U
-import View.Stylesheet exposing (..)
 import Model.Model exposing (..)
-import Model.Utils as M
-import Update.El exposing (..)
 
 
-type alias Updater =
-    Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+    case msg of
+        OnAddEl el ->
+            onAddEl el model
+
+        OnMouseEnter id ->
+            onMouseEnter id model
+
+        OnMouseLeave ->
+            onMouseLeave model
+
+        OnClick id ->
+            onClick
 
 
-update : Msg -> Updater
-update (Fun f) model =
-    f model
-
-
-onAddEl : El -> Updater
+onAddEl : El -> ( Model, Cmd Msg )
 onAddEl elem m =
     let
         debug0 =

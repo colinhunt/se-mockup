@@ -1,7 +1,7 @@
 import glob
 import json
 import re
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 
 class AttrDict(defaultdict):
     def __init__(self, *args, **kwargs):
@@ -12,26 +12,31 @@ class AttrDict(defaultdict):
 STYLE_ELEMENTS_SRC_DIR = 'elm-stuff/packages/mdgriffith/style-elements/*/src/'
 
 FILE_PATHS = [
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'Element style variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', 'Attribute variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', 'Length'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'el', 'Element style variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', '', 'Attribute variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', '', 'Length'),
 ]
 
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
+TYPE_VAR_REGEX = r"\b[a-z]+\b"
 
 ARG_LOOKUP = {
-    'Style': { 'type': 'Style', 'var_name': 'sty' },
+    'Sty': { 'type': 'sty', 'var_name': 'sty' },
     'String': { 'type': 'String', 'var_name': 'str' },
     'Float': { 'type': 'Float', 'var_name': 'flt' },
     'Bool': { 'type': 'Bool', 'var_name': 'bool' },
     'Length': { 'type': 'Lngth', 'var_name': 'lng' },
     'Int': { 'type': 'Int', 'var_name': 'int' },
-    'ListElementStyleVariationMsg': { 'type': '(List El)', 'var_name': 'els' },
-    'ListAttributeVariationMsg': { 'type': '(List Attr)', 'var_name': 'attrs' },
-    'ElementStyleVariationMsg': { 'type': 'El', 'var_name': 'el' },
-    'AttributeVariationMsg': { 'type': 'Attr', 'var_name': 'attr' }
+    'ListElementStyVarMsg': { 'type': '(List el)', 'var_name': 'els' },
+    'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs' },
+    'ElementStyVarMsg': { 'type': 'el', 'var_name': 'el' },
+    'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr' }
 
 }
+
+def unique(sequence):
+    seen = set()
+    return [x for x in sequence if not (x in seen or seen.add(x))]
 
 def excluded(fcn_name, fcn_sig, suffix):
     return (
@@ -63,7 +68,7 @@ print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
 
 
-for file_path, kind, suffix in FILE_PATHS:
+for file_path, kind, var, suffix in FILE_PATHS:
     functions = {}
 
     content = ""
@@ -80,11 +85,17 @@ for file_path, kind, suffix in FILE_PATHS:
         if excluded(fcn_name, fcn_sig, suffix):
             continue
 
-        fcn_sig_title = fcn_sig.title()
+
+
+        type_vars = unique(re.findall(TYPE_VAR_REGEX, fcn_sig))
+        for tv in type_vars:
+            fcn_sig = fcn_sig.replace(tv, tv[:3])
+
+        type_vars = ' '.join([tv[:3] for tv in type_vars])
 
         arg_names = fcn_def.split()[1:]
 
-        types = fcn_sig_title.split(' -> ')
+        types = fcn_sig.title().split(' -> ')
 
         # print fcn_sig
         # print types
@@ -98,11 +109,10 @@ for file_path, kind, suffix in FILE_PATHS:
         arguments = [ARG_LOOKUP[part]['type'] for part in type_name_parts[:-1]]
 
         type_name = ''.join(type_name_parts) \
-            .replace('StyleVariationMsg', '') \
-            .replace('VariationMsg', '') \
+            .replace('StyVarMsg', '') \
+            .replace('VarMsg', '') \
             .replace('Attribute', 'Attr') \
             .replace('Element', 'Elmnt') \
-            .replace('Style', 'Sty') \
             .replace('String', 'Str') \
             .replace('Float', 'Flt') \
             .replace('Length', 'Lng')
@@ -115,6 +125,7 @@ for file_path, kind, suffix in FILE_PATHS:
             aDict.update({
                 'sig': fcn_sig,
                 'sig_types': types,
+                'type_vars': type_vars,
                 'type_name': type_name,
                 'type_name_parts': type_name_parts,
                 'fcn_type_alias_name': fcn_type_alias_name,
@@ -134,25 +145,29 @@ for file_path, kind, suffix in FILE_PATHS:
     # exit(0)
     fcn_types = sorted(functions.values(), cmp=lambda x,y: len(x.type_name) - len(y.type_name))
 
-    print 'type', kind
+    kind_full = '{} {} {}'.format(kind, var, fcn_types[0].type_vars)
+
+    print 'type', kind_full
     for i, fcn_type in enumerate(fcn_types):
-        print '    =' if i == 0 else '    |', fcn_type.type_name, fcn_type.fcn_type_alias_name, ' '.join(fcn_type.arguments)
+        print '    {token} {type_name} ({fcn_type_name} {type_vars}) {args}'.format(
+            token='=' if i == 0 else '|', type_name=fcn_type.type_name, type_vars=fcn_type.type_vars,
+            fcn_type_name=fcn_type.fcn_type_alias_name, args=' '.join(fcn_type.arguments))
 
     print
     print
 
     print '{-| Case statement template: -}'
-    print 'case' + kind, kind.lower(), '='
-    print '    case', kind.lower(), 'of'
+    print '-- case' + kind, kind.lower(), '='
+    print '--     case', kind.lower(), 'of'
     for fcn_type in fcn_types:
-        args = ' '.join([ARG_LOOKUP[arg]['var_name'] + str(i) for i, arg in enumerate(fcn_type.type_name_parts[:-1])])
-        print '        ', fcn_type.type_name, 'f', args, '->'
-        print '            ', fcn_type.type_name, 'f', args
+        args = ' '.join([ARG_LOOKUP[arg]['var_name'] for arg in fcn_type.type_name_parts[:-1]])
+        print '--         ', fcn_type.type_name, 'f', args, '->'
+        print '--             ', fcn_type.type_name, 'f', args
 
     print
 
     for fcn_type in fcn_types:
-        print 'type alias', fcn_type.fcn_type_alias_name, 'msg style variation', '=', fcn_type.sig
+        print 'type alias', fcn_type.fcn_type_alias_name, fcn_type.type_vars, '=', fcn_type.sig
         print
         print
 
@@ -160,7 +175,7 @@ for file_path, kind, suffix in FILE_PATHS:
     for fcn_type in fcn_types:
         for fcn in fcn_type.members:
             fcn_name = 'new' + fcn.name.title()
-            print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind])
+            print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
             print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
             print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
             print

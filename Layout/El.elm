@@ -1,16 +1,8 @@
 module Layout.El exposing (..)
 
 import Model.Model exposing (..)
-import Model.Element exposing (..)
-import Model.Attr exposing (..)
-
-
-type alias Elid =
-    Int
-
-
-type alias El =
-    { id : Elid, name : String, el : Elem }
+import Layout.Element exposing (..)
+import Layout.Attr exposing (..)
 
 
 insertEl : El -> El -> El

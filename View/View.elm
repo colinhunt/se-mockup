@@ -6,7 +6,7 @@ import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import View.Stylesheet exposing (..)
 import Model.Model exposing (..)
-import Update.Update as Update
+import Layout.El exposing (viewEl)
 
 
 button1 : List (Attribute variation msg) -> String -> Element Style variation msg
@@ -33,7 +33,7 @@ sideBar el =
 
 elementInfo : El -> List (Element Style Variation Msg)
 elementInfo el =
-    [ button1 [ onClick (Fun Update.onAddEl) ] "add el"
+    [ button1 [ onClick OnAddEl ] "add el"
     ]
 
 
@@ -45,33 +45,6 @@ renderLayout model =
 
         selected =
             model.selected
-
-        handleEl : El -> Element Style Variation Msg
-        handleEl { id, el } =
-            case el of
-                E f ->
-                    f
-
-                StrE f str ->
-                    f str
-
-                StrEE f str el ->
-                    f str (handleEl el)
-
-                SE f style ->
-                    f style
-
-                SAEE f style attrs el ->
-                    f style (handleAttrs id attrs) (handleEl el)
-
-                SALE f style attrs els ->
-                    f style (handleAttrs id attrs) (handleEls els)
-
-                SAStrE f style attrs str ->
-                    f style (handleAttrs id attrs) str
-
-                EE f el ->
-                    f (handleEl el)
 
         handleAttr : Attr -> Attribute Variation Msg
         handleAttr attr =
@@ -108,9 +81,9 @@ renderLayout model =
         handleAttrs id attrs =
             [ vary Hover (mouseOver == id)
             , vary Selected (selected == id)
-            , onMouseEnter <| Fun <| Update.onMouseEnter id
-            , onMouseLeave <| Fun Update.onMouseLeave
-            , onClick <| Fun <| Update.onClick id
+            , onMouseEnter <| OnMouseEnter id
+            , onMouseLeave OnMouseLeave
+            , onClick <| OnClick id
             ]
                 ++ (List.map handleAttr attrs)
     in

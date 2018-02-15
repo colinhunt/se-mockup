@@ -4,564 +4,555 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 
 
-type Elem
-    = Elmnt ElmntFn
-    | FltElmnt FltElmntFn Float
-    | StrElmnt StrElmntFn String
-    | StyElmnt StyElmntFn Style
-    | ElmntElmnt ElmntElmntFn El
-    | StrElmntElmnt StrElmntElmntFn String El
-    | BoolElmntElmnt BoolElmntElmntFn Bool El
-    | ListElmntElmntElmnt ListElmntElmntElmntFn (List El) El
-    | StyListAttrStrElmnt StyListAttrStrElmntFn Style (List Attr) String
-    | StyListAttrElmntElmnt StyListAttrElmntElmntFn Style (List Attr) El
-    | FltStyListAttrElmntElmnt FltStyListAttrElmntElmntFn Float Style (List Attr) El
-    | StyListAttrListElmntElmnt StyListAttrListElmntElmntFn Style (List Attr) (List El)
+type Elem el sty var msg
+    = Elmnt (ElmntFn sty var msg)
+    | FltElmnt (FltElmntFn sty var msg) Float
+    | StrElmnt (StrElmntFn sty var msg) String
+    | StyElmnt (StyElmntFn sty var msg) sty
+    | ElmntElmnt (ElmntElmntFn sty var msg) el
+    | StrElmntElmnt (StrElmntElmntFn sty var msg) String el
+    | BoolElmntElmnt (BoolElmntElmntFn sty var msg) Bool el
+    | StyListAttrStrElmnt (StyListAttrStrElmntFn sty var msg) sty (List (Attr var msg)) String
+    | ListElmntElmntElmnt (ListElmntElmntElmntFn sty var msg) (List el) el
+    | StyListAttrElmntElmnt (StyListAttrElmntElmntFn sty var msg) sty (List (Attr var msg)) el
+    | FltStyListAttrElmntElmnt (FltStyListAttrElmntElmntFn sty var msg) Float sty (List (Attr var msg)) el
+    | StyListAttrListElmntElmnt (StyListAttrListElmntElmntFn sty var msg) sty (List (Attr var msg)) (List el)
 
 
 {-| Case statement template:
 -}
-caseElem elem =
-    case elem of
-        Elmnt f ->
-            Elmnt f
-
-        FltElmnt f flt0 ->
-            FltElmnt f flt0
-
-        StrElmnt f str0 ->
-            StrElmnt f str0
-
-        StyElmnt f sty0 ->
-            StyElmnt f sty0
-
-        ElmntElmnt f el0 ->
-            ElmntElmnt f el0
-
-        StrElmntElmnt f str0 el1 ->
-            StrElmntElmnt f str0 el1
-
-        BoolElmntElmnt f bool0 el1 ->
-            BoolElmntElmnt f bool0 el1
-
-        ListElmntElmntElmnt f els0 el1 ->
-            ListElmntElmntElmnt f els0 el1
-
-        StyListAttrStrElmnt f sty0 attrs1 str2 ->
-            StyListAttrStrElmnt f sty0 attrs1 str2
-
-        StyListAttrElmntElmnt f sty0 attrs1 el2 ->
-            StyListAttrElmntElmnt f sty0 attrs1 el2
-
-        FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3 ->
-            FltStyListAttrElmntElmnt f flt0 sty1 attrs2 el3
-
-        StyListAttrListElmntElmnt f sty0 attrs1 els2 ->
-            StyListAttrListElmntElmnt f sty0 attrs1 els2
 
 
-type alias ElmntFn =
-    Element style variation msg
+
+-- caseElem elem =
+--     case elem of
+--          Elmnt f  ->
+--              Elmnt f
+--          FltElmnt f flt ->
+--              FltElmnt f flt
+--          StrElmnt f str ->
+--              StrElmnt f str
+--          StyElmnt f sty ->
+--              StyElmnt f sty
+--          ElmntElmnt f el ->
+--              ElmntElmnt f el
+--          StrElmntElmnt f str el ->
+--              StrElmntElmnt f str el
+--          BoolElmntElmnt f bool el ->
+--              BoolElmntElmnt f bool el
+--          StyListAttrStrElmnt f sty attrs str ->
+--              StyListAttrStrElmnt f sty attrs str
+--          ListElmntElmntElmnt f els el ->
+--              ListElmntElmntElmnt f els el
+--          StyListAttrElmntElmnt f sty attrs el ->
+--              StyListAttrElmntElmnt f sty attrs el
+--          FltStyListAttrElmntElmnt f flt sty attrs el ->
+--              FltStyListAttrElmntElmnt f flt sty attrs el
+--          StyListAttrListElmntElmnt f sty attrs els ->
+--              StyListAttrListElmntElmnt f sty attrs els
 
 
-type alias FltElmntFn =
-    Float -> Element style variation msg
+type alias ElmntFn sty var msg =
+    Element sty var msg
 
 
-type alias StrElmntFn =
-    String -> Element style variation msg
+type alias FltElmntFn sty var msg =
+    Float -> Element sty var msg
 
 
-type alias StyElmntFn =
-    style -> Element style variation msg
+type alias StrElmntFn sty var msg =
+    String -> Element sty var msg
 
 
-type alias ElmntElmntFn =
-    Element style variation msg -> Element style variation msg
+type alias StyElmntFn sty var msg =
+    sty -> Element sty var msg
 
 
-type alias StrElmntElmntFn =
-    String -> Element style variation msg -> Element style variation msg
+type alias ElmntElmntFn sty var msg =
+    Element sty var msg -> Element sty var msg
 
 
-type alias BoolElmntElmntFn =
-    Bool -> Element style variation msg -> Element style variation msg
+type alias StrElmntElmntFn sty var msg =
+    String -> Element sty var msg -> Element sty var msg
 
 
-type alias ListElmntElmntElmntFn =
-    List (Element style variation msg) -> Element style variation msg -> Element style variation msg
+type alias BoolElmntElmntFn sty var msg =
+    Bool -> Element sty var msg -> Element sty var msg
 
 
-type alias StyListAttrStrElmntFn =
-    style -> List (Attribute variation msg) -> String -> Element style variation msg
+type alias StyListAttrStrElmntFn sty var msg =
+    sty -> List (Attribute var msg) -> String -> Element sty var msg
 
 
-type alias StyListAttrElmntElmntFn =
-    style -> List (Attribute variation msg) -> Element style variation msg -> Element style variation msg
+type alias ListElmntElmntElmntFn sty var msg =
+    List (Element sty var msg) -> Element sty var msg -> Element sty var msg
 
 
-type alias FltStyListAttrElmntElmntFn =
-    Float -> style -> List (Attribute variation msg) -> Element style variation msg -> Element style variation msg
+type alias StyListAttrElmntElmntFn sty var msg =
+    sty -> List (Attribute var msg) -> Element sty var msg -> Element sty var msg
 
 
-type alias StyListAttrListElmntElmntFn =
-    style -> List (Attribute variation msg) -> List (Element style variation msg) -> Element style variation msg
+type alias FltStyListAttrElmntElmntFn sty var msg =
+    Float -> sty -> List (Attribute var msg) -> Element sty var msg -> Element sty var msg
 
 
-newEmpty : Elem
+type alias StyListAttrListElmntElmntFn sty var msg =
+    sty -> List (Attribute var msg) -> List (Element sty var msg) -> Element sty var msg
+
+
+newEmpty : Elem el sty var msg
 newEmpty =
     Elmnt empty
 
 
-newSpacer : Float -> Elem
+newSpacer : Float -> Elem el sty var msg
 newSpacer =
     FltElmnt spacer
 
 
-newText : String -> Elem
+newText : String -> Elem el sty var msg
 newText =
     StrElmnt text
 
 
-newBold : String -> Elem
+newBold : String -> Elem el sty var msg
 newBold =
     StrElmnt bold
 
 
-newItalic : String -> Elem
+newItalic : String -> Elem el sty var msg
 newItalic =
     StrElmnt italic
 
 
-newStrike : String -> Elem
+newStrike : String -> Elem el sty var msg
 newStrike =
     StrElmnt strike
 
 
-newUnderline : String -> Elem
+newUnderline : String -> Elem el sty var msg
 newUnderline =
     StrElmnt underline
 
 
-newSub : String -> Elem
+newSub : String -> Elem el sty var msg
 newSub =
     StrElmnt sub
 
 
-newSuper : String -> Elem
+newSuper : String -> Elem el sty var msg
 newSuper =
     StrElmnt super
 
 
-newHairline : Style -> Elem
+newHairline : sty -> Elem el sty var msg
 newHairline style =
     StyElmnt hairline style
 
 
-newScreen : El -> Elem
+newScreen : el -> Elem el sty var msg
 newScreen el =
     ElmntElmnt screen el
 
 
-newNode : String -> El -> Elem
+newNode : String -> el -> Elem el sty var msg
 newNode str =
     StrElmntElmnt node str
 
 
-newLink : String -> El -> Elem
+newLink : String -> el -> Elem el sty var msg
 newLink src el =
     StrElmntElmnt link src el
 
 
-newNewtab : String -> El -> Elem
+newNewtab : String -> el -> Elem el sty var msg
 newNewtab src el =
     StrElmntElmnt newTab src el
 
 
-newDownload : String -> El -> Elem
+newDownload : String -> el -> Elem el sty var msg
 newDownload src el =
     StrElmntElmnt download src el
 
 
-newWhen : Bool -> El -> Elem
+newWhen : Bool -> el -> Elem el sty var msg
 newWhen bool elm =
     BoolElmntElmnt when bool elm
 
 
-newWithin : List El -> El -> Elem
-newWithin nearbys parent =
-    ListElmntElmntElmnt within nearbys parent
-
-
-newAbove : List El -> El -> Elem
-newAbove nearbys parent =
-    ListElmntElmntElmnt above nearbys parent
-
-
-newBelow : List El -> El -> Elem
-newBelow nearbys parent =
-    ListElmntElmntElmnt below nearbys parent
-
-
-newOnright : List El -> El -> Elem
-newOnright nearbys parent =
-    ListElmntElmntElmnt onRight nearbys parent
-
-
-newOnleft : List El -> El -> Elem
-newOnleft nearbys parent =
-    ListElmntElmntElmnt onLeft nearbys parent
-
-
-newSubheading : Style -> List Attr -> String -> Elem
+newSubheading : sty -> List (Attr var msg) -> String -> Elem el sty var msg
 newSubheading style attrs str =
     StyListAttrStrElmnt subheading style attrs str
 
 
-newEl : Style -> List Attr -> El -> Elem
+newWithin : List el -> el -> Elem el sty var msg
+newWithin nearbys parent =
+    ListElmntElmntElmnt within nearbys parent
+
+
+newAbove : List el -> el -> Elem el sty var msg
+newAbove nearbys parent =
+    ListElmntElmntElmnt above nearbys parent
+
+
+newBelow : List el -> el -> Elem el sty var msg
+newBelow nearbys parent =
+    ListElmntElmntElmnt below nearbys parent
+
+
+newOnright : List el -> el -> Elem el sty var msg
+newOnright nearbys parent =
+    ListElmntElmntElmnt onRight nearbys parent
+
+
+newOnleft : List el -> el -> Elem el sty var msg
+newOnleft nearbys parent =
+    ListElmntElmntElmnt onLeft nearbys parent
+
+
+newEl : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newEl style attrs child =
     StyListAttrElmntElmnt el style attrs child
 
 
-newSection : Style -> List Attr -> El -> Elem
+newSection : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newSection style attrs child =
     StyListAttrElmntElmnt section style attrs child
 
 
-newArticle : Style -> List Attr -> El -> Elem
+newArticle : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newArticle style attrs child =
     StyListAttrElmntElmnt article style attrs child
 
 
-newAside : Style -> List Attr -> El -> Elem
+newAside : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newAside style attrs child =
     StyListAttrElmntElmnt aside style attrs child
 
 
-newButton : Style -> List Attr -> El -> Elem
+newButton : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newButton style attrs child =
     StyListAttrElmntElmnt button style attrs child
 
 
-newH1 : Style -> List Attr -> El -> Elem
+newH1 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH1 style attrs child =
     StyListAttrElmntElmnt h1 style attrs child
 
 
-newH2 : Style -> List Attr -> El -> Elem
+newH2 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH2 style attrs child =
     StyListAttrElmntElmnt h2 style attrs child
 
 
-newH3 : Style -> List Attr -> El -> Elem
+newH3 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH3 style attrs child =
     StyListAttrElmntElmnt h3 style attrs child
 
 
-newH4 : Style -> List Attr -> El -> Elem
+newH4 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH4 style attrs child =
     StyListAttrElmntElmnt h4 style attrs child
 
 
-newH5 : Style -> List Attr -> El -> Elem
+newH5 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH5 style attrs child =
     StyListAttrElmntElmnt h5 style attrs child
 
 
-newH6 : Style -> List Attr -> El -> Elem
+newH6 : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newH6 style attrs child =
     StyListAttrElmntElmnt h6 style attrs child
 
 
-newFull : Style -> List Attr -> El -> Elem
+newFull : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newFull elem attrs child =
     StyListAttrElmntElmnt full elem attrs child
 
 
-newSearch : Style -> List Attr -> El -> Elem
+newSearch : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newSearch style attrs child =
     StyListAttrElmntElmnt search style attrs child
 
 
-newHeader : Style -> List Attr -> El -> Elem
+newHeader : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newHeader style attrs child =
     StyListAttrElmntElmnt header style attrs child
 
 
-newFooter : Style -> List Attr -> El -> Elem
+newFooter : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newFooter style attrs child =
     StyListAttrElmntElmnt footer style attrs child
 
 
-newMaincontent : Style -> List Attr -> El -> Elem
+newMaincontent : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newMaincontent style attrs child =
     StyListAttrElmntElmnt mainContent style attrs child
 
 
-newModal : Style -> List Attr -> El -> Elem
+newModal : sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newModal style attrs child =
     StyListAttrElmntElmnt modal style attrs child
 
 
-newCircle : Float -> Style -> List Attr -> El -> Elem
+newCircle : Float -> sty -> List (Attr var msg) -> el -> Elem el sty var msg
 newCircle radius style attrs child =
     FltStyListAttrElmntElmnt circle radius style attrs child
 
 
-newTextlayout : Style -> List Attr -> List El -> Elem
+newTextlayout : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newTextlayout style attrs children =
     StyListAttrListElmntElmnt textLayout style attrs children
 
 
-newParagraph : Style -> List Attr -> List El -> Elem
+newParagraph : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newParagraph style attrs children =
     StyListAttrListElmntElmnt paragraph style attrs children
 
 
-newRow : Style -> List Attr -> List El -> Elem
+newRow : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newRow style attrs children =
     StyListAttrListElmntElmnt row style attrs children
 
 
-newColumn : Style -> List Attr -> List El -> Elem
+newColumn : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newColumn style attrs children =
     StyListAttrListElmntElmnt column style attrs children
 
 
-newWrappedrow : Style -> List Attr -> List El -> Elem
+newWrappedrow : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newWrappedrow style attrs children =
     StyListAttrListElmntElmnt wrappedRow style attrs children
 
 
-newWrappedcolumn : Style -> List Attr -> List El -> Elem
+newWrappedcolumn : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newWrappedcolumn style attrs children =
     StyListAttrListElmntElmnt wrappedColumn style attrs children
 
 
-newSidebar : Style -> List Attr -> List El -> Elem
+newSidebar : sty -> List (Attr var msg) -> List el -> Elem el sty var msg
 newSidebar style attrs children =
     StyListAttrListElmntElmnt sidebar style attrs children
 
 
-type Attr
-    = Attr AttrFn
-    | FltAttr FltAttrFn Float
-    | LngAttr LngAttrFn Lngth
-    | StrAttr StrAttrFn String
-    | FltFltAttr FltFltAttrFn Float Float
+type Attr var msg
+    = Attr (AttrFn var msg)
+    | StrAttr (StrAttrFn var msg) String
+    | LngAttr (LngAttrFn var msg) Lngth
+    | FltAttr (FltAttrFn var msg) Float
+    | FltFltAttr (FltFltAttrFn var msg) Float Float
 
 
 {-| Case statement template:
 -}
-caseAttr attr =
-    case attr of
-        Attr f ->
-            Attr f
-
-        FltAttr f flt0 ->
-            FltAttr f flt0
-
-        LngAttr f lng0 ->
-            LngAttr f lng0
-
-        StrAttr f str0 ->
-            StrAttr f str0
-
-        FltFltAttr f flt0 flt1 ->
-            FltFltAttr f flt0 flt1
 
 
-type alias AttrFn =
-    Attribute variation msg
+
+-- caseAttr attr =
+--     case attr of
+--          Attr f  ->
+--              Attr f
+--          StrAttr f str ->
+--              StrAttr f str
+--          LngAttr f lng ->
+--              LngAttr f lng
+--          FltAttr f flt ->
+--              FltAttr f flt
+--          FltFltAttr f flt flt ->
+--              FltFltAttr f flt flt
 
 
-type alias FltAttrFn =
-    Float -> Attribute variation msg
+type alias AttrFn var msg =
+    Attribute var msg
 
 
-type alias LngAttrFn =
-    Length -> Attribute variation msg
+type alias StrAttrFn var msg =
+    String -> Attribute var msg
 
 
-type alias StrAttrFn =
-    String -> Attribute variation msg
+type alias LngAttrFn var msg =
+    Length -> Attribute var msg
 
 
-type alias FltFltAttrFn =
-    Float -> Float -> Attribute variation msg
+type alias FltAttrFn var msg =
+    Float -> Attribute var msg
 
 
-newCenter : Attr
+type alias FltFltAttrFn var msg =
+    Float -> Float -> Attribute var msg
+
+
+newCenter : Attr var msg
 newCenter =
     Attr center
 
 
-newVerticalcenter : Attr
+newVerticalcenter : Attr var msg
 newVerticalcenter =
     Attr verticalCenter
 
 
-newVerticalspread : Attr
+newVerticalspread : Attr var msg
 newVerticalspread =
     Attr verticalSpread
 
 
-newSpread : Attr
+newSpread : Attr var msg
 newSpread =
     Attr spread
 
 
-newAligntop : Attr
+newAligntop : Attr var msg
 newAligntop =
     Attr alignTop
 
 
-newAlignbottom : Attr
+newAlignbottom : Attr var msg
 newAlignbottom =
     Attr alignBottom
 
 
-newAlignleft : Attr
+newAlignleft : Attr var msg
 newAlignleft =
     Attr alignLeft
 
 
-newAlignright : Attr
+newAlignright : Attr var msg
 newAlignright =
     Attr alignRight
 
 
-newHidden : Attr
+newHidden : Attr var msg
 newHidden =
     Attr hidden
 
 
-newScrollbars : Attr
+newScrollbars : Attr var msg
 newScrollbars =
     Attr scrollbars
 
 
-newYscrollbar : Attr
+newYscrollbar : Attr var msg
 newYscrollbar =
     Attr yScrollbar
 
 
-newXscrollbar : Attr
+newXscrollbar : Attr var msg
 newXscrollbar =
     Attr xScrollbar
 
 
-newClip : Attr
+newClip : Attr var msg
 newClip =
     Attr clip
 
 
-newClipx : Attr
+newClipx : Attr var msg
 newClipx =
     Attr clipX
 
 
-newClipy : Attr
+newClipy : Attr var msg
 newClipy =
     Attr clipY
 
 
-newMoveup : Float -> Attr
-newMoveup y =
-    FltAttr moveUp y
-
-
-newMovedown : Float -> Attr
-newMovedown y =
-    FltAttr moveDown y
-
-
-newMoveright : Float -> Attr
-newMoveright x =
-    FltAttr moveRight x
-
-
-newMoveleft : Float -> Attr
-newMoveleft x =
-    FltAttr moveLeft x
-
-
-newSpacing : Float -> Attr
-newSpacing x =
-    FltAttr spacing x
-
-
-newPadding : Float -> Attr
-newPadding x =
-    FltAttr padding x
-
-
-newPaddingleft : Float -> Attr
-newPaddingleft x =
-    FltAttr paddingLeft x
-
-
-newPaddingright : Float -> Attr
-newPaddingright x =
-    FltAttr paddingRight x
-
-
-newPaddingtop : Float -> Attr
-newPaddingtop x =
-    FltAttr paddingTop x
-
-
-newPaddingbottom : Float -> Attr
-newPaddingbottom x =
-    FltAttr paddingBottom x
-
-
-newWidth : Lngth -> Attr
-newWidth =
-    LngAttr width
-
-
-newMinwidth : Lngth -> Attr
-newMinwidth len =
-    LngAttr minWidth len
-
-
-newMaxwidth : Lngth -> Attr
-newMaxwidth len =
-    LngAttr maxWidth len
-
-
-newMinheight : Lngth -> Attr
-newMinheight len =
-    LngAttr minHeight len
-
-
-newMaxheight : Lngth -> Attr
-newMaxheight len =
-    LngAttr maxHeight len
-
-
-newHeight : Lngth -> Attr
-newHeight =
-    LngAttr height
-
-
-newClass : String -> Attr
+newClass : String -> Attr var msg
 newClass cls =
     StrAttr class cls
 
 
-newId : String -> Attr
+newId : String -> Attr var msg
 newId str =
     StrAttr id str
 
 
-newSpacingxy : Float -> Float -> Attr
+newWidth : Lngth -> Attr var msg
+newWidth =
+    LngAttr width
+
+
+newMinwidth : Lngth -> Attr var msg
+newMinwidth len =
+    LngAttr minWidth len
+
+
+newMaxwidth : Lngth -> Attr var msg
+newMaxwidth len =
+    LngAttr maxWidth len
+
+
+newMinheight : Lngth -> Attr var msg
+newMinheight len =
+    LngAttr minHeight len
+
+
+newMaxheight : Lngth -> Attr var msg
+newMaxheight len =
+    LngAttr maxHeight len
+
+
+newHeight : Lngth -> Attr var msg
+newHeight =
+    LngAttr height
+
+
+newMoveup : Float -> Attr var msg
+newMoveup y =
+    FltAttr moveUp y
+
+
+newMovedown : Float -> Attr var msg
+newMovedown y =
+    FltAttr moveDown y
+
+
+newMoveright : Float -> Attr var msg
+newMoveright x =
+    FltAttr moveRight x
+
+
+newMoveleft : Float -> Attr var msg
+newMoveleft x =
+    FltAttr moveLeft x
+
+
+newSpacing : Float -> Attr var msg
+newSpacing x =
+    FltAttr spacing x
+
+
+newPadding : Float -> Attr var msg
+newPadding x =
+    FltAttr padding x
+
+
+newPaddingleft : Float -> Attr var msg
+newPaddingleft x =
+    FltAttr paddingLeft x
+
+
+newPaddingright : Float -> Attr var msg
+newPaddingright x =
+    FltAttr paddingRight x
+
+
+newPaddingtop : Float -> Attr var msg
+newPaddingtop x =
+    FltAttr paddingTop x
+
+
+newPaddingbottom : Float -> Attr var msg
+newPaddingbottom x =
+    FltAttr paddingBottom x
+
+
+newSpacingxy : Float -> Float -> Attr var msg
 newSpacingxy =
     FltFltAttr spacingXY
 
 
-newPaddingxy : Float -> Float -> Attr
+newPaddingxy : Float -> Float -> Attr var msg
 newPaddingxy x y =
     FltFltAttr paddingXY x y
 
@@ -574,16 +565,17 @@ type Lngth
 
 {-| Case statement template:
 -}
-caseLngth lngth =
-    case lngth of
-        Lng f ->
-            Lng f
 
-        FltLng f flt0 ->
-            FltLng f flt0
 
-        IntLng f int0 ->
-            IntLng f int0
+
+-- caseLngth lngth =
+--     case lngth of
+--          Lng f  ->
+--              Lng f
+--          FltLng f flt ->
+--              FltLng f flt
+--          IntLng f int ->
+--              IntLng f int
 
 
 type alias LngFn =
