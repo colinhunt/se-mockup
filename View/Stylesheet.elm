@@ -20,6 +20,8 @@ type Style
     | Row
     | Column
     | Button
+    | ElementInfo
+    | ElName
 
 
 elemBase styles =
@@ -54,4 +56,12 @@ stylesheet =
                 [ Color.border Color.orange
                 ]
         , style Button []
+        , style ElementInfo
+            [ Color.background Color.lightGray
+            ]
+        , style ElName
+            [ Font.size 25
+            , Font.bold
+            , Font.typeface [ Font.monospace ]
+            ]
         ]

@@ -5,7 +5,7 @@ import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Html
 import Layout.El as El
-import Layout.Element exposing (El)
+import Layout.Element exposing (El, newEmpty)
 import Model.Model exposing (..)
 import View.Stylesheet exposing (..)
 
@@ -21,22 +21,19 @@ view model =
         row None
             [ width fill, height fill ]
             [ renderLayout model
-
-            --, sideBar model.selected
+            , sideBar model.selected
             ]
 
 
-sideBar : El Style Variation Msg -> Element Style Variation Msg
+sideBar : Maybe (El Style Variation Msg) -> Element Style Variation Msg
 sideBar el =
-    column None
-        [ spacing 20 ]
-        (elementInfo el)
+    sidebar ElementInfo [ spacing 20, padding 20, width (px 300) ] <|
+        case el of
+            Just el ->
+                (El.viewInfo el)
 
-
-elementInfo : El Style Variation Msg -> List (Element Style Variation Msg)
-elementInfo el =
-    [ text el.name
-    ]
+            Nothing ->
+                [ text "Select an element to begin." ]
 
 
 renderLayout : Model -> Element Style Variation Msg
@@ -46,14 +43,15 @@ renderLayout model =
             List.head model.mousedOver |> Maybe.withDefault -1
 
         selected =
-            model.selected
+            model.selected |> Maybe.withDefault { id = -1, name = "null", elem = newEmpty }
 
-        extraAttrs id =
-            [ vary Hover (mouseOver == id)
-            , vary Selected (selected == id)
-            , onMouseEnter <| OnMouseEnter id
+        extraAttrs : El Style Variation Msg -> List (Attribute Variation Msg)
+        extraAttrs el =
+            [ vary Hover (mouseOver == el.id)
+            , vary Selected (selected.id == el.id)
+            , onMouseEnter <| OnMouseEnter el.id
             , onMouseLeave OnMouseLeave
-            , onClick <| OnClick id
+            , onClick <| OnClick el
             ]
     in
-    El.view extraAttrs model.layout
+        El.view extraAttrs model.layout
