@@ -20,17 +20,19 @@ FILE_PATHS = [
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
 TYPE_VAR_REGEX = r"\b[a-z]+\b"
 
+PLACEHOLDER = '{ id = id + 1, name = "text", elem = StrElmnt text "Click to edit" }'
+
 ARG_LOOKUP = {
-    'Sty': { 'type': 'sty', 'var_name': 'sty' },
-    'String': { 'type': 'String', 'var_name': 'str' },
-    'Float': { 'type': 'Float', 'var_name': 'flt' },
-    'Bool': { 'type': 'Bool', 'var_name': 'bool' },
-    'Length': { 'type': 'Lngth', 'var_name': 'lng' },
-    'Int': { 'type': 'Int', 'var_name': 'int' },
-    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els' },
-    'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs' },
-    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el' },
-    'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr' }
+    'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.Elmnt' },
+    'String': { 'type': 'String', 'var_name': 'str', 'default': '"placeholder"' },
+    'Float': { 'type': 'Float', 'var_name': 'flt', 'default': '10' },
+    'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
+    'Length': { 'type': 'Lngth', 'var_name': 'lng', 'default': '(FltLng px 10)' },
+    'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
+    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': '[{}]'.format(PLACEHOLDER) },
+    'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs', 'default': '[FltAttr padding 20]' },
+    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': PLACEHOLDER },
+    'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
 
 }
 
@@ -66,6 +68,7 @@ print 'module Layout.Element exposing (..)'
 
 print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
+print 'import View.Stylesheet as Sty'
 
 print '''
 type alias Elid =
@@ -181,11 +184,21 @@ for file_path, kind, var, suffix in FILE_PATHS:
         print
 
 
-    for fcn_type in fcn_types:
-        for fcn in fcn_type.members:
-            fcn_name = 'new' + fcn.name.title()
-            print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
-            print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
-            print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
-            print
-            print
+    # for fcn_type in fcn_types:
+    #     for fcn in fcn_type.members:
+    #         fcn_name = 'new' + fcn.name.title()
+    #         print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
+    #         print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
+    #         print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
+    #         print
+    #         print
+
+    print 'all{}s'.format(kind.title()), 'id' '=', '['
+    for i, fcn_type in enumerate(fcn_types):
+        for j, fcn in enumerate(fcn_type.members):
+            print '    {comma}{{ id = id, name = "{name}", elem = {fcn_type_name} {name} {defaults} }}'.format(
+                name=fcn.name, fcn_type_name=fcn_type.type_name, 
+                defaults=' '.join([ARG_LOOKUP[arg]['default'] for arg in fcn_type.type_name_parts[:-1]]),
+                comma=',' if (i,j) != (0,0) else ''
+            )
+    print ']'

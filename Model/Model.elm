@@ -12,13 +12,13 @@ type Msg
     = OnAddEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
-    | OnClick (El Style Variation Msg)
+    | OnClick Elid
 
 
 type alias Model =
     { layout : El Style Variation Msg
     , mousedOver : List Elid
-    , selected : Maybe (El Style Variation Msg)
+    , selected : Elid
     , newId : Elid
     }
 
@@ -29,14 +29,15 @@ initModel =
         { id = 0
         , name = "el"
         , elem =
-            newEl Sty.Elmnt
-                [ newWidth newFill, newHeight newFill ]
-                { id = -1
+            StyListAttrElmntElmnt el
+                Sty.Elmnt
+                [ LngAttr width <| Lng fill, LngAttr height <| Lng fill ]
+                { id = -2
                 , name = "text"
-                , elem = newText "Click to edit"
+                , elem = StrElmnt text "Click to edit"
                 }
         }
     , mousedOver = []
-    , selected = Nothing
+    , selected = -1
     , newId = 1
     }
