@@ -4,7 +4,8 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Element.Input as Input
-import Layout.Attr exposing (..)
+import Layout.Attr as Attr
+import Layout.Primitives as Prim
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
 
@@ -119,7 +120,7 @@ view extraAttrs rootEl =
         viewElR el_ =
             let
                 viewAttrsE attrs =
-                    viewAttrs attrs ++ extraAttrs el_
+                    Attr.viewAll attrs ++ extraAttrs el_
             in
                 case el_.elem of
                     Elmnt f ->
@@ -164,24 +165,33 @@ view extraAttrs rootEl =
 viewInfo : (El Sty.Style var msg -> msg) -> Elid -> Elid -> El sty var msg -> List (Element Sty.Style var msg)
 viewInfo onAddEl newId id root =
     let
+        listElementsToAdd : String -> List (Element Sty.Style var msg)
+        listElementsToAdd label =
+            [ el Sty.None [ paddingLeft 10, paddingTop 10 ] <| text "Replace with:"
+            , wrappedRow Sty.None [ paddingLeft 20, spacing 5 ] <| List.map newElemButton <| allElems newId
+            ]
+
         viewInfoChild : El sty var msg -> Element Sty.Style var msg
         viewInfoChild child =
             column Sty.None
                 []
+            <|
                 [ text "Child element:"
                 , el Sty.None [ paddingLeft 10 ] <| text child.name
-                , el Sty.None [ paddingLeft 10, paddingTop 10 ] <| text "Replace with:"
-                , wrappedRow Sty.None [ paddingLeft 20, spacing 5 ] <| List.map newElemButton <| allElems newId
                 ]
+                    ++ listElementsToAdd "Replace with:"
 
         viewInfoChildren : List (El sty var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
             column Sty.None [] <|
                 text "Children elements:"
                     :: List.map (.name >> text) children
-                    ++ [ el Sty.None [ paddingLeft 10, paddingTop 10 ] <| text "Add child:"
-                       , wrappedRow Sty.None [ paddingLeft 20, spacing 5 ] <| List.map newElemButton <| allElems newId
-                       ]
+                    ++ listElementsToAdd "Add child:"
+
+        viewInfoStr : String -> Element Sty.Style var msg
+        viewInfoStr str =
+            column Sty.None [] <|
+                [ text "Text:", Prim.viewInfoStr str ]
 
         newElemButton : El Sty.Style var msg -> Element Sty.Style var msg
         newElemButton newEl =
@@ -197,12 +207,10 @@ viewInfo onAddEl newId id root =
                     []
 
                 FltElmnt f flt ->
-                    --[ floatInput flt ]
-                    []
+                    [ Prim.viewInfoFlt flt ]
 
                 StrElmnt f str ->
-                    --[ stringInput str ]
-                    []
+                    [ viewInfoStr str ]
 
                 StyElmnt f sty ->
                     []
@@ -211,25 +219,25 @@ viewInfo onAddEl newId id root =
                     [ viewInfoChild el ]
 
                 StrElmntElmnt f str el ->
-                    [ viewInfoChild el ]
+                    [ viewInfoStr str, viewInfoChild el ]
 
                 BoolElmntElmnt f bool el ->
-                    [ viewInfoChild el ]
+                    [ Prim.viewInfoBool bool, viewInfoChild el ]
 
                 ListElmntElmntElmnt f els el ->
                     [ viewInfoChildren els ]
 
                 StyListAttrStrElmnt f sty attrs str ->
-                    []
+                    [ Attr.viewInfos attrs, viewInfoStr str ]
 
                 StyListAttrElmntElmnt f sty attrs el ->
-                    [ viewInfoChild el ]
+                    [ Attr.viewInfos attrs, viewInfoChild el ]
 
                 FltStyListAttrElmntElmnt f flt sty attrs el ->
-                    [ viewInfoChild el ]
+                    [ Prim.viewInfoFlt flt, Attr.viewInfos attrs, viewInfoChild el ]
 
                 StyListAttrListElmntElmnt f sty attrs els ->
-                    [ viewInfoChildren els ]
+                    [ Attr.viewInfos attrs, viewInfoChildren els ]
     in
         case mbEl of
             Just el ->

@@ -24,17 +24,24 @@ type Style
     | ElName
 
 
+paleBlue =
+    Color.rgb 194 224 255
+
+
+transparentCobalt =
+    Color.rgba 71 82 93 0.8
+
+
 elemBase styles =
-    [ Border.all 1
-    , Border.rounded 3
+    [ Shadow.inset
+        { offset = ( 0, 0 )
+        , size = 1
+        , blur = 0
+        , color = transparentCobalt
+        }
     , variation Hover [ Color.background <| Color.greyscale 0.1 ]
     , variation Selected
-        [ Shadow.inset
-            { offset = ( 0, 0 )
-            , size = 0
-            , blur = 5
-            , color = Color.lightBlue
-            }
+        [ Color.background paleBlue
         ]
     ]
         ++ styles

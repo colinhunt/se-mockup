@@ -31,7 +31,9 @@ initModel =
         , elem =
             StyListAttrElmntElmnt el
                 Sty.Elmnt
-                [ LngAttr width <| Lng fill, LngAttr height <| Lng fill ]
+                [ { name = "width", attr = LngAttr width <| { name = "fill", lngth = Lng fill } }
+                , { name = "height", attr = LngAttr height <| { name = "fill", lngth = Lng fill } }
+                ]
                 { id = -2
                 , name = "text"
                 , elem = StrElmnt text "Click to edit"

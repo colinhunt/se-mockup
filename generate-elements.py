@@ -12,9 +12,9 @@ class AttrDict(defaultdict):
 STYLE_ELEMENTS_SRC_DIR = 'elm-stuff/packages/mdgriffith/style-elements/*/src/'
 
 FILE_PATHS = [
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'el', 'Element style variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', '', 'Attribute variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', '', 'Length'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'El', ('id', 'Int'), 'Element style variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', 'At', (), 'Attribute variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', 'Ln', (), 'Length'),
 ]
 
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
@@ -27,12 +27,12 @@ ARG_LOOKUP = {
     'String': { 'type': 'String', 'var_name': 'str', 'default': '"placeholder"' },
     'Float': { 'type': 'Float', 'var_name': 'flt', 'default': '10' },
     'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
-    'Length': { 'type': 'Lngth', 'var_name': 'lng', 'default': '(FltLng px 10)' },
+    'Length': { 'type': 'Ln', 'var_name': 'lng', 'default': '{ name = "px", lngth = FltLng px 10 }' },
     'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
     'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': '[{}]'.format(PLACEHOLDER) },
-    'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs', 'default': '[FltAttr padding 20]' },
+    'ListAttributeVarMsg': { 'type': '(List (At var msg))', 'var_name': 'attrs', 'default': '[{ name = "padding", attr = FltAttr padding 20}]' },
     'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': PLACEHOLDER },
-    'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
+    'AttributeVarMsg': { 'type': '(At var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
 
 }
 
@@ -77,10 +77,16 @@ type alias Elid =
 
 type alias El sty var msg =
     { id : Elid, name : String, elem : Elem sty var msg }
+
+type alias At var msg =
+    { name : String, attr: Attr var msg }
+
+type alias Ln =
+    { name : String, lngth: Lngth }
 '''
 
 
-for file_path, kind, var, suffix in FILE_PATHS:
+for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
     functions = {}
 
     content = ""
@@ -192,13 +198,21 @@ for file_path, kind, var, suffix in FILE_PATHS:
     #         print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
     #         print
     #         print
-
-    print 'all{}s'.format(kind.title()), 'id' '=', '['
+    if extra_rec_field:
+        extra_field_name = extra_rec_field[0]
+        extra_field_type = extra_rec_field[1] + '->'
+        extra_field_assign = '{} = {},'.format(extra_field_name, extra_field_name)
+    else:
+        extra_field_name = ''
+        extra_field_type = ''
+        extra_field_assign = ''
+    print 'all{}s'.format(kind.title()), ':', extra_field_type, 'List ({rec_name} {type_vars})'.format(rec_name=rec_name, type_vars=' '.join(['Sty.Style' if var == 'sty' else var for var in fcn_type.type_vars.split()]))
+    print 'all{}s'.format(kind.title()), extra_field_name, '=', '['
     for i, fcn_type in enumerate(fcn_types):
         for j, fcn in enumerate(fcn_type.members):
-            print '    {comma}{{ id = id, name = "{name}", elem = {fcn_type_name} {name} {defaults} }}'.format(
-                name=fcn.name, fcn_type_name=fcn_type.type_name, 
+            print '    {comma}{{ {extra_field} name = "{name}", {kind} = {fcn_type_name} {name} {defaults} }}'.format(
+                name=fcn.name, kind=kind.lower(), fcn_type_name=fcn_type.type_name, 
                 defaults=' '.join([ARG_LOOKUP[arg]['default'] for arg in fcn_type.type_name_parts[:-1]]),
-                comma=',' if (i,j) != (0,0) else ''
+                comma=',' if (i,j) != (0,0) else '', extra_field=extra_field_assign
             )
     print ']'
