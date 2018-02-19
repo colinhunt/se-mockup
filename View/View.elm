@@ -5,7 +5,7 @@ import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Html
 import Layout.El as El
-import Layout.Element as Lyt exposing (El)
+import Layout.Element as Lyt exposing (El, Elid)
 import Model.Model exposing (..)
 import View.Stylesheet exposing (..)
 
@@ -29,7 +29,7 @@ sideBar : Model -> Element Style Variation Msg
 sideBar { selected, newId, layout } =
     sidebar ElementInfo [ spacing 20, padding 20, width (px 300) ] <|
         if selected > -1 then
-            (El.viewInfo OnAddEl newId selected layout)
+            (El.viewInfo OnInsertChild OnReplaceEl newId selected layout)
         else
             [ text "Select an element to begin." ]
 
@@ -43,13 +43,14 @@ renderLayout model =
         selected =
             model.selected
 
-        extraAttrs : El Style Variation Msg -> List (Attribute Variation Msg)
-        extraAttrs el =
-            [ vary Hover (mouseOver == el.id)
-            , vary Selected (selected == el.id)
-            , onMouseEnter <| OnMouseEnter el.id
+        extraAttrs : Elid -> List (Attribute Variation Msg)
+        extraAttrs id =
+            [ vary Hover (mouseOver == id)
+            , vary Selected (selected == id)
+            , onMouseEnter <| OnMouseEnter id
             , onMouseLeave OnMouseLeave
-            , onClick <| OnClick el.id
+            , onClick <| OnClick id
             ]
     in
-        El.view extraAttrs model.layout
+        el None [ height fill, width fill ] <|
+            El.view extraAttrs model.layout

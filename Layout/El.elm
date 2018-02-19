@@ -4,124 +4,102 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Element.Input as Input
+import Utils as U
 import Layout.Attr as Attr
 import Layout.Primitives as Prim
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
 
 
-insert : Elid -> El sty var msg -> El sty var msg -> El sty var msg
-insert id newEl node =
-    let
-        debug0 =
-            Debug.log "insertEl" ( newEl.id, node.id )
-
-        match =
-            id == node.id
-    in
+map : (El sty var msg -> El sty var msg) -> Elid -> El sty var msg -> El sty var msg
+map fn id node =
+    if id == node.id then
+        fn node
+    else
         case node.elem of
-            Elmnt f ->
-                if match then
-                    newEl
-                else
-                    node
-
-            FltElmnt f flt ->
-                if match then
-                    newEl
-                else
-                    node
-
-            StrElmnt f str ->
-                if match then
-                    newEl
-                else
-                    node
-
-            StyElmnt f sty ->
-                if match then
-                    newEl
-                else
-                    node
-
             ElmntElmnt f el ->
-                El node.id node.name <|
-                    ElmntElmnt f <|
-                        if match then
-                            newEl
-                        else
-                            insert id newEl el
+                El node.id node.name <| ElmntElmnt f <| map fn id el
 
             StrElmntElmnt f str el ->
-                El node.id node.name <|
-                    StrElmntElmnt f str <|
-                        if match then
-                            newEl
-                        else
-                            insert id newEl el
+                El node.id node.name <| StrElmntElmnt f str <| map fn id el
 
             BoolElmntElmnt f bool el ->
-                El node.id node.name <|
-                    BoolElmntElmnt f bool <|
-                        if match then
-                            newEl
-                        else
-                            insert id newEl el
-
-            ListElmntElmntElmnt f els el ->
-                El node.id node.name <|
-                    ListElmntElmntElmnt f
-                        (if match then
-                            (newEl :: els)
-                         else
-                            List.map (insert id newEl) els
-                        )
-                        el
-
-            StyListAttrStrElmnt f sty attrs str ->
-                if match then
-                    newEl
-                else
-                    node
+                El node.id node.name <| BoolElmntElmnt f bool <| map fn id el
 
             StyListAttrElmntElmnt f sty attrs el ->
-                El node.id node.name <|
-                    StyListAttrElmntElmnt f sty attrs <|
-                        if match then
-                            newEl
-                        else
-                            insert id newEl el
+                El node.id node.name <| StyListAttrElmntElmnt f sty attrs <| map fn id el
 
             FltStyListAttrElmntElmnt f flt sty attrs el ->
-                El node.id node.name <|
-                    FltStyListAttrElmntElmnt f flt sty attrs <|
-                        if match then
-                            newEl
-                        else
-                            insert id newEl el
+                El node.id node.name <| FltStyListAttrElmntElmnt f flt sty attrs <| map fn id el
+
+            ListElmntElmntElmnt f els el ->
+                El node.id node.name <| ListElmntElmntElmnt f (List.map (map fn id) els) el
 
             StyListAttrListElmntElmnt f sty attrs els ->
-                El node.id node.name <|
-                    StyListAttrListElmntElmnt f sty attrs <|
-                        if match then
-                            (newEl :: els)
-                        else
-                            List.map (insert id newEl) els
+                El node.id node.name <| StyListAttrListElmntElmnt f sty attrs <| List.map (map fn id) els
+
+            _ ->
+                node
 
 
-view : (El sty var msg -> List (Attribute var msg)) -> El sty var msg -> Element sty var msg
+insertChild : El sty var msg -> El sty var msg -> El sty var msg
+insertChild newEl node =
+    case node.elem of
+        ElmntElmnt f el ->
+            El node.id node.name <|
+                ElmntElmnt f <|
+                    newEl
+
+        StrElmntElmnt f str el ->
+            El node.id node.name <|
+                StrElmntElmnt f str <|
+                    newEl
+
+        BoolElmntElmnt f bool el ->
+            El node.id node.name <|
+                BoolElmntElmnt f bool <|
+                    newEl
+
+        StyListAttrElmntElmnt f sty attrs el ->
+            El node.id node.name <|
+                StyListAttrElmntElmnt f sty attrs <|
+                    newEl
+
+        FltStyListAttrElmntElmnt f flt sty attrs el ->
+            El node.id node.name <|
+                FltStyListAttrElmntElmnt f flt sty attrs <|
+                    newEl
+
+        ListElmntElmntElmnt f els el ->
+            El node.id node.name <|
+                ListElmntElmntElmnt f
+                    (newEl :: els)
+                    el
+
+        StyListAttrListElmntElmnt f sty attrs els ->
+            El node.id node.name <|
+                StyListAttrListElmntElmnt f sty attrs <|
+                    (newEl :: els)
+
+        _ ->
+            node
+
+
+replace : El sty var msg -> El sty var msg -> El sty var msg
+replace newEl node =
+    newEl
+
+
+view : (Elid -> List (Attribute var msg)) -> El Sty.Style var msg -> Element Sty.Style var msg
 view extraAttrs rootEl =
     let
-        viewEls : List (El sty var msg) -> List (Element sty var msg)
+        viewEls : List (El Sty.Style var msg) -> List (Element Sty.Style var msg)
         viewEls els =
             List.map viewElR els
 
-        viewElR : El sty var msg -> Element sty var msg
+        viewElR : El Sty.Style var msg -> Element Sty.Style var msg
         viewElR el_ =
-            let
-                viewAttrsE attrs =
-                    Attr.viewAll attrs ++ extraAttrs el_
-            in
+            el Sty.Elmnt (extraAttrs el_.id) <|
                 case el_.elem of
                     Elmnt f ->
                         f
@@ -148,30 +126,35 @@ view extraAttrs rootEl =
                         f (viewEls els) (viewElR el)
 
                     StyListAttrStrElmnt f sty attrs str ->
-                        f sty (viewAttrsE attrs) str
+                        f sty (Attr.viewAll attrs) str
 
                     StyListAttrElmntElmnt f sty attrs el ->
-                        f sty (viewAttrsE attrs) (viewElR el)
+                        f sty (Attr.viewAll attrs) (viewElR el)
 
                     FltStyListAttrElmntElmnt f flt sty attrs el ->
-                        f flt sty (viewAttrsE attrs) (viewElR el)
+                        f flt sty (Attr.viewAll attrs) (viewElR el)
 
                     StyListAttrListElmntElmnt f sty attrs els ->
-                        f sty (viewAttrsE attrs) (viewEls els)
+                        f sty (Attr.viewAll attrs) (viewEls els)
     in
         viewElR rootEl
 
 
-viewInfo : (El Sty.Style var msg -> msg) -> Elid -> Elid -> El sty var msg -> List (Element Sty.Style var msg)
-viewInfo onAddEl newId id root =
+viewInfo : (El Sty.Style var msg -> msg) -> (El Sty.Style var msg -> msg) -> Elid -> Elid -> El Sty.Style var msg -> List (Element Sty.Style var msg)
+viewInfo onInsertChild onReplaceEl newId selected root =
     let
-        listElementsToAdd : String -> List (Element Sty.Style var msg)
-        listElementsToAdd label =
-            [ el Sty.None [ paddingLeft 10, paddingTop 10 ] <| text "Replace with:"
-            , wrappedRow Sty.None [ paddingLeft 20, spacing 5 ] <| List.map newElemButton <| allElems newId
-            ]
+        listElements : (El Sty.Style var msg -> msg) -> String -> List (Element Sty.Style var msg)
+        listElements elMsg label =
+            let
+                newElemButton : El Sty.Style var msg -> Element Sty.Style var msg
+                newElemButton newEl =
+                    el Sty.None [ onClick <| elMsg newEl ] <| text newEl.name
+            in
+                [ el Sty.None [] <| text label
+                , wrappedRow Sty.None [ paddingLeft 10, spacing 5 ] <| List.map newElemButton <| allElems newId
+                ]
 
-        viewInfoChild : El sty var msg -> Element Sty.Style var msg
+        viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
             column Sty.None
                 []
@@ -179,75 +162,98 @@ viewInfo onAddEl newId id root =
                 [ text "Child element:"
                 , el Sty.None [ paddingLeft 10 ] <| text child.name
                 ]
-                    ++ listElementsToAdd "Replace with:"
+                    ++ listElements onInsertChild "Replace with:"
 
-        viewInfoChildren : List (El sty var msg) -> Element Sty.Style var msg
+        viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
             column Sty.None [] <|
                 text "Children elements:"
                     :: List.map (.name >> text) children
-                    ++ listElementsToAdd "Add child:"
+                    ++ listElements onInsertChild "Add child:"
 
-        viewInfoStr : String -> Element Sty.Style var msg
-        viewInfoStr str =
-            column Sty.None [] <|
-                [ text "Text:", Prim.viewInfoStr str ]
+        replaceThisElement =
+            column Sty.None [] <| listElements onReplaceEl "Replace this element with:"
 
-        newElemButton : El Sty.Style var msg -> Element Sty.Style var msg
-        newElemButton newEl =
-            el Sty.None [ onClick <| onAddEl newEl ] <| text newEl.name
+        viewInfoStr : El Sty.Style var msg -> (String -> Elem Sty.Style var msg) -> String -> Element Sty.Style var msg
+        viewInfoStr el strElemCtor str =
+            Input.text Sty.None
+                []
+                { onChange = (\txt -> onReplaceEl <| El el.id el.name <| strElemCtor txt)
+                , value = str
+                , label = Input.labelAbove <| text "Text:"
+                , options = []
+                }
 
         mbEl =
-            find id root
+            find selected root
 
-        info : El sty var msg -> List (Element Sty.Style var msg)
+        info : El Sty.Style var msg -> List (Element Sty.Style var msg)
         info el_ =
-            case el_.elem of
-                Elmnt f ->
-                    []
+            let
+                viewAttrInfos : (List (At var msg) -> Elem Sty.Style var msg) -> List (At var msg) -> Element Sty.Style var msg
+                viewAttrInfos attrsElemCtor attrs =
+                    Attr.viewInfos el_
+                        (\attr ->
+                            attrsElemCtor <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
+                        )
+                        onReplaceEl
+                        attrs
+            in
+                case el_.elem of
+                    Elmnt f ->
+                        []
 
-                FltElmnt f flt ->
-                    [ Prim.viewInfoFlt flt ]
+                    FltElmnt f flt ->
+                        [ Prim.viewInfoFlt flt ]
 
-                StrElmnt f str ->
-                    [ viewInfoStr str ]
+                    StrElmnt f str ->
+                        [ viewInfoStr el_ (StrElmnt f) str ]
 
-                StyElmnt f sty ->
-                    []
+                    StyElmnt f sty ->
+                        []
 
-                ElmntElmnt f el ->
-                    [ viewInfoChild el ]
+                    ElmntElmnt f el ->
+                        [ viewInfoChild el ]
 
-                StrElmntElmnt f str el ->
-                    [ viewInfoStr str, viewInfoChild el ]
+                    StrElmntElmnt f str el ->
+                        [ viewInfoStr el_ (\str -> StrElmntElmnt f str el) str, viewInfoChild el ]
 
-                BoolElmntElmnt f bool el ->
-                    [ Prim.viewInfoBool bool, viewInfoChild el ]
+                    BoolElmntElmnt f bool el ->
+                        [ Prim.viewInfoBool bool, viewInfoChild el ]
 
-                ListElmntElmntElmnt f els el ->
-                    [ viewInfoChildren els ]
+                    ListElmntElmntElmnt f els el ->
+                        [ viewInfoChildren els ]
 
-                StyListAttrStrElmnt f sty attrs str ->
-                    [ Attr.viewInfos attrs, viewInfoStr str ]
+                    StyListAttrStrElmnt f sty attrs str ->
+                        [ viewAttrInfos (\attrs -> StyListAttrStrElmnt f sty attrs str) attrs
+                        , viewInfoStr el_ (StyListAttrStrElmnt f sty attrs) str
+                        ]
 
-                StyListAttrElmntElmnt f sty attrs el ->
-                    [ Attr.viewInfos attrs, viewInfoChild el ]
+                    StyListAttrElmntElmnt f sty attrs el ->
+                        [ viewAttrInfos (\attrs -> StyListAttrElmntElmnt f sty attrs el) attrs
+                        , viewInfoChild el
+                        ]
 
-                FltStyListAttrElmntElmnt f flt sty attrs el ->
-                    [ Prim.viewInfoFlt flt, Attr.viewInfos attrs, viewInfoChild el ]
+                    FltStyListAttrElmntElmnt f flt sty attrs el ->
+                        [ Prim.viewInfoFlt flt
+                        , viewAttrInfos (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el) attrs
+                        , viewInfoChild el
+                        ]
 
-                StyListAttrListElmntElmnt f sty attrs els ->
-                    [ Attr.viewInfos attrs, viewInfoChildren els ]
+                    StyListAttrListElmntElmnt f sty attrs els ->
+                        [ viewAttrInfos (\attrs -> StyListAttrListElmntElmnt f sty attrs els) attrs
+                        , viewInfoChildren els
+                        ]
     in
         case mbEl of
             Just el ->
-                (h1 Sty.ElName [] <| text el.name) :: info el
+                [ h1 Sty.ElName [] <| text el.name ] ++ info el ++ [ replaceThisElement ]
 
             Nothing ->
                 [ h1 Sty.ElName [] <| text "Nothing" ]
 
 
-find : Elid -> El sty var msg -> Maybe (El sty var msg)
+find : Elid -> El Sty.Style var msg -> Maybe (El Sty.Style var msg)
 find id node =
     if node.id == id then
         Just node
@@ -257,11 +263,9 @@ find id node =
                 Nothing
 
             FltElmnt f flt ->
-                --[ floatInput flt ]
                 Nothing
 
             StrElmnt f str ->
-                --[ stringInput str ]
                 Nothing
 
             StyElmnt f sty ->
@@ -292,7 +296,7 @@ find id node =
                 finds id els
 
 
-finds : Elid -> List (El sty var msg) -> Maybe (El sty var msg)
+finds : Elid -> List (El Sty.Style var msg) -> Maybe (El Sty.Style var msg)
 finds id els =
     let
         debug =
@@ -321,20 +325,3 @@ finds id els =
                     Nothing
                 else
                     finds id rest
-
-
-
---floatInput : Float -> Element sty var msg
---floatInput flt =
---    input OnFloatChange flt "float"
---stringInput : String -> Element sty var msg
---stringInput str =
---    input OnStringChange str "text"
---input : (String -> msg) -> a -> String -> Element sty var msg
---input toMsg value labelTxt =
---    Input.text None
---        { onChange = toMsg
---        , value = value |> toString
---        , label = Input.labelLeft <| text labelTxt
---        , options = []
---        }

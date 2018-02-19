@@ -9,7 +9,8 @@ import View.Stylesheet as Sty exposing (Style, Variation)
 
 
 type Msg
-    = OnAddEl (El Style Variation Msg)
+    = OnInsertChild (El Style Variation Msg)
+    | OnReplaceEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
@@ -27,19 +28,10 @@ initModel : Model
 initModel =
     { layout =
         { id = 0
-        , name = "el"
-        , elem =
-            StyListAttrElmntElmnt el
-                Sty.Elmnt
-                [ { name = "width", attr = LngAttr width <| { name = "fill", lngth = Lng fill } }
-                , { name = "height", attr = LngAttr height <| { name = "fill", lngth = Lng fill } }
-                ]
-                { id = -2
-                , name = "text"
-                , elem = StrElmnt text "Click to edit"
-                }
+        , name = "text"
+        , elem = StrElmnt text "Click to edit"
         }
     , mousedOver = []
     , selected = -1
-    , newId = 1
+    , newId = 2
     }

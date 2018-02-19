@@ -10,8 +10,11 @@ import View.Stylesheet exposing (Style, Variation)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnAddEl el ->
-            onAddEl el model
+        OnInsertChild el ->
+            onInsertChild el model
+
+        OnReplaceEl el ->
+            onReplaceEl el model
 
         OnMouseEnter id ->
             onMouseEnter id model
@@ -23,17 +26,23 @@ update msg model =
             onClick id model
 
 
-onAddEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onAddEl elem m =
-    let
-        debug0 =
-            Debug.log "onAddEl" elem
-    in
-        { m
-            | layout = El.insert m.selected elem m.layout
-            , newId = m.newId + 2
-        }
-            ! []
+onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onInsertChild elem m =
+    insertReplace (El.map <| El.insertChild elem) m
+
+
+onReplaceEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onReplaceEl elem m =
+    insertReplace (El.map <| El.replace elem) m
+
+
+insertReplace : (Elid -> El Style Variation Msg -> El Style Variation Msg) -> Model -> ( Model, Cmd Msg )
+insertReplace f m =
+    { m
+        | layout = f m.selected m.layout
+        , newId = m.newId + 2
+    }
+        ! []
 
 
 onMouseEnter id model =

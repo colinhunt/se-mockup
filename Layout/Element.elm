@@ -128,44 +128,44 @@ allElems id =
     , { id = id, name = "underline", elem = StrElmnt underline "placeholder" }
     , { id = id, name = "sub", elem = StrElmnt sub "placeholder" }
     , { id = id, name = "super", elem = StrElmnt super "placeholder" }
-    , { id = id, name = "hairline", elem = StyElmnt hairline Sty.Elmnt }
+    , { id = id, name = "hairline", elem = StyElmnt hairline Sty.None }
     , { id = id, name = "screen", elem = ElmntElmnt screen { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "node", elem = StrElmntElmnt node "placeholder" { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "link", elem = StrElmntElmnt link "placeholder" { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "newTab", elem = StrElmntElmnt newTab "placeholder" { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "download", elem = StrElmntElmnt download "placeholder" { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "when", elem = BoolElmntElmnt when False { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "subheading", elem = StyListAttrStrElmnt subheading Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] "placeholder" }
+    , { id = id, name = "subheading", elem = StyListAttrStrElmnt subheading Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] "placeholder" }
     , { id = id, name = "within", elem = ListElmntElmntElmnt within [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "above", elem = ListElmntElmntElmnt above [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "below", elem = ListElmntElmntElmnt below [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "onRight", elem = ListElmntElmntElmnt onRight [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
     , { id = id, name = "onLeft", elem = ListElmntElmntElmnt onLeft [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "el", elem = StyListAttrElmntElmnt el Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "section", elem = StyListAttrElmntElmnt section Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "article", elem = StyListAttrElmntElmnt article Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "aside", elem = StyListAttrElmntElmnt aside Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "button", elem = StyListAttrElmntElmnt button Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h1", elem = StyListAttrElmntElmnt h1 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h2", elem = StyListAttrElmntElmnt h2 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h3", elem = StyListAttrElmntElmnt h3 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h4", elem = StyListAttrElmntElmnt h4 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h5", elem = StyListAttrElmntElmnt h5 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "h6", elem = StyListAttrElmntElmnt h6 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "full", elem = StyListAttrElmntElmnt full Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "search", elem = StyListAttrElmntElmnt search Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "header", elem = StyListAttrElmntElmnt header Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "footer", elem = StyListAttrElmntElmnt footer Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "mainContent", elem = StyListAttrElmntElmnt mainContent Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "modal", elem = StyListAttrElmntElmnt modal Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "circle", elem = FltStyListAttrElmntElmnt circle 10 Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
-    , { id = id, name = "textLayout", elem = StyListAttrListElmntElmnt textLayout Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "paragraph", elem = StyListAttrListElmntElmnt paragraph Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "row", elem = StyListAttrListElmntElmnt row Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "column", elem = StyListAttrListElmntElmnt column Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "wrappedRow", elem = StyListAttrListElmntElmnt wrappedRow Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "wrappedColumn", elem = StyListAttrListElmntElmnt wrappedColumn Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
-    , { id = id, name = "sidebar", elem = StyListAttrListElmntElmnt sidebar Sty.Elmnt [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "el", elem = StyListAttrElmntElmnt el Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "section", elem = StyListAttrElmntElmnt section Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "article", elem = StyListAttrElmntElmnt article Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "aside", elem = StyListAttrElmntElmnt aside Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "button", elem = StyListAttrElmntElmnt button Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h1", elem = StyListAttrElmntElmnt h1 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h2", elem = StyListAttrElmntElmnt h2 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h3", elem = StyListAttrElmntElmnt h3 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h4", elem = StyListAttrElmntElmnt h4 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h5", elem = StyListAttrElmntElmnt h5 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "h6", elem = StyListAttrElmntElmnt h6 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "full", elem = StyListAttrElmntElmnt full Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "search", elem = StyListAttrElmntElmnt search Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "header", elem = StyListAttrElmntElmnt header Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "footer", elem = StyListAttrElmntElmnt footer Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "mainContent", elem = StyListAttrElmntElmnt mainContent Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "modal", elem = StyListAttrElmntElmnt modal Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "circle", elem = FltStyListAttrElmntElmnt circle 10 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } }
+    , { id = id, name = "textLayout", elem = StyListAttrListElmntElmnt textLayout Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "paragraph", elem = StyListAttrListElmntElmnt paragraph Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "row", elem = StyListAttrListElmntElmnt row Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "column", elem = StyListAttrListElmntElmnt column Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "wrappedRow", elem = StyListAttrListElmntElmnt wrappedRow Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "wrappedColumn", elem = StyListAttrListElmntElmnt wrappedColumn Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
+    , { id = id, name = "sidebar", elem = StyListAttrListElmntElmnt sidebar Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 1, name = "text", elem = StrElmnt text "Click to edit" } ] }
     ]
 
 

@@ -23,7 +23,7 @@ TYPE_VAR_REGEX = r"\b[a-z]+\b"
 PLACEHOLDER = '{ id = id + 1, name = "text", elem = StrElmnt text "Click to edit" }'
 
 ARG_LOOKUP = {
-    'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.Elmnt' },
+    'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.None' },
     'String': { 'type': 'String', 'var_name': 'str', 'default': '"placeholder"' },
     'Float': { 'type': 'Float', 'var_name': 'flt', 'default': '10' },
     'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
