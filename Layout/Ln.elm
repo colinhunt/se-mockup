@@ -7,19 +7,23 @@ import View.Stylesheet as Sty
 import Layout.Primitives as Prim
 
 
-viewInfo : Ln -> Element Sty.Style var msg
-viewInfo ln =
-    row Sty.None [ spacing 2 ] <|
-        [ text ln.name ]
-            ++ case ln.lngth of
-                Lng f ->
-                    []
+viewInfo : (Ln -> msg) -> Ln -> String -> Element Sty.Style var msg
+viewInfo onChange ln key =
+    let
+        onLnChg =
+            (Ln ln.name >> onChange)
+    in
+        row Sty.None [ spacing 2 ] <|
+            [ text ln.name ]
+                ++ case ln.lngth of
+                    Lng f ->
+                        []
 
-                FltLng f flt ->
-                    [ Prim.viewInfoFlt flt ]
+                    FltLng f flt ->
+                        [ Prim.viewInfoFlt (onLnChg << FltLng f) flt key ]
 
-                IntLng f int ->
-                    [ Prim.viewInfoInt int ]
+                    IntLng f int ->
+                        [ Prim.viewInfoInt (onLnChg << IntLng f) int key ]
 
 
 view : Ln -> Length

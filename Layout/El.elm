@@ -42,6 +42,12 @@ map fn id node =
                 node
 
 
+
+--infoHelper: (small -> view) -> small -> view
+--infoHelper updateMsg view small =
+--    view small
+
+
 insertChild : El sty var msg -> El sty var msg -> El sty var msg
 insertChild newEl node =
     case node.elem of
@@ -140,7 +146,13 @@ view extraAttrs rootEl =
         viewElR rootEl
 
 
-viewInfo : (El Sty.Style var msg -> msg) -> (El Sty.Style var msg -> msg) -> Elid -> Elid -> El Sty.Style var msg -> List (Element Sty.Style var msg)
+viewInfo :
+    (El Sty.Style var msg -> msg)
+    -> (El Sty.Style var msg -> msg)
+    -> Elid
+    -> Elid
+    -> El Sty.Style var msg
+    -> List (Element Sty.Style var msg)
 viewInfo onInsertChild onReplaceEl newId selected root =
     let
         listElements : (El Sty.Style var msg -> msg) -> String -> List (Element Sty.Style var msg)
@@ -174,40 +186,28 @@ viewInfo onInsertChild onReplaceEl newId selected root =
         replaceThisElement =
             column Sty.None [] <| listElements onReplaceEl "Replace this element with:"
 
-        viewInfoStr : El Sty.Style var msg -> (String -> Elem Sty.Style var msg) -> String -> Element Sty.Style var msg
-        viewInfoStr el strElemCtor str =
-            Input.text Sty.None
-                []
-                { onChange = (\txt -> onReplaceEl <| El el.id el.name <| strElemCtor txt)
-                , value = str
-                , label = Input.labelAbove <| text "Text:"
-                , options = []
-                }
-
         mbEl =
             find selected root
 
         info : El Sty.Style var msg -> List (Element Sty.Style var msg)
-        info el_ =
+        info thisEl =
             let
-                viewAttrInfos : (List (At var msg) -> Elem Sty.Style var msg) -> List (At var msg) -> Element Sty.Style var msg
-                viewAttrInfos attrsElemCtor attrs =
-                    Attr.viewInfos el_
-                        (\attr ->
-                            attrsElemCtor <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
-                        )
-                        onReplaceEl
-                        attrs
+                onElemChg : Elem Sty.Style var msg -> msg
+                onElemChg =
+                    (El thisEl.id thisEl.name >> onReplaceEl)
+
+                key =
+                    toString thisEl.id
             in
-                case el_.elem of
+                case thisEl.elem of
                     Elmnt f ->
                         []
 
                     FltElmnt f flt ->
-                        [ Prim.viewInfoFlt flt ]
+                        [ Prim.viewInfoFlt (onElemChg << FltElmnt f) flt key ]
 
                     StrElmnt f str ->
-                        [ viewInfoStr el_ (StrElmnt f) str ]
+                        [ Prim.viewInfoStr (onElemChg << StrElmnt f) str key ]
 
                     StyElmnt f sty ->
                         []
@@ -216,32 +216,36 @@ viewInfo onInsertChild onReplaceEl newId selected root =
                         [ viewInfoChild el ]
 
                     StrElmntElmnt f str el ->
-                        [ viewInfoStr el_ (\str -> StrElmntElmnt f str el) str, viewInfoChild el ]
+                        [ Prim.viewInfoStr (onElemChg << (\str -> StrElmntElmnt f str el)) str key
+                        , viewInfoChild el
+                        ]
 
                     BoolElmntElmnt f bool el ->
-                        [ Prim.viewInfoBool bool, viewInfoChild el ]
+                        [ Prim.viewInfoBool (onElemChg << (\bool -> BoolElmntElmnt f bool el)) bool key
+                        , viewInfoChild el
+                        ]
 
                     ListElmntElmntElmnt f els el ->
                         [ viewInfoChildren els ]
 
                     StyListAttrStrElmnt f sty attrs str ->
-                        [ viewAttrInfos (\attrs -> StyListAttrStrElmnt f sty attrs str) attrs
-                        , viewInfoStr el_ (StyListAttrStrElmnt f sty attrs) str
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) attrs key
+                        , Prim.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
                         ]
 
                     StyListAttrElmntElmnt f sty attrs el ->
-                        [ viewAttrInfos (\attrs -> StyListAttrElmntElmnt f sty attrs el) attrs
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) attrs key
                         , viewInfoChild el
                         ]
 
                     FltStyListAttrElmntElmnt f flt sty attrs el ->
-                        [ Prim.viewInfoFlt flt
-                        , viewAttrInfos (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el) attrs
+                        [ Prim.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
+                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) attrs key
                         , viewInfoChild el
                         ]
 
                     StyListAttrListElmntElmnt f sty attrs els ->
-                        [ viewAttrInfos (\attrs -> StyListAttrListElmntElmnt f sty attrs els) attrs
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) attrs key
                         , viewInfoChildren els
                         ]
     in
