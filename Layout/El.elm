@@ -6,43 +6,9 @@ import Element.Events exposing (..)
 import Element.Input as Input
 import Utils as U
 import Layout.Attr as Attr
-import Layout.Primitives as Prim
+import Layout.Utils as Lutils exposing (Picker(..))
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
-
-
-type Picker
-    = AddAttribute String
-    | ReplaceLength String
-    | ReplaceChild
-    | ReplaceElement
-    | AddChild
-    | None
-
-
-thingInfo : String -> String -> msg -> Bool -> List (Element Sty.Style var msg) -> List (Element Sty.Style var msg) -> Element Sty.Style var msg
-thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
-    column Sty.None
-        []
-    <|
-        [ text title ]
-            ++ things
-            ++ [ (el Sty.None [] <|
-                    button Sty.None [ onClick onNewThingBttn ] <|
-                        text newThingBttnTxt
-                 )
-                    |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]
-               ]
-
-
-thingList : ({ r | name : String } -> msg) -> List { r | name : String } -> List (Element Sty.Style var msg)
-thingList onThing things =
-    let
-        newThingBttn : { r | name : String } -> Element Sty.Style var msg
-        newThingBttn newThing =
-            el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
-    in
-        List.map newThingBttn things
 
 
 map : (El sty var msg -> El sty var msg) -> Elid -> El sty var msg -> El sty var msg
@@ -193,19 +159,19 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
     let
         viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
-            thingInfo
+            Lutils.thingInfo
                 "Child:"
                 "replace..."
                 (onClickPicker ReplaceChild)
                 (openPicker == ReplaceChild)
                 [ text child.name ]
             <|
-                thingList onInsertChild <|
+                Lutils.thingList onInsertChild <|
                     allElems newId
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
-            thingInfo
+            Lutils.thingInfo
                 "Children:"
                 "add..."
                 (onClickPicker AddChild)
@@ -214,17 +180,17 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                     |> List.map (.name >> text)
                 )
             <|
-                thingList onInsertChild <|
+                Lutils.thingList onInsertChild <|
                     allElems newId
 
         replaceThisElement =
-            thingInfo ""
+            Lutils.thingInfo ""
                 "replace this element..."
                 (onClickPicker ReplaceElement)
                 (openPicker == ReplaceElement)
                 []
             <|
-                thingList onReplaceEl <|
+                Lutils.thingList onReplaceEl <|
                     allElems selected
 
         mbEl =
@@ -245,10 +211,10 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                         []
 
                     FltElmnt f flt ->
-                        [ Prim.viewInfoFlt (onElemChg << FltElmnt f) flt key ]
+                        [ Lutils.viewInfoFlt (onElemChg << FltElmnt f) flt key ]
 
                     StrElmnt f str ->
-                        [ Prim.viewInfoStr (onElemChg << StrElmnt f) str key ]
+                        [ Lutils.viewInfoStr (onElemChg << StrElmnt f) str key ]
 
                     StyElmnt f sty ->
                         []
@@ -257,12 +223,12 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                         [ viewInfoChild el ]
 
                     StrElmntElmnt f str el ->
-                        [ Prim.viewInfoStr (onElemChg << (\str -> StrElmntElmnt f str el)) str key
+                        [ Lutils.viewInfoStr (onElemChg << (\str -> StrElmntElmnt f str el)) str key
                         , viewInfoChild el
                         ]
 
                     BoolElmntElmnt f bool el ->
-                        [ Prim.viewInfoBool (onElemChg << (\bool -> BoolElmntElmnt f bool el)) bool key
+                        [ Lutils.viewInfoBool (onElemChg << (\bool -> BoolElmntElmnt f bool el)) bool key
                         , viewInfoChild el
                         ]
 
@@ -270,23 +236,23 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                         [ viewInfoChildren els ]
 
                     StyListAttrStrElmnt f sty attrs str ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) attrs key
-                        , Prim.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) onClickPicker openPicker attrs key
+                        , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
                         ]
 
                     StyListAttrElmntElmnt f sty attrs el ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) attrs key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) onClickPicker openPicker attrs key
                         , viewInfoChild el
                         ]
 
                     FltStyListAttrElmntElmnt f flt sty attrs el ->
-                        [ Prim.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
-                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) attrs key
+                        [ Lutils.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
+                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) onClickPicker openPicker attrs key
                         , viewInfoChild el
                         ]
 
                     StyListAttrListElmntElmnt f sty attrs els ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) attrs key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) onClickPicker openPicker attrs key
                         , viewInfoChildren els
                         ]
     in

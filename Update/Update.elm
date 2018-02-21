@@ -3,6 +3,7 @@ module Update.Update exposing (..)
 import Element exposing (empty)
 import Layout.El as El
 import Layout.Element exposing (El, Elid, Elem(Elmnt))
+import Layout.Utils exposing (Picker(..))
 import Model.Model exposing (..)
 import View.Stylesheet exposing (Style, Variation)
 
@@ -74,12 +75,12 @@ onClick id model =
             model ! []
 
 
-onClickPicker : El.Picker -> Model -> ( Model, Cmd Msg )
+onClickPicker : Picker -> Model -> ( Model, Cmd Msg )
 onClickPicker picker model =
     let
         picker_ =
             if model.openPicker == picker then
-                El.None
+                None
             else
                 picker
     in

@@ -1,9 +1,19 @@
-module Layout.Primitives exposing (..)
+module Layout.Utils exposing (..)
 
 import Element exposing (..)
+import Element.Events exposing (onClick)
 import Element.Attributes exposing (..)
 import Element.Input as Input
 import View.Stylesheet as Sty
+
+
+type Picker
+    = AddAttribute
+    | ReplaceLength String
+    | ReplaceChild
+    | ReplaceElement
+    | AddChild
+    | None
 
 
 textInput : (String -> msg) -> String -> Input.Label Sty.Style var msg -> String -> Element Sty.Style var msg
@@ -41,3 +51,38 @@ viewInfoBool onChange bool key =
         , label = empty
         , options = [ Input.textKey key ]
         }
+
+
+thingInfo :
+    String
+    -> String
+    -> msg
+    -> Bool
+    -> List (Element Sty.Style var msg)
+    -> List (Element Sty.Style var msg)
+    -> Element Sty.Style var msg
+thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
+    column Sty.None
+        []
+    <|
+        [ text title ]
+            ++ things
+            ++ [ (el Sty.None [] <|
+                    button Sty.None [ onClick onNewThingBttn ] <|
+                        text newThingBttnTxt
+                 )
+                    |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]
+               ]
+
+
+thingList :
+    ({ r | name : String } -> msg)
+    -> List { r | name : String }
+    -> List (Element Sty.Style var msg)
+thingList onThing things =
+    let
+        newThingBttn : { r | name : String } -> Element Sty.Style var msg
+        newThingBttn newThing =
+            el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
+    in
+        List.map newThingBttn things

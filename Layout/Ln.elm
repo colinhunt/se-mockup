@@ -4,7 +4,7 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
-import Layout.Primitives as Prim
+import Layout.Utils as Lutils
 
 
 viewInfo : (Ln -> msg) -> Ln -> String -> Element Sty.Style var msg
@@ -20,10 +20,10 @@ viewInfo onChange ln key =
                         []
 
                     FltLng f flt ->
-                        [ Prim.viewInfoFlt (onLnChg << FltLng f) flt key ]
+                        [ Lutils.viewInfoFlt (onLnChg << FltLng f) flt key ]
 
                     IntLng f int ->
-                        [ Prim.viewInfoInt (onLnChg << IntLng f) int key ]
+                        [ Lutils.viewInfoInt (onLnChg << IntLng f) int key ]
 
 
 view : Ln -> Length

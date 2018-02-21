@@ -7,7 +7,7 @@ import Utils as U
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
 import Layout.Ln as Ln
-import Layout.Primitives as Prim
+import Layout.Utils as Lutils exposing (Picker(..))
 
 
 view : At var msg -> Attribute var msg
@@ -48,36 +48,66 @@ viewInfo onChange key at =
                         []
 
                     StrAttr f str ->
-                        [ Prim.viewInfoStr (onAttrChg << StrAttr f) str key ]
+                        [ Lutils.viewInfoStr (onAttrChg << StrAttr f) str key ]
 
                     LngAttr f lng ->
                         [ Ln.viewInfo (onAttrChg << LngAttr f) lng key ]
 
                     FltAttr f flt ->
-                        [ Prim.viewInfoFlt (onAttrChg << FltAttr f) flt key ]
+                        [ Lutils.viewInfoFlt (onAttrChg << FltAttr f) flt key ]
 
                     FltFltAttr f flt1 flt2 ->
-                        [ Prim.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt flt2)) flt1 key
-                        , Prim.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt1 flt)) flt2 key
+                        [ Lutils.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt flt2)) flt1 key
+                        , Lutils.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt1 flt)) flt2 key
                         ]
 
 
-viewInfos : (List (At var msg) -> msg) -> List (At var msg) -> String -> Element Sty.Style var msg
-viewInfos onChange attrs key =
-    column Sty.None [] <|
-        text "Attributes:"
-            :: (List.map
-                    (viewInfo
-                        (\attr ->
-                            onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
-                        )
-                        key
-                    )
-                    attrs
-               )
+viewInfos :
+    (List (At var msg) -> msg)
+    -> (Picker -> msg)
+    -> Picker
+    -> List (At var msg)
+    -> String
+    -> Element Sty.Style var msg
+viewInfos onChange onClickPicker openPicker attrs key =
+    Lutils.thingInfo
+        "Attributes:"
+        "add..."
+        (onClickPicker AddAttribute)
+        (openPicker == AddAttribute)
+        (List.map
+            (viewInfo
+                (\attr ->
+                    onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
+                )
+                key
+            )
+            attrs
+        )
+    <|
+        Lutils.thingList
+            (\attr ->
+                onChange <| attr :: attrs
+            )
+        <|
+            allAttrs
 
 
 
+--    column
+--    Sty.None
+--    []
+--<|
+--    text "Attributes:"
+--        :: (List.map
+--                (viewInfo
+--                    (\attr ->
+--                        onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
+--                    )
+--                    key
+--                )
+--                attrs
+--           )
 --let
 --viewInfo : At var msg -> Element Sty.Style var msg
 --viewInfo at =
