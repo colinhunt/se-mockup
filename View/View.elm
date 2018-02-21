@@ -26,10 +26,10 @@ view model =
 
 
 sideBar : Model -> Element Style Variation Msg
-sideBar { selected, newId, layout } =
+sideBar { selected, newId, openPicker, layout } =
     sidebar ElementInfo [ spacing 20, padding 20, width (px 300) ] <|
         if selected > -1 then
-            (El.viewInfo OnInsertChild OnReplaceEl newId selected layout)
+            (El.viewInfo OnInsertChild OnReplaceEl OnClickPicker openPicker newId selected layout)
         else
             [ text "Select an element to begin." ]
 

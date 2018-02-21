@@ -22,6 +22,7 @@ type Style
     | Button
     | ElementInfo
     | ElName
+    | ThingPicker
 
 
 paleBlue =
@@ -71,4 +72,6 @@ stylesheet =
             , Font.bold
             , Font.typeface [ Font.monospace ]
             ]
+        , style ThingPicker
+            [ Color.background Color.grey ]
         ]

@@ -14,6 +14,7 @@ type Msg
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
+    | OnClickPicker Picker
 
 
 type alias Model =
@@ -21,6 +22,7 @@ type alias Model =
     , mousedOver : List Elid
     , selected : Elid
     , newId : Elid
+    , openPicker : Picker
     }
 
 
@@ -34,4 +36,5 @@ initModel =
     , mousedOver = []
     , selected = -1
     , newId = 2
+    , openPicker = None
     }

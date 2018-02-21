@@ -11,6 +11,40 @@ import Layout.Element exposing (..)
 import View.Stylesheet as Sty
 
 
+type Picker
+    = AddAttribute String
+    | ReplaceLength String
+    | ReplaceChild
+    | ReplaceElement
+    | AddChild
+    | None
+
+
+thingInfo : String -> String -> msg -> Bool -> List (Element Sty.Style var msg) -> List (Element Sty.Style var msg) -> Element Sty.Style var msg
+thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
+    column Sty.None
+        []
+    <|
+        [ text title ]
+            ++ things
+            ++ [ (el Sty.None [] <|
+                    button Sty.None [ onClick onNewThingBttn ] <|
+                        text newThingBttnTxt
+                 )
+                    |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]
+               ]
+
+
+thingList : ({ r | name : String } -> msg) -> List { r | name : String } -> List (Element Sty.Style var msg)
+thingList onThing things =
+    let
+        newThingBttn : { r | name : String } -> Element Sty.Style var msg
+        newThingBttn newThing =
+            el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
+    in
+        List.map newThingBttn things
+
+
 map : (El sty var msg -> El sty var msg) -> Elid -> El sty var msg -> El sty var msg
 map fn id node =
     if id == node.id then
@@ -149,42 +183,49 @@ view extraAttrs rootEl =
 viewInfo :
     (El Sty.Style var msg -> msg)
     -> (El Sty.Style var msg -> msg)
+    -> (Picker -> msg)
+    -> Picker
     -> Elid
     -> Elid
     -> El Sty.Style var msg
     -> List (Element Sty.Style var msg)
-viewInfo onInsertChild onReplaceEl newId selected root =
+viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root =
     let
-        listElements : (El Sty.Style var msg -> msg) -> String -> List (Element Sty.Style var msg)
-        listElements elMsg label =
-            let
-                newElemButton : El Sty.Style var msg -> Element Sty.Style var msg
-                newElemButton newEl =
-                    el Sty.None [ onClick <| elMsg newEl ] <| text newEl.name
-            in
-                [ el Sty.None [] <| text label
-                , wrappedRow Sty.None [ paddingLeft 10, spacing 5 ] <| List.map newElemButton <| allElems newId
-                ]
-
         viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
-            column Sty.None
-                []
+            thingInfo
+                "Child:"
+                "replace..."
+                (onClickPicker ReplaceChild)
+                (openPicker == ReplaceChild)
+                [ text child.name ]
             <|
-                [ text "Child element:"
-                , el Sty.None [ paddingLeft 10 ] <| text child.name
-                ]
-                    ++ listElements onInsertChild "Replace with:"
+                thingList onInsertChild <|
+                    allElems newId
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
-            column Sty.None [] <|
-                text "Children elements:"
-                    :: List.map (.name >> text) children
-                    ++ listElements onInsertChild "Add child:"
+            thingInfo
+                "Children:"
+                "add..."
+                (onClickPicker AddChild)
+                (openPicker == AddChild)
+                (children
+                    |> List.map (.name >> text)
+                )
+            <|
+                thingList onInsertChild <|
+                    allElems newId
 
         replaceThisElement =
-            column Sty.None [] <| listElements onReplaceEl "Replace this element with:"
+            thingInfo ""
+                "replace this element..."
+                (onClickPicker ReplaceElement)
+                (openPicker == ReplaceElement)
+                []
+            <|
+                thingList onReplaceEl <|
+                    allElems selected
 
         mbEl =
             find selected root
@@ -251,7 +292,9 @@ viewInfo onInsertChild onReplaceEl newId selected root =
     in
         case mbEl of
             Just el ->
-                [ h1 Sty.ElName [] <| text el.name ] ++ info el ++ [ replaceThisElement ]
+                [ h1 Sty.ElName [] <| text el.name ]
+                    ++ info el
+                    ++ [ replaceThisElement ]
 
             Nothing ->
                 [ h1 Sty.ElName [] <| text "Nothing" ]

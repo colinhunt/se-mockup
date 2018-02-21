@@ -25,6 +25,9 @@ update msg model =
         OnClick id ->
             onClick id model
 
+        OnClickPicker picker ->
+            onClickPicker picker model
+
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =
@@ -40,7 +43,7 @@ insertReplace : (Elid -> El Style Variation Msg -> El Style Variation Msg) -> Mo
 insertReplace f m =
     { m
         | layout = f m.selected m.layout
-        , newId = m.newId + 2
+        , newId = m.newId + 10
     }
         ! []
 
@@ -69,3 +72,15 @@ onClick id model =
                 { model | selected = id } ! []
         else
             model ! []
+
+
+onClickPicker : El.Picker -> Model -> ( Model, Cmd Msg )
+onClickPicker picker model =
+    let
+        picker_ =
+            if model.openPicker == picker then
+                El.None
+            else
+                picker
+    in
+        { model | openPicker = picker_ } ! []
