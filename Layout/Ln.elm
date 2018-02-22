@@ -4,17 +4,28 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Layout.Element exposing (..)
 import View.Stylesheet as Sty
-import Layout.Utils as Lutils
+import Layout.Utils as Lutils exposing (Picker(..))
 
 
-viewInfo : (Ln -> msg) -> Ln -> String -> Element Sty.Style var msg
-viewInfo onChange ln key =
+viewInfo :
+    (Ln -> msg)
+    -> (Picker -> msg)
+    -> Picker
+    -> Ln
+    -> String
+    -> Element Sty.Style var msg
+viewInfo onChange onClickPicker openPicker ln key =
     let
         onLnChg =
             (Ln ln.name >> onChange)
     in
         row Sty.None [ spacing 2 ] <|
-            [ text ln.name ]
+            [ Lutils.thingButton
+                (onClickPicker <| ReplaceLength key)
+                (openPicker == ReplaceLength key)
+                (List.map (Lutils.newThingBttn onChange) allLngths)
+                ln.name
+            ]
                 ++ case ln.lngth of
                     Lng f ->
                         []

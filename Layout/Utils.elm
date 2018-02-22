@@ -10,11 +10,12 @@ import View.Stylesheet as Sty
 
 
 type Picker
-    = AddAttribute
-    | ReplaceLength String
-    | ReplaceChild Elid
-    | ReplaceElement
+    = ReplaceElement
     | AddChild
+    | ReplaceChild Elid
+    | AddAttribute
+    | ReplaceAttribute String
+    | ReplaceLength String
     | None
 
 
@@ -72,7 +73,7 @@ thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
     column Sty.None [] <|
         [ text title ]
             ++ things
-            ++ [ thingButton onNewThingBttn newThingBttnTxt showNewThings newThings ]
+            ++ [ thingButton onNewThingBttn showNewThings newThings newThingBttnTxt ]
 
 
 newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg
@@ -80,11 +81,11 @@ newThingBttn onThing newThing =
     el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
 
 
-thingButton onThingBttn bttnTxt showNewThings newThings =
+thingButton onThingBttn showNewThings newThings bttnTxt =
     (el Sty.None [] <|
         button Sty.None
             [ onClickNoProp onThingBttn ]
         <|
             text bttnTxt
     )
-        |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]
+        |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5, width (px 200) ] newThings ]

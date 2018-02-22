@@ -34,15 +34,26 @@ viewAll attrs extraAttrs =
     extraAttrs ++ List.map view attrs
 
 
-viewInfo : (At var msg -> msg) -> String -> At var msg -> Element Sty.Style var msg
-viewInfo onChange key at =
+viewInfo :
+    (At var msg -> msg)
+    -> (Picker -> msg)
+    -> Picker
+    -> String
+    -> At var msg
+    -> Element Sty.Style var msg
+viewInfo onChange onClickPicker openPicker key at =
     let
         onAttrChg : Attr var msg -> msg
         onAttrChg =
             (At at.name >> onChange)
     in
         row Sty.None [ spacing 5 ] <|
-            [ text at.name ]
+            [ Lutils.thingButton
+                (onClickPicker <| ReplaceAttribute at.name)
+                (openPicker == ReplaceAttribute at.name)
+                (List.map (Lutils.newThingBttn onChange) allAttrs)
+                at.name
+            ]
                 ++ case at.attr of
                     Attr f ->
                         []
@@ -51,7 +62,7 @@ viewInfo onChange key at =
                         [ Lutils.viewInfoStr (onAttrChg << StrAttr f) str key ]
 
                     LngAttr f lng ->
-                        [ Ln.viewInfo (onAttrChg << LngAttr f) lng key ]
+                        [ Ln.viewInfo (onAttrChg << LngAttr f) onClickPicker openPicker lng key ]
 
                     FltAttr f flt ->
                         [ Lutils.viewInfoFlt (onAttrChg << FltAttr f) flt key ]
@@ -71,15 +82,15 @@ viewInfos :
     -> Element Sty.Style var msg
 viewInfos onChange onClickPicker openPicker attrs key =
     let
-        onAttrsChg attr =
-            onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
+        onAttrsChg oldAttr newAttr =
+            onChange <| List.map (U.when (.name >> (==) oldAttr.name) (always newAttr)) attrs
     in
         Lutils.thingInfo
             "Attributes:"
             "add..."
             (onClickPicker AddAttribute)
             (openPicker == AddAttribute)
-            (List.map (viewInfo onAttrsChg key) attrs)
+            (List.map (\at -> viewInfo (onAttrsChg at) onClickPicker openPicker (key ++ at.name) at) attrs)
         <|
             List.map
                 (Lutils.newThingBttn <|

@@ -1,6 +1,7 @@
 module Update.Update exposing (..)
 
 import Element exposing (empty)
+import Utils as U
 import Layout.El as El
 import Layout.Element exposing (El, Elid, Elem(Elmnt))
 import Layout.Utils exposing (Picker(..))
@@ -14,8 +15,11 @@ update msg model =
         OnInsertChild el ->
             onInsertChild el model
 
+        OnReplaceChild el ->
+            onReplaceChild el model
+
         OnReplaceEl el ->
-            onReplaceEl el model
+            onReplaceEl (Debug.log "OnReplaceEl" el) model
 
         OnMouseEnter id ->
             onMouseEnter id model
@@ -35,7 +39,18 @@ update msg model =
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =
-    insertReplace (El.map <| El.insertChild elem) m
+    insertReplace (El.map <| El.mapChildren identity <| (::) elem) m
+
+
+onReplaceChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onReplaceChild elem m =
+    insertReplace
+        (El.map <|
+            El.mapChildren
+                (always elem)
+                (List.map (U.when (.id >> (==) elem.id) (always elem)))
+        )
+        m
 
 
 onReplaceEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )

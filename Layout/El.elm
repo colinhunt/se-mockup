@@ -48,44 +48,48 @@ map fn id node =
 --    view small
 
 
-insertChild : El sty var msg -> El sty var msg -> El sty var msg
-insertChild newEl node =
+mapChildren :
+    (El sty var msg -> El sty var msg)
+    -> (List (El sty var msg) -> List (El sty var msg))
+    -> El sty var msg
+    -> El sty var msg
+mapChildren childFn childrenFn node =
     case node.elem of
         ElmntElmnt f el ->
             El node.id node.name <|
                 ElmntElmnt f <|
-                    newEl
+                    childFn el
 
         StrElmntElmnt f str el ->
             El node.id node.name <|
                 StrElmntElmnt f str <|
-                    newEl
+                    childFn el
 
         BoolElmntElmnt f bool el ->
             El node.id node.name <|
                 BoolElmntElmnt f bool <|
-                    newEl
+                    childFn el
 
         StyListAttrElmntElmnt f sty attrs el ->
             El node.id node.name <|
                 StyListAttrElmntElmnt f sty attrs <|
-                    newEl
+                    childFn el
 
         FltStyListAttrElmntElmnt f flt sty attrs el ->
             El node.id node.name <|
                 FltStyListAttrElmntElmnt f flt sty attrs <|
-                    newEl
+                    childFn el
 
         ListElmntElmntElmnt f els el ->
             El node.id node.name <|
                 ListElmntElmntElmnt f
-                    (newEl :: els)
+                    (childrenFn els)
                     el
 
         StyListAttrListElmntElmnt f sty attrs els ->
             El node.id node.name <|
                 StyListAttrListElmntElmnt f sty attrs <|
-                    (newEl :: els)
+                    (childrenFn els)
 
         _ ->
             node
@@ -148,25 +152,25 @@ view extraAttrs rootEl =
 viewInfo :
     (El Sty.Style var msg -> msg)
     -> (El Sty.Style var msg -> msg)
+    -> (El Sty.Style var msg -> msg)
     -> (Picker -> msg)
     -> Picker
     -> Elid
     -> Elid
     -> El Sty.Style var msg
     -> List (Element Sty.Style var msg)
-viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root =
+viewInfo onInsertChild onReplaceChild onReplaceEl onClickPicker openPicker newId selected root =
     let
         viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
             column Sty.None
                 []
                 [ text "Child:"
-                , Lutils.thingButton (onClickPicker <| ReplaceChild child.id)
-                    child.name
+                , Lutils.thingButton
+                    (onClickPicker <| ReplaceChild child.id)
                     (openPicker == ReplaceChild child.id)
-                  <|
-                    List.map (Lutils.newThingBttn onInsertChild) <|
-                        allElems newId
+                    (List.map (Lutils.newThingBttn onReplaceChild) <| allElems child.id)
+                    child.name
                 ]
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
@@ -176,8 +180,15 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                 "add..."
                 (onClickPicker AddChild)
                 (openPicker == AddChild)
-                (children
-                    |> List.map (.name >> text)
+                (List.map
+                    (\child ->
+                        Lutils.thingButton
+                            (onClickPicker <| ReplaceChild child.id)
+                            (openPicker == ReplaceChild child.id)
+                            (List.map (Lutils.newThingBttn onReplaceChild) <| allElems child.id)
+                            child.name
+                    )
+                    children
                 )
             <|
                 List.map (Lutils.newThingBttn onInsertChild) <|
