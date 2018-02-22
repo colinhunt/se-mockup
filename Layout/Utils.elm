@@ -5,13 +5,14 @@ import Element exposing (..)
 import Element.Events exposing (onClick, onWithOptions)
 import Element.Attributes exposing (..)
 import Element.Input as Input
+import Layout.Element exposing (Elid)
 import View.Stylesheet as Sty
 
 
 type Picker
     = AddAttribute
     | ReplaceLength String
-    | ReplaceChild
+    | ReplaceChild Elid
     | ReplaceElement
     | AddChild
     | None
@@ -71,24 +72,19 @@ thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
     column Sty.None [] <|
         [ text title ]
             ++ things
-            ++ [ (el Sty.None [] <|
-                    button Sty.None
-                        [ onClickNoProp onNewThingBttn ]
-                    <|
-                        text newThingBttnTxt
-                 )
-                    |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]
-               ]
+            ++ [ thingButton onNewThingBttn newThingBttnTxt showNewThings newThings ]
 
 
-thingList :
-    ({ r | name : String } -> msg)
-    -> List { r | name : String }
-    -> List (Element Sty.Style var msg)
-thingList onThing things =
-    let
-        newThingBttn : { r | name : String } -> Element Sty.Style var msg
-        newThingBttn newThing =
-            el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
-    in
-        List.map newThingBttn things
+newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg
+newThingBttn onThing newThing =
+    el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
+
+
+thingButton onThingBttn bttnTxt showNewThings newThings =
+    (el Sty.None [] <|
+        button Sty.None
+            [ onClickNoProp onThingBttn ]
+        <|
+            text bttnTxt
+    )
+        |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]

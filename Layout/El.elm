@@ -158,15 +158,16 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
     let
         viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
-            Lutils.thingInfo
-                "Child:"
-                "replace..."
-                (onClickPicker ReplaceChild)
-                (openPicker == ReplaceChild)
-                [ text child.name ]
-            <|
-                Lutils.thingList onInsertChild <|
-                    allElems newId
+            column Sty.None
+                []
+                [ text "Child:"
+                , Lutils.thingButton (onClickPicker <| ReplaceChild child.id)
+                    child.name
+                    (openPicker == ReplaceChild child.id)
+                  <|
+                    List.map (Lutils.newThingBttn onInsertChild) <|
+                        allElems newId
+                ]
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
@@ -179,7 +180,7 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                     |> List.map (.name >> text)
                 )
             <|
-                Lutils.thingList onInsertChild <|
+                List.map (Lutils.newThingBttn onInsertChild) <|
                     allElems newId
 
         replaceThisElement =
@@ -189,7 +190,7 @@ viewInfo onInsertChild onReplaceEl onClickPicker openPicker newId selected root 
                 (openPicker == ReplaceElement)
                 []
             <|
-                Lutils.thingList onReplaceEl <|
+                List.map (Lutils.newThingBttn onReplaceEl) <|
                     allElems selected
 
         mbEl =

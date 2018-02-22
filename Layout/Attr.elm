@@ -70,27 +70,23 @@ viewInfos :
     -> String
     -> Element Sty.Style var msg
 viewInfos onChange onClickPicker openPicker attrs key =
-    Lutils.thingInfo
-        "Attributes:"
-        "add..."
-        (onClickPicker AddAttribute)
-        (openPicker == AddAttribute)
-        (List.map
-            (viewInfo
-                (\attr ->
-                    onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
-                )
-                key
-            )
-            attrs
-        )
-    <|
-        Lutils.thingList
-            (\attr ->
-                onChange <| attr :: attrs
-            )
+    let
+        onAttrsChg attr =
+            onChange <| List.map (U.when (.name >> (==) attr.name) (always attr)) attrs
+    in
+        Lutils.thingInfo
+            "Attributes:"
+            "add..."
+            (onClickPicker AddAttribute)
+            (openPicker == AddAttribute)
+            (List.map (viewInfo onAttrsChg key) attrs)
         <|
-            allAttrs
+            List.map
+                (Lutils.newThingBttn <|
+                    \attr ->
+                        onChange <| attr :: attrs
+                )
+                allAttrs
 
 
 
