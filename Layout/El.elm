@@ -104,44 +104,43 @@ view extraAttrs rootEl =
             List.map viewElR els
 
         viewElR : El Sty.Style var msg -> Element Sty.Style var msg
-        viewElR el_ =
-            el Sty.Elmnt (extraAttrs el_.id) <|
-                case el_.elem of
-                    Elmnt f ->
-                        f
+        viewElR curEl =
+            case curEl.elem of
+                Elmnt f ->
+                    el Sty.Elmnt (extraAttrs curEl.id) f
 
-                    FltElmnt f flt ->
-                        f flt
+                FltElmnt f flt ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f flt
 
-                    StrElmnt f str ->
-                        f str
+                StrElmnt f str ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f str
 
-                    StyElmnt f sty ->
-                        f sty
+                StyElmnt f sty ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f sty
 
-                    ElmntElmnt f el ->
-                        f (viewElR el)
+                ElmntElmnt f el_ ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f (viewElR el_)
 
-                    StrElmntElmnt f str el ->
-                        f str (viewElR el)
+                StrElmntElmnt f str el_ ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f str (viewElR el_)
 
-                    BoolElmntElmnt f bool el ->
-                        f bool (viewElR el)
+                BoolElmntElmnt f bool el_ ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f bool (viewElR el_)
 
-                    ListElmntElmntElmnt f els el ->
-                        f (viewEls els) (viewElR el)
+                ListElmntElmntElmnt f els el_ ->
+                    el Sty.Elmnt (extraAttrs curEl.id) <| f (viewEls els) (viewElR el_)
 
-                    StyListAttrStrElmnt f sty attrs str ->
-                        f sty (Attr.viewAll attrs) str
+                StyListAttrStrElmnt f sty attrs str ->
+                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) str
 
-                    StyListAttrElmntElmnt f sty attrs el ->
-                        f sty (Attr.viewAll attrs) (viewElR el)
+                StyListAttrElmntElmnt f sty attrs el_ ->
+                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
 
-                    FltStyListAttrElmntElmnt f flt sty attrs el ->
-                        f flt sty (Attr.viewAll attrs) (viewElR el)
+                FltStyListAttrElmntElmnt f flt sty attrs el_ ->
+                    f flt Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
 
-                    StyListAttrListElmntElmnt f sty attrs els ->
-                        f sty (Attr.viewAll attrs) (viewEls els)
+                StyListAttrListElmntElmnt f sty attrs els ->
+                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewEls els)
     in
         viewElR rootEl
 

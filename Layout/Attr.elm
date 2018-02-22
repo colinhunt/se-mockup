@@ -29,9 +29,9 @@ view at =
             f flt1 flt2
 
 
-viewAll : List (At var msg) -> List (Attribute var msg)
-viewAll attrs =
-    List.map view attrs
+viewAll : List (At var msg) -> List (Attribute var msg) -> List (Attribute var msg)
+viewAll attrs extraAttrs =
+    extraAttrs ++ List.map view attrs
 
 
 viewInfo : (At var msg -> msg) -> String -> At var msg -> Element Sty.Style var msg

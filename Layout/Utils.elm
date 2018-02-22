@@ -1,7 +1,8 @@
 module Layout.Utils exposing (..)
 
+import Json.Decode as Json
 import Element exposing (..)
-import Element.Events exposing (onClick)
+import Element.Events exposing (onClick, onWithOptions)
 import Element.Attributes exposing (..)
 import Element.Input as Input
 import View.Stylesheet as Sty
@@ -14,6 +15,11 @@ type Picker
     | ReplaceElement
     | AddChild
     | None
+
+
+onClickNoProp msg =
+    onWithOptions "click" { stopPropagation = True, preventDefault = False } <|
+        Json.succeed msg
 
 
 textInput : (String -> msg) -> String -> Input.Label Sty.Style var msg -> String -> Element Sty.Style var msg
@@ -62,13 +68,13 @@ thingInfo :
     -> List (Element Sty.Style var msg)
     -> Element Sty.Style var msg
 thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
-    column Sty.None
-        []
-    <|
+    column Sty.None [] <|
         [ text title ]
             ++ things
             ++ [ (el Sty.None [] <|
-                    button Sty.None [ onClick onNewThingBttn ] <|
+                    button Sty.None
+                        [ onClickNoProp onNewThingBttn ]
+                    <|
                         text newThingBttnTxt
                  )
                     |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5 ] newThings ]

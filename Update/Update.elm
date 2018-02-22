@@ -29,6 +29,9 @@ update msg model =
         OnClickPicker picker ->
             onClickPicker picker model
 
+        OnSidebarClick ->
+            { model | openPicker = None } ! []
+
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =
@@ -65,14 +68,17 @@ onClick id model =
 
         selected =
             model.selected
+
+        model_ =
+            { model | openPicker = None }
     in
         if id == mouseOver then
             if id == selected then
-                { model | selected = -1 } ! []
+                { model_ | selected = -1 } ! []
             else
-                { model | selected = id } ! []
+                { model_ | selected = id } ! []
         else
-            model ! []
+            model_ ! []
 
 
 onClickPicker : Picker -> Model -> ( Model, Cmd Msg )

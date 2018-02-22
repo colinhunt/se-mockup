@@ -16,6 +16,7 @@ type Msg
     | OnMouseLeave
     | OnClick Elid
     | OnClickPicker Picker
+    | OnSidebarClick
 
 
 type alias Model =
