@@ -24,6 +24,7 @@ type Style
     | ElName
     | ThingPicker
     | TreeLabel
+    | TreeNode
 
 
 paleBlue =
@@ -78,5 +79,9 @@ stylesheet =
         , style TreeLabel
             [ Color.background <| Color.rgba 0 0 0 0
             , variation Selected [ Color.text Color.orange ]
+            ]
+        , style TreeNode
+            [ Border.left 1
+            , Color.border Color.grey
             ]
         ]

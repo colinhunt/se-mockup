@@ -111,28 +111,28 @@ view extraAttrs rootEl =
         viewElR curEl =
             case curEl.elem of
                 Elmnt f ->
-                    el Sty.Elmnt (extraAttrs curEl.id) f
+                    f
 
                 FltElmnt f flt ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f flt
+                    f flt
 
                 StrElmnt f str ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f str
+                    f str
 
                 StyElmnt f sty ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f sty
+                    f sty
 
                 ElmntElmnt f el_ ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f (viewElR el_)
+                    f (viewElR el_)
 
                 StrElmntElmnt f str el_ ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f str (viewElR el_)
+                    f str (viewElR el_)
 
                 BoolElmntElmnt f bool el_ ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f bool (viewElR el_)
+                    f bool (viewElR el_)
 
                 ListElmntElmntElmnt f els el_ ->
-                    el Sty.Elmnt (extraAttrs curEl.id) <| f (viewEls els) (viewElR el_)
+                    f (viewEls els) (viewElR el_)
 
                 StyListAttrStrElmnt f sty attrs str ->
                     f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) str
@@ -169,11 +169,11 @@ viewTree onLabelClick selected node =
 
         elNoChildren : Element Sty.Style Sty.Variation msg
         elNoChildren =
-            el Sty.None attributes <| label
+            el Sty.TreeNode attributes <| label
 
         elWithChildren : List (El Sty.Style Sty.Variation msg) -> Element Sty.Style Sty.Variation msg
         elWithChildren children =
-            column Sty.None attributes <| label :: List.map (viewTree onLabelClick selected) children
+            column Sty.TreeNode attributes <| label :: List.map (viewTree onLabelClick selected) children
     in
         case node.elem of
             ElmntElmnt f el ->

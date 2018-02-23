@@ -22,8 +22,8 @@ view model =
         row None
             [ width fill, height fill ]
             [ viewTree model
-            , renderLayout model
             , sideBar model
+            , renderLayout model
             ]
 
 
@@ -37,7 +37,7 @@ sideBar { selected, newId, openPicker, layout } =
 
 
 viewTree { selected, layout } =
-    el None [ spacing 1, width (px 300), scrollbars ] <|
+    el None [ spacing 1, scrollbars, paddingRight 15 ] <|
         El.viewTree OnClick selected layout
 
 
