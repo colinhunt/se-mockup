@@ -5,6 +5,7 @@ import Element exposing (..)
 import Element.Events exposing (onClick, onWithOptions)
 import Element.Attributes exposing (..)
 import Element.Input as Input
+import Utils as U
 import Layout.Element exposing (Elid)
 import View.Stylesheet as Sty
 
@@ -17,11 +18,6 @@ type Picker
     | ReplaceAttribute String
     | ReplaceLength String
     | None
-
-
-onClickNoProp msg =
-    onWithOptions "click" { stopPropagation = True, preventDefault = False } <|
-        Json.succeed msg
 
 
 textInput : (String -> msg) -> String -> Input.Label Sty.Style var msg -> String -> Element Sty.Style var msg
@@ -84,7 +80,7 @@ newThingBttn onThing newThing =
 thingButton onThingBttn showNewThings newThings bttnTxt =
     (el Sty.None [] <|
         button Sty.None
-            [ onClickNoProp onThingBttn ]
+            [ U.onClickNoProp onThingBttn ]
         <|
             text bttnTxt
     )

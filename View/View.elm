@@ -4,6 +4,7 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Html
+import Utils as U
 import Layout.El as El
 import Layout.Element as Lyt exposing (El, Elid)
 import Model.Model exposing (..)
@@ -20,7 +21,8 @@ view model =
     Element.viewport stylesheet <|
         row None
             [ width fill, height fill ]
-            [ renderLayout model
+            [ viewTree model
+            , renderLayout model
             , sideBar model
             ]
 
@@ -32,6 +34,11 @@ sideBar { selected, newId, openPicker, layout } =
             (El.viewInfo OnInsertChild OnReplaceChild OnReplaceEl OnClickPicker openPicker newId selected layout)
         else
             [ text "Select an element to begin." ]
+
+
+viewTree { selected, layout } =
+    el None [ spacing 1, width (px 300), scrollbars ] <|
+        El.viewTree OnClick selected layout
 
 
 renderLayout : Model -> Element Style Variation Msg
@@ -49,7 +56,7 @@ renderLayout model =
             , vary Selected (selected == id)
             , onMouseEnter <| OnMouseEnter id
             , onMouseLeave OnMouseLeave
-            , onClick <| OnClick id
+            , U.onClickNoProp <| OnClick id
             ]
     in
         el None [ height fill, width fill ] <|

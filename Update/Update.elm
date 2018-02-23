@@ -87,13 +87,10 @@ onClick id model =
         model_ =
             { model | openPicker = None }
     in
-        if id == mouseOver then
-            if id == selected then
-                { model_ | selected = -1 } ! []
-            else
-                { model_ | selected = id } ! []
+        if id == selected then
+            { model_ | selected = -1 } ! []
         else
-            model_ ! []
+            { model_ | selected = id } ! []
 
 
 onClickPicker : Picker -> Model -> ( Model, Cmd Msg )

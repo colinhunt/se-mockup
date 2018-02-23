@@ -23,6 +23,7 @@ type Style
     | ElementInfo
     | ElName
     | ThingPicker
+    | TreeLabel
 
 
 paleBlue =
@@ -74,4 +75,8 @@ stylesheet =
             ]
         , style ThingPicker
             [ Color.background Color.grey ]
+        , style TreeLabel
+            [ Color.background <| Color.rgba 0 0 0 0
+            , variation Selected [ Color.text Color.orange ]
+            ]
         ]

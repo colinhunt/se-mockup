@@ -149,6 +149,58 @@ view extraAttrs rootEl =
         viewElR rootEl
 
 
+viewTree :
+    (Elid -> msg)
+    -> Elid
+    -> El Sty.Style Sty.Variation msg
+    -> Element Sty.Style Sty.Variation msg
+viewTree onLabelClick selected node =
+    let
+        attributes =
+            [ paddingLeft 15 ]
+
+        label =
+            button Sty.TreeLabel
+                [ alignLeft
+                , vary Sty.Selected (selected == node.id)
+                , onClick <| onLabelClick node.id
+                ]
+                (text node.name)
+
+        elNoChildren : Element Sty.Style Sty.Variation msg
+        elNoChildren =
+            el Sty.None attributes <| label
+
+        elWithChildren : List (El Sty.Style Sty.Variation msg) -> Element Sty.Style Sty.Variation msg
+        elWithChildren children =
+            column Sty.None attributes <| label :: List.map (viewTree onLabelClick selected) children
+    in
+        case node.elem of
+            ElmntElmnt f el ->
+                elWithChildren [ el ]
+
+            StrElmntElmnt f str el ->
+                elWithChildren [ el ]
+
+            BoolElmntElmnt f bool el ->
+                elWithChildren [ el ]
+
+            StyListAttrElmntElmnt f sty attrs el ->
+                elWithChildren [ el ]
+
+            FltStyListAttrElmntElmnt f flt sty attrs el ->
+                elWithChildren [ el ]
+
+            ListElmntElmntElmnt f els el ->
+                elWithChildren <| el :: els
+
+            StyListAttrListElmntElmnt f sty attrs els ->
+                elWithChildren els
+
+            _ ->
+                elNoChildren
+
+
 viewInfo :
     (El Sty.Style var msg -> msg)
     -> (El Sty.Style var msg -> msg)
