@@ -24,6 +24,7 @@ view model =
             [ viewTree model
             , sideBar model
             , renderLayout model
+                |> within [ viewCode model ]
             ]
 
 
@@ -31,7 +32,7 @@ sideBar : Model -> Element Style Variation Msg
 sideBar { selected, newId, openPicker, layout } =
     sidebar ElementInfo [ spacing 20, padding 20, width (px 300), onClick OnSidebarClick ] <|
         if selected > -1 then
-            (El.viewInfo OnInsertChild OnReplaceChild OnReplaceEl OnClickPicker openPicker newId selected layout)
+            (El.viewInfo OnInsertChild OnReplaceChild OnReplaceChildren OnReplaceEl OnClickPicker openPicker newId selected layout)
         else
             [ text "Select an element to begin." ]
 
@@ -61,3 +62,9 @@ renderLayout model =
     in
         el None [ height fill, width fill ] <|
             El.view extraAttrs model.layout
+
+
+viewCode : Model -> Element Style Variation Msg
+viewCode { selected, layout } =
+    el CodeView [ alignBottom, width fill, height (px 400), scrollbars ] <|
+        El.viewCode OnClick selected layout

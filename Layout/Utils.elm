@@ -14,6 +14,7 @@ type Picker
     = ReplaceElement
     | AddChild
     | ReplaceChild Elid
+    | ReplaceChildren Elid
     | AddAttribute
     | ReplaceAttribute String
     | ReplaceLength String

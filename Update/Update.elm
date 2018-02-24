@@ -18,6 +18,9 @@ update msg model =
         OnReplaceChild el ->
             onReplaceChild el model
 
+        OnReplaceChildren el ->
+            onReplaceChildren el model
+
         OnReplaceEl el ->
             onReplaceEl (Debug.log "OnReplaceEl" el) model
 
@@ -48,6 +51,17 @@ onReplaceChild elem m =
         (El.map <|
             El.mapChildren
                 (always elem)
+                identity
+        )
+        m
+
+
+onReplaceChildren : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onReplaceChildren elem m =
+    insertReplace
+        (El.map <|
+            El.mapChildren
+                identity
                 (List.map (U.when (.id >> (==) elem.id) (always elem)))
         )
         m
@@ -87,10 +101,13 @@ onClick id model =
         model_ =
             { model | openPicker = None }
     in
-        if id == selected then
-            { model_ | selected = -1 } ! []
+        if id >= 0 then
+            if id == selected then
+                { model_ | selected = -1 } ! []
+            else
+                { model_ | selected = id } ! []
         else
-            { model_ | selected = id } ! []
+            model_ ! []
 
 
 onClickPicker : Picker -> Model -> ( Model, Cmd Msg )

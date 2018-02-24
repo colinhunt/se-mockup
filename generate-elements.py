@@ -20,7 +20,8 @@ FILE_PATHS = [
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
 TYPE_VAR_REGEX = r"\b[a-z]+\b"
 
-PLACEHOLDER = '{ id = id + 1, name = "text", elem = StrElmnt text "Click to edit" }'
+def placeholder(i):
+    return '{{ id = id + {}, name = "text", elem = StrElmnt text "placeholder" }}'.format(i)
 
 ARG_LOOKUP = {
     'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.None' },
@@ -29,9 +30,9 @@ ARG_LOOKUP = {
     'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
     'Length': { 'type': 'Ln', 'var_name': 'lng', 'default': '{ name = "px", lngth = FltLng px 10 }' },
     'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
-    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': '[{}]'.format(PLACEHOLDER) },
+    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': lambda i: '[{}]'.format(placeholder(i)) },
     'ListAttributeVarMsg': { 'type': '(List (At var msg))', 'var_name': 'attrs', 'default': '[{ name = "padding", attr = FltAttr padding 20}]' },
-    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': PLACEHOLDER },
+    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': placeholder },
     'AttributeVarMsg': { 'type': '(At var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
 
 }
@@ -61,6 +62,17 @@ def excluded(fcn_name, fcn_sig, suffix):
             'language'
         ]
     )
+
+def make_defaults(types):
+    defaults = []
+    for i, type in enumerate(types):
+        type_info = ARG_LOOKUP[type]
+        if type_info['var_name'] in ['el', 'els']:
+            defaults.append(type_info['default'](i + 1))
+        else:
+            defaults.append(type_info['default'])
+
+    return defaults
 
 # def make_arg(part):
 
@@ -212,7 +224,7 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
         for j, fcn in enumerate(fcn_type.members):
             print '    {comma}{{ {extra_field} name = "{name}", {kind} = {fcn_type_name} {name} {defaults} }}'.format(
                 name=fcn.name, kind=kind.lower(), fcn_type_name=fcn_type.type_name, 
-                defaults=' '.join([ARG_LOOKUP[arg]['default'] for arg in fcn_type.type_name_parts[:-1]]),
+                defaults=' '.join(make_defaults(fcn_type.type_name_parts[:-1])),
                 comma=',' if (i,j) != (0,0) else '', extra_field=extra_field_assign
             )
     print ']'

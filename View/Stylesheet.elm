@@ -25,6 +25,7 @@ type Style
     | ThingPicker
     | TreeLabel
     | TreeNode
+    | CodeView
 
 
 paleBlue =
@@ -84,4 +85,6 @@ stylesheet =
             [ Border.left 1
             , Color.border Color.grey
             ]
+        , style CodeView
+            [ Color.background Color.lightGray ]
         ]
