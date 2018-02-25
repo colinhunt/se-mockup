@@ -21,16 +21,26 @@ view model =
     Element.viewport stylesheet <|
         row None
             [ width fill, height fill ]
-            [ viewTree model
-            , sideBar model
+            [ sideBar model
             , renderLayout model
-                |> within [ viewCode model ]
             ]
 
 
 sideBar : Model -> Element Style Variation Msg
-sideBar { selected, newId, openPicker, layout } =
-    sidebar ElementInfo [ spacing 20, padding 20, width (px 300), onClick OnSidebarClick ] <|
+sideBar model =
+    sidebar None
+        [ height fill ]
+        [ row None
+            [ height (percent 50) ]
+            [ viewTree model
+            , viewElementInfo model
+            ]
+        , viewCode model
+        ]
+
+
+viewElementInfo { selected, newId, openPicker, layout } =
+    column ElementInfo [ spacing 20, padding 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
         if selected > -1 then
             (El.viewInfo OnInsertChild OnReplaceChild OnReplaceChildren OnReplaceEl OnClickPicker openPicker newId selected layout)
         else
@@ -38,8 +48,11 @@ sideBar { selected, newId, openPicker, layout } =
 
 
 viewTree { selected, layout } =
-    el None [ spacing 1, scrollbars, paddingRight 15 ] <|
-        El.viewTree OnClick selected layout
+    column None
+        [ spacing 1, yScrollbar, paddingRight 15 ]
+        [ text "Tree view"
+        , El.viewTree OnClick selected layout
+        ]
 
 
 renderLayout : Model -> Element Style Variation Msg
@@ -66,5 +79,5 @@ renderLayout model =
 
 viewCode : Model -> Element Style Variation Msg
 viewCode { selected, layout } =
-    el CodeView [ alignBottom, width fill, height (px 400), scrollbars ] <|
+    el (CodeView Main) [ padding 10, height fill ] <|
         El.viewCode OnClick (always NoneMsg) selected layout

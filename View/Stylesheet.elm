@@ -25,7 +25,12 @@ type Style
     | ThingPicker
     | TreeLabel
     | TreeNode
-    | CodeView
+    | CodeView CodeViewStyle
+
+
+type CodeViewStyle
+    = Main
+    | TextArea
 
 
 paleBlue =
@@ -85,6 +90,8 @@ stylesheet =
             [ Border.left 1
             , Color.border Color.grey
             ]
-        , style CodeView
+        , style (CodeView Main)
             [ Color.background Color.lightGray ]
+        , style (CodeView TextArea)
+            [ Font.typeface [ Font.monospace ] ]
         ]

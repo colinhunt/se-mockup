@@ -295,20 +295,42 @@ viewCode onLabelClick noneMsg selected node =
                                 ++ lastLine
 
                     ListElmntElmntElmnt f els el_ ->
-                        acc
+                        let
+                            ( firstLine, lastLine ) =
+                                if List.isEmpty els then
+                                    ( line [ "[]" ], [] )
+                                else
+                                    ( line [ "[" ], [ [ indnttn, "] <|" ] ] )
 
-        --visitChild
-        --    (line [ text " [" ]
-        --        ++ (List.concat (List.map (viewCodeR [] (level + 1)) els))
-        --        ++ [ row Sty.None [] [ indnttn, text "]" ] ]
-        --    )
-        --    el_
+                            childLines =
+                                els
+                                    |> List.map (viewCodeR [] (level + 1))
+                                    |> List.indexedMap
+                                        (\i lineGroups ->
+                                            if i + 1 < List.length els then
+                                                List.indexedMap
+                                                    (\j lineGroup ->
+                                                        if j + 1 == List.length lineGroups then
+                                                            lineGroup ++ [ "," ]
+                                                        else
+                                                            lineGroup
+                                                    )
+                                                    lineGroups
+                                            else
+                                                lineGroups
+                                        )
+                                    |> List.concat
+                        in
+                            acc
+                                ++ firstLine
+                                ++ childLines
+                                ++ visitChild lastLine el_
     in
-        Input.multiline Sty.None
-            [ height (px 350), width (percent 95) ]
+        Input.multiline (Sty.CodeView Sty.TextArea)
+            [ height (px 400) ]
             { onChange = noneMsg
             , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
-            , label = Input.labelAbove <| text "Code view"
+            , label = Input.labelAbove <| bold "Code view"
             , options = [ Input.disabled ]
             }
 
