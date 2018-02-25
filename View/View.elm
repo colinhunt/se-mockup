@@ -67,4 +67,4 @@ renderLayout model =
 viewCode : Model -> Element Style Variation Msg
 viewCode { selected, layout } =
     el CodeView [ alignBottom, width fill, height (px 400), scrollbars ] <|
-        El.viewCode OnClick selected layout
+        El.viewCode OnClick (always NoneMsg) selected layout

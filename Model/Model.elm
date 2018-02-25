@@ -19,6 +19,7 @@ type Msg
     | OnClick Elid
     | OnClickPicker Picker
     | OnSidebarClick
+    | NoneMsg
 
 
 type alias Model =

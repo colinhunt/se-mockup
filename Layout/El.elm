@@ -203,34 +203,30 @@ viewTree onLabelClick selected node =
 
 viewCode :
     (Elid -> msg)
+    -> (String -> msg)
     -> Elid
     -> El Sty.Style Sty.Variation msg
     -> Element Sty.Style Sty.Variation msg
-viewCode onLabelClick selected node =
+viewCode onLabelClick noneMsg selected node =
     let
         indent =
             4
 
         viewCodeR :
-            List (List (Element Sty.Style Sty.Variation msg))
+            List (List String)
             -> Int
             -> El Sty.Style Sty.Variation msg
-            -> List (List (Element Sty.Style Sty.Variation msg))
+            -> List (List String)
         viewCodeR acc level node =
             let
                 name =
-                    button Sty.TreeLabel
-                        [ alignLeft
-                        , vary Sty.Selected (selected == node.id)
-                        , onClick <| onLabelClick node.id
-                        ]
-                        (text node.name)
+                    node.name
 
                 indnttn =
-                    text <| String.repeat (level * indent) " "
+                    String.repeat (level * indent) " "
 
                 line things =
-                    [ [ indnttn, name, text " " ] ++ things ]
+                    [ [ indnttn, name, " " ] ++ things ]
 
                 visitChild prevLine child =
                     viewCodeR (acc ++ prevLine) (level + 1) child
@@ -240,39 +236,39 @@ viewCode onLabelClick selected node =
                         acc ++ line []
 
                     FltElmnt f flt ->
-                        acc ++ line [ text <| toString flt ]
+                        acc ++ line [ toString flt ]
 
                     StrElmnt f str ->
-                        acc ++ line [ text str ]
+                        acc ++ line [ U.quote str ]
 
                     StyElmnt f sty ->
-                        acc ++ line [ text <| toString sty ]
+                        acc ++ line [ toString sty ]
 
                     ElmntElmnt f el_ ->
-                        visitChild (line [ text " <|" ]) el_
+                        visitChild (line [ " <|" ]) el_
 
                     StrElmntElmnt f str el_ ->
-                        visitChild (line [ text str, text " <|" ]) el_
+                        visitChild (line [ U.quote str, " <|" ]) el_
 
                     BoolElmntElmnt f bool el_ ->
-                        visitChild (line [ text <| toString bool, text " <|" ]) el_
+                        visitChild (line [ toString bool, " <|" ]) el_
 
                     StyListAttrStrElmnt f sty attrs str ->
-                        acc ++ line [ text <| toString sty, Attr.viewCode attrs, text " ", text str ]
+                        acc ++ line [ toString sty, " ", Attr.viewCode attrs, " ", U.quote str ]
 
                     StyListAttrElmntElmnt f sty attrs el_ ->
-                        visitChild (line [ text <| toString sty, Attr.viewCode attrs, text " <|" ]) el_
+                        visitChild (line [ toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
 
                     FltStyListAttrElmntElmnt f flt sty attrs el_ ->
-                        visitChild (line [ text <| toString flt, text " ", text <| toString sty, Attr.viewCode attrs, text " <|" ]) el_
+                        visitChild (line [ toString flt, " ", toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
 
                     StyListAttrListElmntElmnt f sty attrs els ->
                         let
                             ( firstLine, lastLine ) =
                                 if List.isEmpty els then
-                                    ( line [ text <| toString sty, Attr.viewCode attrs, text " []" ], [] )
+                                    ( line [ toString sty, " ", Attr.viewCode attrs, " []" ], [] )
                                 else
-                                    ( line [ text <| toString sty, Attr.viewCode attrs, text " [" ], [ [ indnttn, text "]" ] ] )
+                                    ( line [ toString sty, " ", Attr.viewCode attrs, " [" ], [ [ indnttn, "]" ] ] )
 
                             childLines =
                                 els
@@ -283,7 +279,7 @@ viewCode onLabelClick selected node =
                                                 List.indexedMap
                                                     (\j lineGroup ->
                                                         if j + 1 == List.length lineGroups then
-                                                            lineGroup ++ [ text "," ]
+                                                            lineGroup ++ [ "," ]
                                                         else
                                                             lineGroup
                                                     )
@@ -308,7 +304,13 @@ viewCode onLabelClick selected node =
         --    )
         --    el_
     in
-        column Sty.None [] <| List.map (row Sty.None []) <| viewCodeR [] 0 node
+        Input.multiline Sty.None
+            [ height (px 350), width (percent 95) ]
+            { onChange = noneMsg
+            , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
+            , label = Input.labelAbove <| text "Code view"
+            , options = [ Input.disabled ]
+            }
 
 
 viewInfo :

@@ -34,7 +34,7 @@ textInput onChange str label key =
 
 viewInfoStr : (String -> msg) -> String -> String -> Element Sty.Style var msg
 viewInfoStr onChange str =
-    textInput onChange str (Input.labelAbove <| text "Text:")
+    textInput onChange str (Input.hiddenLabel "string")
 
 
 viewInfoFlt : (Float -> msg) -> Float -> String -> Element Sty.Style var msg

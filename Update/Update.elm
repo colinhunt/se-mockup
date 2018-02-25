@@ -39,6 +39,9 @@ update msg model =
         OnSidebarClick ->
             { model | openPicker = None } ! []
 
+        NoneMsg ->
+            model ! []
+
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =

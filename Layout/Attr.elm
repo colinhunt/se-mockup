@@ -100,5 +100,25 @@ viewInfos onChange onClickPicker openPicker attrs key =
                 allAttrs
 
 
+viewCode : List (At var msg) -> String
 viewCode attrs =
-    row Sty.None [] [ text "[]" ]
+    let
+        viewCode_ : At var msg -> String
+        viewCode_ at =
+            case at.attr of
+                Attr f ->
+                    at.name
+
+                StrAttr f str ->
+                    String.join " " [ at.name, U.quote str ]
+
+                LngAttr f lng ->
+                    String.join " " [ at.name, Ln.viewCode lng ]
+
+                FltAttr f flt ->
+                    String.join " " [ at.name, toString flt ]
+
+                FltFltAttr f flt1 flt2 ->
+                    String.join " " [ at.name, toString flt1, toString flt2 ]
+    in
+        "[ " ++ (String.join ", " <| List.map viewCode_ attrs) ++ " ]"

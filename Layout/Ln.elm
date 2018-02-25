@@ -48,3 +48,16 @@ view ln =
 
         IntLng f int ->
             f int
+
+
+viewCode : Ln -> String
+viewCode ln =
+    case ln.lngth of
+        Lng f ->
+            ln.name
+
+        FltLng f flt ->
+            "(" ++ String.join " " [ ln.name, toString flt ] ++ ")"
+
+        IntLng f int ->
+            "(" ++ String.join " " [ ln.name, toString int ] ++ ")"
