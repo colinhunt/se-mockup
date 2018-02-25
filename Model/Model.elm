@@ -5,14 +5,21 @@ import Element.Attributes exposing (..)
 import Element.Events as Events
 import Layout.El exposing (..)
 import Layout.Element exposing (..)
-import View.Stylesheet exposing (..)
+import Layout.Utils exposing (Picker(..))
+import View.Stylesheet as Sty exposing (Style, Variation)
 
 
 type Msg
-    = OnAddEl (El Style Variation Msg)
+    = OnInsertChild (El Style Variation Msg)
+    | OnReplaceChild (El Style Variation Msg)
+    | OnReplaceChildren (El Style Variation Msg)
+    | OnReplaceEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
+    | OnClickPicker Picker
+    | OnSidebarClick
+    | NoneMsg
 
 
 type alias Model =
@@ -20,13 +27,19 @@ type alias Model =
     , mousedOver : List Elid
     , selected : Elid
     , newId : Elid
+    , openPicker : Picker
     }
 
 
 initModel : Model
 initModel =
-    { layout = { id = 0, name = "empty", elem = newEmpty }
+    { layout =
+        { id = 0
+        , name = "text"
+        , elem = StrElmnt text "Click to edit"
+        }
     , mousedOver = []
     , selected = -1
-    , newId = 42
+    , newId = 2
+    , openPicker = None
     }

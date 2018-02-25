@@ -4,8 +4,9 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Html
+import Utils as U
 import Layout.El as El
-import Layout.Element exposing (El)
+import Layout.Element as Lyt exposing (El, Elid)
 import Model.Model exposing (..)
 import View.Stylesheet exposing (..)
 
@@ -20,23 +21,25 @@ view model =
     Element.viewport stylesheet <|
         row None
             [ width fill, height fill ]
-            [ renderLayout model
-
-            --, sideBar model.selected
+            [ viewTree model
+            , sideBar model
+            , renderLayout model
+                |> within [ viewCode model ]
             ]
 
 
-sideBar : El Style Variation Msg -> Element Style Variation Msg
-sideBar el =
-    column None
-        [ spacing 20 ]
-        (elementInfo el)
+sideBar : Model -> Element Style Variation Msg
+sideBar { selected, newId, openPicker, layout } =
+    sidebar ElementInfo [ spacing 20, padding 20, width (px 300), onClick OnSidebarClick ] <|
+        if selected > -1 then
+            (El.viewInfo OnInsertChild OnReplaceChild OnReplaceChildren OnReplaceEl OnClickPicker openPicker newId selected layout)
+        else
+            [ text "Select an element to begin." ]
 
 
-elementInfo : El Style Variation Msg -> List (Element Style Variation Msg)
-elementInfo el =
-    [ text el.name
-    ]
+viewTree { selected, layout } =
+    el None [ spacing 1, scrollbars, paddingRight 15 ] <|
+        El.viewTree OnClick selected layout
 
 
 renderLayout : Model -> Element Style Variation Msg
@@ -48,12 +51,20 @@ renderLayout model =
         selected =
             model.selected
 
+        extraAttrs : Elid -> List (Attribute Variation Msg)
         extraAttrs id =
             [ vary Hover (mouseOver == id)
             , vary Selected (selected == id)
             , onMouseEnter <| OnMouseEnter id
             , onMouseLeave OnMouseLeave
-            , onClick <| OnClick id
+            , U.onClickNoProp <| OnClick id
             ]
     in
-    El.view extraAttrs model.layout
+        el None [ height fill, width fill ] <|
+            El.view extraAttrs model.layout
+
+
+viewCode : Model -> Element Style Variation Msg
+viewCode { selected, layout } =
+    el CodeView [ alignBottom, width fill, height (px 400), scrollbars ] <|
+        El.viewCode OnClick (always NoneMsg) selected layout

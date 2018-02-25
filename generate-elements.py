@@ -12,25 +12,28 @@ class AttrDict(defaultdict):
 STYLE_ELEMENTS_SRC_DIR = 'elm-stuff/packages/mdgriffith/style-elements/*/src/'
 
 FILE_PATHS = [
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'el', 'Element style variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', '', 'Attribute variation msg'),
-    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', '', 'Length'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element.elm')[0], 'Elem', 'El', ('id', 'Int'), 'Element style variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Attr', 'At', (), 'Attribute variation msg'),
+    (glob.glob(STYLE_ELEMENTS_SRC_DIR + 'Element/Attributes.elm')[0], 'Lngth', 'Ln', (), 'Length'),
 ]
 
 FCNNAME_FCNSIG_FCNDEF_REGEX = r"^(\w+) : (.+)\n([\w\s]+) =$"
 TYPE_VAR_REGEX = r"\b[a-z]+\b"
 
+def placeholder(i):
+    return '{{ id = id + {}, name = "text", elem = StrElmnt text "placeholder" }}'.format(i)
+
 ARG_LOOKUP = {
-    'Sty': { 'type': 'sty', 'var_name': 'sty' },
-    'String': { 'type': 'String', 'var_name': 'str' },
-    'Float': { 'type': 'Float', 'var_name': 'flt' },
-    'Bool': { 'type': 'Bool', 'var_name': 'bool' },
-    'Length': { 'type': 'Lngth', 'var_name': 'lng' },
-    'Int': { 'type': 'Int', 'var_name': 'int' },
-    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els' },
-    'ListAttributeVarMsg': { 'type': '(List (Attr var msg))', 'var_name': 'attrs' },
-    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el' },
-    'AttributeVarMsg': { 'type': '(Attr var msg)', 'var_name': 'attr' }
+    'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.None' },
+    'String': { 'type': 'String', 'var_name': 'str', 'default': '"placeholder"' },
+    'Float': { 'type': 'Float', 'var_name': 'flt', 'default': '10' },
+    'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
+    'Length': { 'type': 'Ln', 'var_name': 'lng', 'default': '{ name = "px", lngth = FltLng px 10 }' },
+    'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
+    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': lambda i: '[{}]'.format(placeholder(i)) },
+    'ListAttributeVarMsg': { 'type': '(List (At var msg))', 'var_name': 'attrs', 'default': '[{ name = "padding", attr = FltAttr padding 20}]' },
+    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': placeholder },
+    'AttributeVarMsg': { 'type': '(At var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
 
 }
 
@@ -60,12 +63,24 @@ def excluded(fcn_name, fcn_sig, suffix):
         ]
     )
 
+def make_defaults(types):
+    defaults = []
+    for i, type in enumerate(types):
+        type_info = ARG_LOOKUP[type]
+        if type_info['var_name'] in ['el', 'els']:
+            defaults.append(type_info['default'](i + 1))
+        else:
+            defaults.append(type_info['default'])
+
+    return defaults
+
 # def make_arg(part):
 
 print 'module Layout.Element exposing (..)'
 
 print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
+print 'import View.Stylesheet as Sty'
 
 print '''
 type alias Elid =
@@ -74,10 +89,16 @@ type alias Elid =
 
 type alias El sty var msg =
     { id : Elid, name : String, elem : Elem sty var msg }
+
+type alias At var msg =
+    { name : String, attr: Attr var msg }
+
+type alias Ln =
+    { name : String, lngth: Lngth }
 '''
 
 
-for file_path, kind, var, suffix in FILE_PATHS:
+for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
     functions = {}
 
     content = ""
@@ -181,11 +202,29 @@ for file_path, kind, var, suffix in FILE_PATHS:
         print
 
 
-    for fcn_type in fcn_types:
-        for fcn in fcn_type.members:
-            fcn_name = 'new' + fcn.name.title()
-            print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
-            print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
-            print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
-            print
-            print
+    # for fcn_type in fcn_types:
+    #     for fcn in fcn_type.members:
+    #         fcn_name = 'new' + fcn.name.title()
+    #         print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
+    #         print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
+    #         print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
+    #         print
+    #         print
+    if extra_rec_field:
+        extra_field_name = extra_rec_field[0]
+        extra_field_type = extra_rec_field[1] + '->'
+        extra_field_assign = '{} = {},'.format(extra_field_name, extra_field_name)
+    else:
+        extra_field_name = ''
+        extra_field_type = ''
+        extra_field_assign = ''
+    print 'all{}s'.format(kind.title()), ':', extra_field_type, 'List ({rec_name} {type_vars})'.format(rec_name=rec_name, type_vars=' '.join(['Sty.Style' if var == 'sty' else var for var in fcn_type.type_vars.split()]))
+    print 'all{}s'.format(kind.title()), extra_field_name, '=', '['
+    for i, fcn_type in enumerate(fcn_types):
+        for j, fcn in enumerate(fcn_type.members):
+            print '    {comma}{{ {extra_field} name = "{name}", {kind} = {fcn_type_name} {name} {defaults} }}'.format(
+                name=fcn.name, kind=kind.lower(), fcn_type_name=fcn_type.type_name, 
+                defaults=' '.join(make_defaults(fcn_type.type_name_parts[:-1])),
+                comma=',' if (i,j) != (0,0) else '', extra_field=extra_field_assign
+            )
+    print ']'
