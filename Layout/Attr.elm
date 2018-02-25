@@ -121,4 +121,4 @@ viewCode attrs =
                 FltFltAttr f flt1 flt2 ->
                     String.join " " [ at.name, toString flt1, toString flt2 ]
     in
-        "[ " ++ (String.join ", " <| List.map viewCode_ attrs) ++ " ]"
+        "[" ++ (String.join ", " <| List.map viewCode_ attrs) ++ "]"

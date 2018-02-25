@@ -93,5 +93,7 @@ stylesheet =
         , style (CodeView Main)
             [ Color.background Color.lightGray ]
         , style (CodeView TextArea)
-            [ Font.typeface [ Font.monospace ] ]
+            [ Font.typeface [ Font.monospace ]
+            , prop "white-space" "pre"
+            ]
         ]

@@ -35,11 +35,18 @@ initModel : Model
 initModel =
     { layout =
         { id = 0
-        , name = "text"
-        , elem = StrElmnt text "Click to edit"
+        , name = "el"
+        , elem =
+            StyListAttrElmntElmnt el
+                Sty.None
+                [ { name = "padding", attr = FltAttr padding 20 }
+                , { name = "center", attr = Attr center }
+                , { name = "verticalCenter", attr = Attr verticalCenter }
+                ]
+                { id = 1, name = "text", elem = StrElmnt text "Click to edit!" }
         }
     , mousedOver = []
     , selected = -1
-    , newId = 2
+    , newId = 10
     , openPicker = None
     }
