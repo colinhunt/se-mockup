@@ -20,17 +20,28 @@ type Style
     | Row
     | Column
     | Button
-    | ElementInfo
-    | ElName
     | ThingPicker
-    | TreeLabel
-    | TreeNode
+    | NameButton
+    | ElementInfo ElementInfoStyle
+    | TreeView TreeViewStyle
     | CodeView CodeViewStyle
 
 
+type ElementInfoStyle
+    = EiMain
+    | EiTitle
+    | EiThingInfo
+
+
+type TreeViewStyle
+    = TvMain
+    | TvNode
+    | TvLabel
+
+
 type CodeViewStyle
-    = Main
-    | TextArea
+    = CvMain
+    | CvTextArea
 
 
 paleBlue =
@@ -39,6 +50,14 @@ paleBlue =
 
 transparentCobalt =
     Color.rgba 71 82 93 0.8
+
+
+unsetColor =
+    Color.rgba 0 0 0 0
+
+
+thingName =
+    [ Font.typeface [ Font.monospace ] ]
 
 
 elemBase styles =
@@ -63,36 +82,31 @@ stylesheet =
         , style Elmnt <|
             elemBase
                 []
-        , style Row <|
-            elemBase
-                [ Color.border Color.blue
-                ]
-        , style Column <|
-            elemBase
-                [ Color.border Color.orange
-                ]
         , style Button []
-        , style ElementInfo
+        , style NameButton <|
+            thingName
+                ++ [ Color.background unsetColor ]
+        , style (ElementInfo EiMain)
             [ Color.background Color.lightGray
             ]
-        , style ElName
-            [ Font.size 25
-            , Font.bold
-            , Font.typeface [ Font.monospace ]
-            ]
+        , style (ElementInfo EiTitle) <|
+            thingName
+                ++ [ Font.size 25
+                   , Font.bold
+                   ]
         , style ThingPicker
             [ Color.background Color.grey ]
-        , style TreeLabel
-            [ Color.background <| Color.rgba 0 0 0 0
+        , style (TreeView TvLabel)
+            [ Color.background <| unsetColor
             , variation Selected [ Color.text Color.orange ]
             ]
-        , style TreeNode
+        , style (TreeView TvNode)
             [ Border.left 1
             , Color.border Color.grey
             ]
-        , style (CodeView Main)
+        , style (CodeView CvMain)
             [ Color.background Color.lightGray ]
-        , style (CodeView TextArea)
+        , style (CodeView CvTextArea)
             [ Font.typeface [ Font.monospace ]
             , prop "white-space" "pre"
             ]

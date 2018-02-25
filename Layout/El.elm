@@ -42,12 +42,6 @@ map fn id node =
                 node
 
 
-
---infoHelper: (small -> view) -> small -> view
---infoHelper updateMsg view small =
---    view small
-
-
 mapChildren :
     (El sty var msg -> El sty var msg)
     -> (List (El sty var msg) -> List (El sty var msg))
@@ -93,11 +87,6 @@ mapChildren childFn childrenFn node =
 
         _ ->
             node
-
-
-replace : El sty var msg -> El sty var msg -> El sty var msg
-replace newEl node =
-    newEl
 
 
 view : (Elid -> List (Attribute var msg)) -> El Sty.Style var msg -> Element Sty.Style var msg
@@ -160,7 +149,7 @@ viewTree onLabelClick selected node =
             [ paddingLeft 15 ]
 
         label =
-            button Sty.TreeLabel
+            button (Sty.TreeView Sty.TvLabel)
                 [ alignLeft
                 , vary Sty.Selected (selected == node.id)
                 , onClick <| onLabelClick node.id
@@ -169,11 +158,11 @@ viewTree onLabelClick selected node =
 
         elNoChildren : Element Sty.Style Sty.Variation msg
         elNoChildren =
-            el Sty.TreeNode attributes <| label
+            el (Sty.TreeView Sty.TvNode) attributes <| label
 
         elWithChildren : List (El Sty.Style Sty.Variation msg) -> Element Sty.Style Sty.Variation msg
         elWithChildren children =
-            column Sty.TreeNode attributes <| label :: List.map (viewTree onLabelClick selected) children
+            column (Sty.TreeView Sty.TvNode) attributes <| label :: List.map (viewTree onLabelClick selected) children
     in
         case node.elem of
             ElmntElmnt f el ->
@@ -326,7 +315,7 @@ viewCode onLabelClick noneMsg selected node =
                                 ++ childLines
                                 ++ visitChild lastLine el_
     in
-        Input.multiline (Sty.CodeView Sty.TextArea)
+        Input.multiline (Sty.CodeView Sty.CvTextArea)
             [ height (px 400) ]
             { onChange = noneMsg
             , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
@@ -338,43 +327,47 @@ viewCode onLabelClick noneMsg selected node =
 viewInfo :
     (El Sty.Style var msg -> msg)
     -> (El Sty.Style var msg -> msg)
-    -> (El Sty.Style var msg -> msg)
-    -> (El Sty.Style var msg -> msg)
+    -> (Elid -> msg)
     -> (Picker -> msg)
+    -> msg
     -> Picker
     -> Elid
     -> Elid
     -> El Sty.Style var msg
     -> List (Element Sty.Style var msg)
-viewInfo onInsertChild onReplaceChild onReplaceChildren onReplaceEl onClickPicker openPicker newId selected root =
+viewInfo onInsertChild onReplaceEl onSelectEl onClickPicker noneMsg openPicker newId selected root =
     let
-        viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
-        viewInfoChild child =
-            column Sty.None
-                []
-                [ text "Child:"
-                , Lutils.thingButton
+        childEntry child =
+            row Sty.None
+                [ spacing 5 ]
+                [ Lutils.thingButton
                     (onClickPicker <| ReplaceChild child.id)
                     (openPicker == ReplaceChild child.id)
-                    (List.map (Lutils.newThingBttn onReplaceChild) <| allElems child.id)
-                    child.name
+                    (List.map (Lutils.newThingBttn onReplaceEl) <| allElems child.id)
+                    "r"
+                , button Sty.NameButton [ onClick <| onSelectEl child.id ] <|
+                    text child.name
                 ]
+
+        viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
+        viewInfoChild child =
+            Lutils.thingInfo
+                "Child:"
+                ""
+                noneMsg
+                False
+                [ childEntry child ]
+                []
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
             Lutils.thingInfo
                 "Children:"
-                "add..."
+                "+"
                 (onClickPicker AddChild)
                 (openPicker == AddChild)
                 (List.map
-                    (\child ->
-                        Lutils.thingButton
-                            (onClickPicker <| ReplaceChildren child.id)
-                            (openPicker == ReplaceChildren child.id)
-                            (List.map (Lutils.newThingBttn onReplaceChildren) <| allElems child.id)
-                            child.name
-                    )
+                    childEntry
                     children
                 )
             <|
@@ -456,12 +449,12 @@ viewInfo onInsertChild onReplaceChild onReplaceChildren onReplaceEl onClickPicke
     in
         case mbEl of
             Just el ->
-                [ h1 Sty.ElName [] <| text el.name ]
+                [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text el.name ]
                     ++ info el
                     ++ [ replaceThisElement ]
 
             Nothing ->
-                [ h1 Sty.ElName [] <| text "Nothing" ]
+                [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text "Nothing" ]
 
 
 find : Elid -> El Sty.Style var msg -> Maybe (El Sty.Style var msg)

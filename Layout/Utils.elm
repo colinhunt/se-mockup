@@ -67,10 +67,12 @@ thingInfo :
     -> List (Element Sty.Style var msg)
     -> Element Sty.Style var msg
 thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
-    column Sty.None [] <|
-        [ text title ]
-            ++ things
-            ++ [ thingButton onNewThingBttn showNewThings newThings newThingBttnTxt ]
+    column (Sty.ElementInfo Sty.EiThingInfo) [] <|
+        [ text title
+        , column Sty.None [ paddingLeft 10 ] <|
+            things
+                ++ [ thingButton onNewThingBttn showNewThings newThings newThingBttnTxt ]
+        ]
 
 
 newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg

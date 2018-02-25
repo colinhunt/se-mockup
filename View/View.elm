@@ -40,9 +40,9 @@ sideBar model =
 
 
 viewElementInfo { selected, newId, openPicker, layout } =
-    column ElementInfo [ spacing 20, padding 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
+    column (ElementInfo EiMain) [ spacing 20, padding 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
         if selected > -1 then
-            (El.viewInfo OnInsertChild OnReplaceChild OnReplaceChildren OnReplaceEl OnClickPicker openPicker newId selected layout)
+            (El.viewInfo OnInsertChild OnReplaceEl OnClick OnClickPicker NoneMsg openPicker newId selected layout)
         else
             [ text "Select an element to begin." ]
 
@@ -79,5 +79,5 @@ renderLayout model =
 
 viewCode : Model -> Element Style Variation Msg
 viewCode { selected, layout } =
-    el (CodeView Main) [ padding 10, height fill ] <|
+    el (CodeView CvMain) [ padding 10, height fill ] <|
         El.viewCode OnClick (always NoneMsg) selected layout

@@ -15,12 +15,6 @@ update msg model =
         OnInsertChild el ->
             onInsertChild el model
 
-        OnReplaceChild el ->
-            onReplaceChild el model
-
-        OnReplaceChildren el ->
-            onReplaceChildren el model
-
         OnReplaceEl el ->
             onReplaceEl (Debug.log "OnReplaceEl" el) model
 
@@ -45,40 +39,18 @@ update msg model =
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =
-    insertReplace (El.map <| El.mapChildren identity <| (::) elem) m
-
-
-onReplaceChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onReplaceChild elem m =
-    insertReplace
-        (El.map <|
-            El.mapChildren
-                (always elem)
-                identity
-        )
-        m
-
-
-onReplaceChildren : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onReplaceChildren elem m =
-    insertReplace
-        (El.map <|
-            El.mapChildren
-                identity
-                (List.map (U.when (.id >> (==) elem.id) (always elem)))
-        )
-        m
+    insertReplace (El.map (El.mapChildren identity <| \l -> l ++ [ elem ]) m.selected m.layout) m
 
 
 onReplaceEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onReplaceEl elem m =
-    insertReplace (El.map <| El.replace elem) m
+    insertReplace (El.map (always elem) elem.id m.layout) m
 
 
-insertReplace : (Elid -> El Style Variation Msg -> El Style Variation Msg) -> Model -> ( Model, Cmd Msg )
-insertReplace f m =
+insertReplace : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+insertReplace newLayout m =
     { m
-        | layout = f m.selected m.layout
+        | layout = newLayout
         , newId = m.newId + 10
     }
         ! []

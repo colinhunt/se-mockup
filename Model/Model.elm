@@ -11,8 +11,6 @@ import View.Stylesheet as Sty exposing (Style, Variation)
 
 type Msg
     = OnInsertChild (El Style Variation Msg)
-    | OnReplaceChild (El Style Variation Msg)
-    | OnReplaceChildren (El Style Variation Msg)
     | OnReplaceEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
