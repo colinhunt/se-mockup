@@ -49,10 +49,12 @@ viewInfo onChange onClickPicker openPicker key at =
     in
         row Sty.None [ spacing 5 ] <|
             [ Lutils.thingButton
-                (onClickPicker <| ReplaceAttribute at.name)
-                (openPicker == ReplaceAttribute at.name)
-                (List.map (Lutils.newThingBttn onChange) allAttrs)
-                at.name
+                { style = Sty.NameButton
+                , onThingBttn = (onClickPicker <| ReplaceAttribute at.name)
+                , showNewThings = (openPicker == ReplaceAttribute at.name)
+                , newThings = (List.map (Lutils.newThingBttn onChange) allAttrs)
+                , bttnTxt = at.name
+                }
             ]
                 ++ case at.attr of
                     Attr f ->
@@ -86,18 +88,19 @@ viewInfos onChange onClickPicker openPicker attrs key =
             onChange <| List.map (U.when (.name >> (==) oldAttr.name) (always newAttr)) attrs
     in
         Lutils.thingInfo
-            "Attributes:"
-            "add..."
-            (onClickPicker AddAttribute)
-            (openPicker == AddAttribute)
-            (List.map (\at -> viewInfo (onAttrsChg at) onClickPicker openPicker (key ++ at.name) at) attrs)
-        <|
-            List.map
-                (Lutils.newThingBttn <|
-                    \attr ->
-                        onChange <| attr :: attrs
-                )
-                allAttrs
+            { title = "Attributes:"
+            , newThingBttnTxt = "+"
+            , onNewThingBttn = onClickPicker AddAttribute
+            , showNewThings = openPicker == AddAttribute
+            , things = List.map (\at -> viewInfo (onAttrsChg at) onClickPicker openPicker (key ++ at.name) at) attrs
+            , newThings =
+                List.map
+                    (Lutils.newThingBttn <|
+                        \attr ->
+                            onChange <| attrs ++ [ attr ]
+                    )
+                    allAttrs
+            }
 
 
 viewCode : List (At var msg) -> String

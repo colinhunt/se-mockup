@@ -43,47 +43,48 @@ map fn id node =
 
 
 mapChildren :
-    (El sty var msg -> El sty var msg)
-    -> (List (El sty var msg) -> List (El sty var msg))
+    { childFn : El sty var msg -> El sty var msg
+    , childrenFn : List (El sty var msg) -> List (El sty var msg)
+    }
     -> El sty var msg
     -> El sty var msg
-mapChildren childFn childrenFn node =
+mapChildren a node =
     case node.elem of
         ElmntElmnt f el ->
             El node.id node.name <|
                 ElmntElmnt f <|
-                    childFn el
+                    a.childFn el
 
         StrElmntElmnt f str el ->
             El node.id node.name <|
                 StrElmntElmnt f str <|
-                    childFn el
+                    a.childFn el
 
         BoolElmntElmnt f bool el ->
             El node.id node.name <|
                 BoolElmntElmnt f bool <|
-                    childFn el
+                    a.childFn el
 
         StyListAttrElmntElmnt f sty attrs el ->
             El node.id node.name <|
                 StyListAttrElmntElmnt f sty attrs <|
-                    childFn el
+                    a.childFn el
 
         FltStyListAttrElmntElmnt f flt sty attrs el ->
             El node.id node.name <|
                 FltStyListAttrElmntElmnt f flt sty attrs <|
-                    childFn el
+                    a.childFn el
 
         ListElmntElmntElmnt f els el ->
             El node.id node.name <|
                 ListElmntElmntElmnt f
-                    (childrenFn els)
-                    (childFn el)
+                    (a.childrenFn els)
+                    (a.childFn el)
 
         StyListAttrListElmntElmnt f sty attrs els ->
             El node.id node.name <|
                 StyListAttrListElmntElmnt f sty attrs <|
-                    (childrenFn els)
+                    (a.childrenFn els)
 
         _ ->
             node
@@ -325,74 +326,86 @@ viewCode onLabelClick noneMsg selected node =
 
 
 viewInfo :
-    (El Sty.Style var msg -> msg)
-    -> (El Sty.Style var msg -> msg)
-    -> (Elid -> msg)
-    -> (Picker -> msg)
-    -> msg
-    -> Picker
-    -> Elid
-    -> Elid
-    -> El Sty.Style var msg
+    { onInsertChild : El Sty.Style var msg -> msg
+    , onReplaceEl : El Sty.Style var msg -> msg
+    , onSelectEl : Elid -> msg
+    , onDeleteEl : { bringUpSubtree : Bool } -> Elid -> msg
+    , onClickPicker : Picker -> msg
+    , noneMsg : msg
+    , openPicker : Picker
+    , newId : Elid
+    , selected : Elid
+    , root : El Sty.Style var msg
+    }
     -> List (Element Sty.Style var msg)
-viewInfo onInsertChild onReplaceEl onSelectEl onClickPicker noneMsg openPicker newId selected root =
+viewInfo a =
     let
         childEntry child =
             row Sty.None
                 [ spacing 5 ]
                 [ Lutils.thingButton
-                    (onClickPicker <| ReplaceChild child.id)
-                    (openPicker == ReplaceChild child.id)
-                    (List.map (Lutils.newThingBttn onReplaceEl) <| allElems child.id)
-                    "r"
-                , button Sty.NameButton [ onClick <| onSelectEl child.id ] <|
+                    { style = Sty.None
+                    , onThingBttn = (a.onClickPicker <| ReplaceChild child.id)
+                    , showNewThings = (a.openPicker == ReplaceChild child.id)
+                    , newThings = (List.map (Lutils.newThingBttn a.onReplaceEl) <| allElems child.id)
+                    , bttnTxt = "r"
+                    }
+                , Lutils.thingButton
+                    { style = Sty.None
+                    , onThingBttn = (a.onDeleteEl { bringUpSubtree = False } child.id)
+                    , showNewThings = False
+                    , newThings = []
+                    , bttnTxt = "d"
+                    }
+                , button Sty.NameButton [ onClick <| a.onSelectEl child.id ] <|
                     text child.name
                 ]
 
         viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
         viewInfoChild child =
             Lutils.thingInfo
-                "Child:"
-                ""
-                noneMsg
-                False
-                [ childEntry child ]
-                []
+                { title = "Child:"
+                , newThingBttnTxt = ""
+                , onNewThingBttn = a.noneMsg
+                , showNewThings = False
+                , things = [ childEntry child ]
+                , newThings = []
+                }
 
         viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
             Lutils.thingInfo
-                "Children:"
-                "+"
-                (onClickPicker AddChild)
-                (openPicker == AddChild)
-                (List.map
-                    childEntry
-                    children
-                )
-            <|
-                List.map (Lutils.newThingBttn onInsertChild) <|
-                    allElems newId
+                { title = "Children:"
+                , newThingBttnTxt = "+"
+                , onNewThingBttn = a.onClickPicker AddChild
+                , showNewThings = a.openPicker == AddChild
+                , things = List.map childEntry children
+                , newThings =
+                    List.map (Lutils.newThingBttn a.onInsertChild) <|
+                        allElems a.newId
+                }
 
         replaceThisElement =
-            Lutils.thingInfo ""
-                "replace this element..."
-                (onClickPicker ReplaceElement)
-                (openPicker == ReplaceElement)
-                []
-            <|
-                List.map (Lutils.newThingBttn onReplaceEl) <|
-                    allElems selected
+            Lutils.thingInfo
+                { title = ""
+                , newThingBttnTxt = "replace this element..."
+                , onNewThingBttn = a.onClickPicker ReplaceElement
+                , showNewThings = a.openPicker == ReplaceElement
+                , things = []
+                , newThings =
+                    List.map (Lutils.newThingBttn a.onReplaceEl) <|
+                        allElems a.selected
+                }
 
         mbEl =
-            find selected root
+            find a.selected a.root
 
         info : El Sty.Style var msg -> List (Element Sty.Style var msg)
         info thisEl =
             let
                 onElemChg : Elem Sty.Style var msg -> msg
                 onElemChg =
-                    (El thisEl.id thisEl.name >> onReplaceEl)
+                    (El thisEl.id thisEl.name >> a.onReplaceEl)
 
                 key =
                     toString thisEl.id
@@ -427,23 +440,23 @@ viewInfo onInsertChild onReplaceEl onSelectEl onClickPicker noneMsg openPicker n
                         [ viewInfoChild el, viewInfoChildren els ]
 
                     StyListAttrStrElmnt f sty attrs str ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) onClickPicker openPicker attrs key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) a.onClickPicker a.openPicker attrs key
                         , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
                         ]
 
                     StyListAttrElmntElmnt f sty attrs el ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) onClickPicker openPicker attrs key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) a.onClickPicker a.openPicker attrs key
                         , viewInfoChild el
                         ]
 
                     FltStyListAttrElmntElmnt f flt sty attrs el ->
                         [ Lutils.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
-                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) onClickPicker openPicker attrs key
+                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) a.onClickPicker a.openPicker attrs key
                         , viewInfoChild el
                         ]
 
                     StyListAttrListElmntElmnt f sty attrs els ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) onClickPicker openPicker attrs key
+                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) a.onClickPicker a.openPicker attrs key
                         , viewInfoChildren els
                         ]
     in
@@ -529,3 +542,74 @@ finds id els =
                     Nothing
                 else
                     finds id rest
+
+
+deleteOnlyChild : Bool -> Elid -> El Sty.Style var msg -> El Sty.Style var msg
+deleteOnlyChild bringUpSubtree id child =
+    if child.id /= id then
+        child
+    else if not bringUpSubtree then
+        El child.id "empty" <| Elmnt empty
+    else
+        case child.elem of
+            ElmntElmnt f el ->
+                el
+
+            StrElmntElmnt f str el ->
+                el
+
+            BoolElmntElmnt f bool el ->
+                el
+
+            ListElmntElmntElmnt f els el ->
+                el
+
+            StyListAttrElmntElmnt f sty attrs el ->
+                el
+
+            FltStyListAttrElmntElmnt f flt sty attrs el ->
+                el
+
+            StyListAttrListElmntElmnt f sty attrs els ->
+                List.head els |> Maybe.withDefault (El child.id "empty" <| Elmnt empty)
+
+            _ ->
+                El child.id "empty" <| Elmnt empty
+
+
+deleteSibling : Bool -> Elid -> List (El Sty.Style var msg) -> List (El Sty.Style var msg)
+deleteSibling bringUpSubtree id children =
+    children
+        |> List.foldr
+            (\child acc ->
+                if child.id /= id then
+                    child :: acc
+                else if not bringUpSubtree then
+                    acc
+                else
+                    case child.elem of
+                        ElmntElmnt f el ->
+                            el :: acc
+
+                        StrElmntElmnt f str el ->
+                            el :: acc
+
+                        BoolElmntElmnt f bool el ->
+                            el :: acc
+
+                        ListElmntElmntElmnt f els el ->
+                            el :: acc
+
+                        StyListAttrElmntElmnt f sty attrs el ->
+                            el :: acc
+
+                        FltStyListAttrElmntElmnt f flt sty attrs el ->
+                            el :: acc
+
+                        StyListAttrListElmntElmnt f sty attrs els ->
+                            els ++ acc
+
+                        _ ->
+                            acc
+            )
+            []

@@ -18,6 +18,9 @@ update msg model =
         OnReplaceEl el ->
             onReplaceEl (Debug.log "OnReplaceEl" el) model
 
+        OnDeleteEl { bringUpSubtree } id ->
+            onDeleteEl bringUpSubtree id model
+
         OnMouseEnter id ->
             onMouseEnter id model
 
@@ -39,12 +42,38 @@ update msg model =
 
 onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild elem m =
-    insertReplace (El.map (El.mapChildren identity <| \l -> l ++ [ elem ]) m.selected m.layout) m
+    insertReplace
+        (El.map
+            (El.mapChildren
+                { childFn = identity
+                , childrenFn = \l -> l ++ [ elem ]
+                }
+            )
+            m.selected
+            m.layout
+        )
+        m
 
 
 onReplaceEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onReplaceEl elem m =
     insertReplace (El.map (always elem) elem.id m.layout) m
+
+
+onDeleteEl : Bool -> Elid -> Model -> ( Model, Cmd Msg )
+onDeleteEl bringUpSubtree id model =
+    let
+        newLayout =
+            El.map
+                (El.mapChildren
+                    { childFn = El.deleteOnlyChild bringUpSubtree id
+                    , childrenFn = El.deleteSibling bringUpSubtree id
+                    }
+                )
+                model.selected
+                model.layout
+    in
+        { model | layout = newLayout } ! []
 
 
 insertReplace : El Style Variation Msg -> Model -> ( Model, Cmd Msg )

@@ -14,7 +14,7 @@ type Picker
     = ReplaceElement
     | AddChild
     | ReplaceChild Elid
-    | ReplaceChildren Elid
+    | DeleteChild Elid
     | AddAttribute
     | ReplaceAttribute String
     | ReplaceLength String
@@ -23,7 +23,7 @@ type Picker
 
 textInput : (String -> msg) -> String -> Input.Label Sty.Style var msg -> String -> Element Sty.Style var msg
 textInput onChange str label key =
-    Input.text Sty.None
+    Input.text Sty.Input
         []
         { onChange = onChange
         , value = str
@@ -59,32 +59,48 @@ viewInfoBool onChange bool key =
 
 
 thingInfo :
-    String
-    -> String
-    -> msg
-    -> Bool
-    -> List (Element Sty.Style var msg)
-    -> List (Element Sty.Style var msg)
+    { title : String
+    , newThingBttnTxt : String
+    , onNewThingBttn : msg
+    , showNewThings : Bool
+    , things : List (Element Sty.Style var msg)
+    , newThings : List (Element Sty.Style var msg)
+    }
     -> Element Sty.Style var msg
-thingInfo title newThingBttnTxt onNewThingBttn showNewThings things newThings =
+thingInfo a =
     column (Sty.ElementInfo Sty.EiThingInfo) [] <|
-        [ text title
+        [ text a.title
         , column Sty.None [ paddingLeft 10 ] <|
-            things
-                ++ [ thingButton onNewThingBttn showNewThings newThings newThingBttnTxt ]
+            a.things
+                ++ [ thingButton
+                        { style = Sty.None
+                        , onThingBttn = a.onNewThingBttn
+                        , showNewThings = a.showNewThings
+                        , newThings = a.newThings
+                        , bttnTxt = a.newThingBttnTxt
+                        }
+                   ]
         ]
 
 
 newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg
 newThingBttn onThing newThing =
-    el Sty.None [ onClick <| onThing newThing ] <| text newThing.name
+    el Sty.NameButton [ onClick <| onThing newThing ] <| text newThing.name
 
 
-thingButton onThingBttn showNewThings newThings bttnTxt =
+thingButton :
+    { style : Sty.Style
+    , onThingBttn : msg
+    , showNewThings : Bool
+    , newThings : List (Element Sty.Style var msg)
+    , bttnTxt : String
+    }
+    -> Element Sty.Style var msg
+thingButton a =
     (el Sty.None [] <|
-        button Sty.None
-            [ U.onClickNoProp onThingBttn ]
+        button a.style
+            [ U.onClickNoProp a.onThingBttn ]
         <|
-            text bttnTxt
+            text a.bttnTxt
     )
-        |> below [ when showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5, width (px 200) ] newThings ]
+        |> below [ when a.showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, spacing 5, width (px 200) ] a.newThings ]

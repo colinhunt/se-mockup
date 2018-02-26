@@ -21,10 +21,12 @@ viewInfo onChange onClickPicker openPicker ln key =
     in
         row Sty.None [ spacing 2 ] <|
             [ Lutils.thingButton
-                (onClickPicker <| ReplaceLength key)
-                (openPicker == ReplaceLength key)
-                (List.map (Lutils.newThingBttn onChange) allLngths)
-                ln.name
+                { style = Sty.NameButton
+                , onThingBttn = (onClickPicker <| ReplaceLength key)
+                , showNewThings = (openPicker == ReplaceLength key)
+                , newThings = (List.map (Lutils.newThingBttn onChange) allLngths)
+                , bttnTxt = ln.name
+                }
             ]
                 ++ case ln.lngth of
                     Lng f ->

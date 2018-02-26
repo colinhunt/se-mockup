@@ -42,7 +42,18 @@ sideBar model =
 viewElementInfo { selected, newId, openPicker, layout } =
     column (ElementInfo EiMain) [ spacing 20, padding 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
         if selected > -1 then
-            (El.viewInfo OnInsertChild OnReplaceEl OnClick OnClickPicker NoneMsg openPicker newId selected layout)
+            El.viewInfo
+                { onInsertChild = OnInsertChild
+                , onReplaceEl = OnReplaceEl
+                , onSelectEl = OnClick
+                , onDeleteEl = OnDeleteEl
+                , onClickPicker = OnClickPicker
+                , noneMsg = NoneMsg
+                , openPicker = openPicker
+                , newId = newId
+                , selected = selected
+                , root = layout
+                }
         else
             [ text "Select an element to begin." ]
 

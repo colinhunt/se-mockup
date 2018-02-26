@@ -22,6 +22,7 @@ type Style
     | Button
     | ThingPicker
     | NameButton
+    | Input
     | ElementInfo ElementInfoStyle
     | TreeView TreeViewStyle
     | CodeView CodeViewStyle
@@ -86,6 +87,11 @@ stylesheet =
         , style NameButton <|
             thingName
                 ++ [ Color.background unsetColor ]
+        , style Input <|
+            thingName
+                ++ [ Color.text Color.orange
+                   , Color.background unsetColor
+                   ]
         , style (ElementInfo EiMain)
             [ Color.background Color.lightGray
             ]
