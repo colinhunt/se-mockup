@@ -317,7 +317,7 @@ viewCode onLabelClick noneMsg selected node =
                                 ++ visitChild lastLine el_
     in
         Input.multiline (Sty.CodeView Sty.CvTextArea)
-            [ height (px 400) ]
+            [ height (px 300) ]
             { onChange = noneMsg
             , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
             , label = Input.labelAbove <| bold "Code view"
@@ -344,14 +344,14 @@ viewInfo a =
             row Sty.None
                 [ spacing 5 ]
                 [ Lutils.thingButton
-                    { style = Sty.None
+                    { style = Sty.Button
                     , onThingBttn = (a.onClickPicker <| ReplaceChild child.id)
                     , showNewThings = (a.openPicker == ReplaceChild child.id)
                     , newThings = (List.map (Lutils.newThingBttn a.onReplaceEl) <| allElems child.id)
                     , bttnTxt = "r"
                     }
                 , Lutils.thingButton
-                    { style = Sty.None
+                    { style = Sty.Button
                     , onThingBttn = (a.onDeleteEl { bringUpSubtree = False } child.id)
                     , showNewThings = False
                     , newThings = []

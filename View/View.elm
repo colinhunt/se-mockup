@@ -19,7 +19,7 @@ button1 attrs label =
 view : Model -> Html.Html Msg
 view model =
     Element.viewport stylesheet <|
-        row None
+        row Main
             [ width fill, height fill ]
             [ sideBar model
             , renderLayout model
@@ -31,7 +31,7 @@ sideBar model =
     sidebar None
         [ height fill ]
         [ row None
-            [ height (percent 50) ]
+            [ height fill ]
             [ viewTree model
             , viewElementInfo model
             ]
@@ -40,7 +40,7 @@ sideBar model =
 
 
 viewElementInfo { selected, newId, openPicker, layout } =
-    column (ElementInfo EiMain) [ spacing 20, padding 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
+    column (ElementInfo EiMain) [ padding 1, paddingTop 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
         if selected > -1 then
             El.viewInfo
                 { onInsertChild = OnInsertChild
@@ -60,8 +60,8 @@ viewElementInfo { selected, newId, openPicker, layout } =
 
 viewTree { selected, layout } =
     column None
-        [ spacing 1, yScrollbar, paddingRight 15 ]
-        [ text "Tree view"
+        [ spacing 1, yScrollbar, padding 5, paddingRight 15 ]
+        [ bold "Tree view"
         , El.viewTree OnClick selected layout
         ]
 
@@ -90,5 +90,5 @@ renderLayout model =
 
 viewCode : Model -> Element Style Variation Msg
 viewCode { selected, layout } =
-    el (CodeView CvMain) [ padding 10, height fill ] <|
+    el (CodeView CvMain) [ padding 10, height (px 350) ] <|
         El.viewCode OnClick (always NoneMsg) selected layout

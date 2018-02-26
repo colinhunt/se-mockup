@@ -16,9 +16,8 @@ type Variation
 
 type Style
     = None
+    | Main
     | Elmnt
-    | Row
-    | Column
     | Button
     | ThingPicker
     | NameButton
@@ -80,10 +79,15 @@ stylesheet : StyleSheet Style Variation
 stylesheet =
     Style.styleSheet
         [ style None [] -- blank style
+        , style Main
+            [ Font.typeface [ Font.sansSerif ] ]
         , style Elmnt <|
             elemBase
                 []
-        , style Button []
+        , style Button
+            [ Color.background unsetColor
+            , Color.text Color.darkGrey
+            ]
         , style NameButton <|
             thingName
                 ++ [ Color.background unsetColor ]
@@ -93,15 +97,28 @@ stylesheet =
                    , Color.background unsetColor
                    ]
         , style (ElementInfo EiMain)
-            [ Color.background Color.lightGray
+            [ Color.border Color.grey
+            , Border.right 1
+            , Border.left 1
             ]
         , style (ElementInfo EiTitle) <|
             thingName
                 ++ [ Font.size 25
                    , Font.bold
+                   , Color.border Color.grey
+                   , Border.bottom 1
                    ]
+        , style (ElementInfo EiThingInfo)
+            [ Color.border Color.lightGray
+            , Border.top 1
+            ]
         , style ThingPicker
-            [ Color.background Color.grey ]
+            [ Color.background Color.lightCharcoal
+            , Color.text Color.white
+            , Border.rounded 5
+            ]
+        , style (TreeView TvMain)
+            []
         , style (TreeView TvLabel)
             [ Color.background <| unsetColor
             , variation Selected [ Color.text Color.orange ]
@@ -111,7 +128,9 @@ stylesheet =
             , Color.border Color.grey
             ]
         , style (CodeView CvMain)
-            [ Color.background Color.lightGray ]
+            [ Border.all 1
+            , Color.border Color.grey
+            ]
         , style (CodeView CvTextArea)
             [ Font.typeface [ Font.monospace ]
             , prop "white-space" "pre"
