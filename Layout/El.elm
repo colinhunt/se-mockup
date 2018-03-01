@@ -462,7 +462,7 @@ viewInfo a =
     in
         case mbEl of
             Just el ->
-                [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text el.name ]
+                [ h1 (Sty.ElementInfo Sty.EiTitle) [ paddingLeft 5, paddingRight 5 ] <| text el.name ]
                     ++ info el
                     ++ [ replaceThisElement ]
 

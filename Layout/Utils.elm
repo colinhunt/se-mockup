@@ -85,7 +85,13 @@ thingInfo a =
 
 newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg
 newThingBttn onThing newThing =
-    button Sty.NameButton [ onClick <| onThing newThing ] <| text newThing.name
+    el Sty.PickerButton
+            [ width (px 140)
+            , padding 2.5
+            , onClick <| onThing newThing
+            ]
+        <|
+            text newThing.name
 
 
 thingButton :
@@ -103,4 +109,13 @@ thingButton a =
         <|
             text a.bttnTxt
     )
-        |> below [ when a.showNewThings <| wrappedRow Sty.ThingPicker [ moveRight 10, padding 5, spacing 5, width (px 400) ] a.newThings ]
+        |> below
+            [ when a.showNewThings <|
+                column Sty.ThingPicker
+                    [ width (px 140)
+                    , maxHeight (px 200)
+                    , yScrollbar
+                    , alignLeft
+                    ]
+                    a.newThings
+            ]

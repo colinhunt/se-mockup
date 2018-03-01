@@ -84,15 +84,45 @@ viewInfos :
     -> Element Sty.Style var msg
 viewInfos onChange onClickPicker openPicker attrs key =
     let
-        onAttrsChg oldAttr newAttr =
-            onChange <| List.map (U.when (.name >> (==) oldAttr.name) (always newAttr)) attrs
+        onAttrsChg i newAttr =
+            attrs
+                |> List.indexedMap
+                    (\j at ->
+                        if i == j then
+                            newAttr
+                        else
+                            at
+                    )
+                |> onChange
+
+        onDeleteAttr i =
+            attrs
+                |> List.indexedMap (,)
+                |> List.filter (Tuple.first >> (/=) i)
+                |> List.map Tuple.second
+                |> onChange
     in
         Lutils.thingInfo
             { title = "Attributes:"
             , newThingBttnTxt = "+"
             , onNewThingBttn = onClickPicker AddAttribute
             , showNewThings = openPicker == AddAttribute
-            , things = List.map (\at -> viewInfo (onAttrsChg at) onClickPicker openPicker (key ++ at.name) at) attrs
+            , things =
+                attrs
+                    |> List.indexedMap
+                        (\i at ->
+                            row Sty.None
+                                [ spacing 5 ]
+                                [ Lutils.thingButton
+                                    { style = Sty.Button
+                                    , onThingBttn = (onDeleteAttr i)
+                                    , showNewThings = False
+                                    , newThings = []
+                                    , bttnTxt = "d"
+                                    }
+                                , viewInfo (onAttrsChg i) onClickPicker openPicker (key ++ at.name) at
+                                ]
+                        )
             , newThings =
                 List.map
                     (Lutils.newThingBttn <|

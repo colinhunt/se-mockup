@@ -45,7 +45,7 @@ initModel =
                 { id = 1, name = "text", elem = StrElmnt text "Click to edit!" }
         }
     , mousedOver = []
-    , selected = -1
+    , selected = 0
     , newId = 10
     , openPicker = None
     }

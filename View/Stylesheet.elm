@@ -2,11 +2,12 @@ module View.Stylesheet exposing (..)
 
 import Color
 import Style exposing (..)
-import Style.Color as Color
+import Style.Color as SColor
 import Style.Font as Font
 import Style.Border as Border
 import Style.Background as Background
 import Style.Shadow as Shadow
+import Style.Filter as Filter
 
 
 type Variation
@@ -21,6 +22,7 @@ type Style
     | Button
     | ThingPicker
     | NameButton
+    | PickerButton
     | Input
     | ElementInfo ElementInfoStyle
     | TreeView TreeViewStyle
@@ -67,9 +69,9 @@ elemBase styles =
         , blur = 0
         , color = transparentCobalt
         }
-    , variation Hover [ Color.background <| Color.greyscale 0.1 ]
+    , variation Hover [ SColor.background <| Color.greyscale 0.1 ]
     , variation Selected
-        [ Color.background paleBlue
+        [ SColor.background paleBlue
         ]
     ]
         ++ styles
@@ -85,19 +87,19 @@ stylesheet =
             elemBase
                 []
         , style Button
-            [ Color.background unsetColor
-            , Color.text Color.darkGrey
+            [ SColor.background unsetColor
+            , SColor.text Color.darkGrey
             ]
         , style NameButton <|
             thingName
-                ++ [ Color.background unsetColor ]
+                ++ [ SColor.background unsetColor ]
         , style Input <|
             thingName
-                ++ [ Color.text Color.orange
-                   , Color.background unsetColor
+                ++ [ SColor.text Color.orange
+                   , SColor.background unsetColor
                    ]
         , style (ElementInfo EiMain)
-            [ Color.border Color.grey
+            [ SColor.border Color.grey
             , Border.right 1
             , Border.left 1
             ]
@@ -105,31 +107,38 @@ stylesheet =
             thingName
                 ++ [ Font.size 25
                    , Font.bold
-                   , Color.border Color.grey
+                   , SColor.border Color.grey
                    , Border.bottom 1
                    ]
         , style (ElementInfo EiThingInfo)
-            [ Color.border Color.lightGray
+            [ SColor.border Color.lightGray
             , Border.top 1
             ]
         , style ThingPicker
-            [ Color.background Color.lightCharcoal
-            , Color.text Color.white
+            [ SColor.background Color.charcoal
             , Border.rounded 5
+            , Filter.opacity 92
             ]
+        , style PickerButton <|
+            thingName
+                ++ [ SColor.text Color.white
+                   , SColor.background unsetColor
+                   , hover [ SColor.background Color.black ]
+                   , cursor "pointer"
+                   ]
         , style (TreeView TvMain)
             []
         , style (TreeView TvLabel)
-            [ Color.background <| unsetColor
-            , variation Selected [ Color.text Color.orange ]
+            [ SColor.background <| unsetColor
+            , variation Selected [ SColor.text Color.orange ]
             ]
         , style (TreeView TvNode)
             [ Border.left 1
-            , Color.border Color.grey
+            , SColor.border Color.grey
             ]
         , style (CodeView CvMain)
             [ Border.all 1
-            , Color.border Color.grey
+            , SColor.border Color.grey
             ]
         , style (CodeView CvTextArea)
             [ Font.typeface [ Font.monospace ]
