@@ -11,6 +11,22 @@ import Utils as U
 import View.Stylesheet as Sty
 
 
+allElemsSorted id =
+    allElems id
+        |> List.sortWith
+            (U.manualOrdering
+                [ "el"
+                , "row"
+                , "column"
+                , "wrappedRow"
+                , "wrappedColumn"
+                , "button"
+                , "text"
+                , "empty"
+                ]
+            )
+
+
 map : (El sty var msg -> El sty var msg) -> Elid -> El sty var msg -> El sty var msg
 map fn id node =
     if id == node.id then
@@ -347,7 +363,7 @@ viewInfo a =
                     { style = Sty.Button
                     , onThingBttn = a.onClickPicker <| ReplaceChild child.id
                     , showNewThings = a.openPicker == ReplaceChild child.id
-                    , newThings = List.map (Lutils.newThingBttn a.onReplaceEl) <| allElems child.id
+                    , newThings = List.map (Lutils.newThingBttn a.onReplaceEl) <| allElemsSorted child.id
                     , bttnTxt = "r"
                     }
                 , Lutils.thingButton
@@ -389,7 +405,7 @@ viewInfo a =
                 , things = List.map childEntry children
                 , newThings =
                     List.map (Lutils.newThingBttn a.onInsertChild) <|
-                        allElems a.newId
+                        allElemsSorted a.newId
                 }
 
         replaceThisElement =
@@ -401,7 +417,7 @@ viewInfo a =
                 , things = []
                 , newThings =
                     List.map (Lutils.newThingBttn a.onReplaceEl) <|
-                        allElems a.selected
+                        allElemsSorted a.selected
                 }
 
         deleteThisPreserveSubtreeButton =
