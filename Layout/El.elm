@@ -556,33 +556,17 @@ find id node =
 
 finds : Elid -> List (El Sty.Style var msg) -> Maybe (El Sty.Style var msg)
 finds id els =
-    let
-        debug =
-            Debug.log "finds" id
-
-        first =
-            List.head els
-
-        rest =
-            List.drop 1 els
-
-        maybeEl =
-            case first of
+    case els of
+        first :: rest ->
+            case find id first of
                 Just el ->
-                    find id el
+                    Just el
 
                 Nothing ->
-                    first
-    in
-    case maybeEl of
-        Just el ->
-            maybeEl
+                    finds id rest
 
-        Nothing ->
-            if List.isEmpty rest then
-                Nothing
-            else
-                finds id rest
+        [] ->
+            Nothing
 
 
 deleteOnlyChild : Bool -> Elid -> El Sty.Style var msg -> El Sty.Style var msg

@@ -16,15 +16,8 @@ manualOrdering : List String -> ({ b | name : String } -> { d | name : String } 
 manualOrdering ordering =
     let
         order ordering a b =
-            let
-                mbFirst =
-                    List.head ordering
-
-                rest =
-                    List.drop 1 ordering
-            in
-            case mbFirst of
-                Just first ->
+            case ordering of
+                first :: rest ->
                     if a.name == first then
                         LT
                     else if b.name == first then
@@ -32,7 +25,7 @@ manualOrdering ordering =
                     else
                         order rest a b
 
-                Nothing ->
+                [] ->
                     EQ
     in
     order ordering
