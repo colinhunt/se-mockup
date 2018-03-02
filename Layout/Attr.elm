@@ -3,11 +3,11 @@ module Layout.Attr exposing (..)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Input as Input
-import Utils as U
 import Layout.Element exposing (..)
-import View.Stylesheet as Sty
 import Layout.Ln as Ln
 import Layout.Utils as Lutils exposing (Picker(..))
+import Utils as U
+import View.Stylesheet as Sty
 
 
 view : At var msg -> Attribute var msg
@@ -45,18 +45,18 @@ viewInfo onChange onClickPicker openPicker key at =
     let
         onAttrChg : Attr var msg -> msg
         onAttrChg =
-            (At at.name >> onChange)
+            At at.name >> onChange
     in
-        row Sty.None [ spacing 5 ] <|
-            [ Lutils.thingButton
-                { style = Sty.NameButton
-                , onThingBttn = (onClickPicker <| ReplaceAttribute at.name)
-                , showNewThings = (openPicker == ReplaceAttribute at.name)
-                , newThings = (List.map (Lutils.newThingBttn onChange) allAttrs)
-                , bttnTxt = at.name
-                }
-            ]
-                ++ case at.attr of
+    row Sty.None [ spacing 5 ] <|
+        [ Lutils.thingButton
+            { style = Sty.NameButton
+            , onThingBttn = onClickPicker <| ReplaceAttribute at.name
+            , showNewThings = openPicker == ReplaceAttribute at.name
+            , newThings = List.map (Lutils.newThingBttn onChange) allAttrs
+            , bttnTxt = at.name
+            }
+        ]
+            ++ (case at.attr of
                     Attr f ->
                         []
 
@@ -73,6 +73,7 @@ viewInfo onChange onClickPicker openPicker key at =
                         [ Lutils.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt flt2)) flt1 key
                         , Lutils.viewInfoFlt (onAttrChg << (\flt -> FltFltAttr f flt1 flt)) flt2 key
                         ]
+               )
 
 
 viewInfos :
@@ -101,36 +102,44 @@ viewInfos onChange onClickPicker openPicker attrs key =
                 |> List.filter (Tuple.first >> (/=) i)
                 |> List.map Tuple.second
                 |> onChange
+
+        attrsLen =
+            List.length attrs
     in
-        Lutils.thingInfo
-            { title = "Attributes:"
-            , newThingBttnTxt = "+"
-            , onNewThingBttn = onClickPicker AddAttribute
-            , showNewThings = openPicker == AddAttribute
-            , things =
-                attrs
-                    |> List.indexedMap
-                        (\i at ->
-                            row Sty.None
-                                [ spacing 5 ]
-                                [ Lutils.thingButton
-                                    { style = Sty.Button
-                                    , onThingBttn = (onDeleteAttr i)
-                                    , showNewThings = False
-                                    , newThings = []
-                                    , bttnTxt = "d"
-                                    }
-                                , viewInfo (onAttrsChg i) onClickPicker openPicker (key ++ at.name) at
-                                ]
-                        )
-            , newThings =
-                List.map
-                    (Lutils.newThingBttn <|
-                        \attr ->
-                            onChange <| attrs ++ [ attr ]
+    Lutils.thingInfo
+        { title = "Attributes:"
+        , newThingBttnTxt = "+"
+        , onNewThingBttn = onClickPicker AddAttribute
+        , showNewThings = openPicker == AddAttribute
+        , things =
+            attrs
+                |> List.indexedMap
+                    (\i at ->
+                        row Sty.None
+                            [ spacing 5 ]
+                            [ Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = onDeleteAttr i
+                                , showNewThings = False
+                                , newThings = []
+                                , bttnTxt = "d"
+                                }
+                            , viewInfo
+                                (onAttrsChg i)
+                                onClickPicker
+                                openPicker
+                                (key ++ at.name ++ toString (attrsLen - i))
+                                at
+                            ]
                     )
-                    allAttrs
-            }
+        , newThings =
+            List.map
+                (Lutils.newThingBttn <|
+                    \attr ->
+                        onChange <| attrs ++ [ attr ]
+                )
+                allAttrs
+        }
 
 
 viewCode : List (At var msg) -> String
@@ -154,4 +163,4 @@ viewCode attrs =
                 FltFltAttr f flt1 flt2 ->
                     String.join " " [ at.name, toString flt1, toString flt2 ]
     in
-        "[" ++ (String.join ", " <| List.map viewCode_ attrs) ++ "]"
+    "[" ++ (String.join ", " <| List.map viewCode_ attrs) ++ "]"

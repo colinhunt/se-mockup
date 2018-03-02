@@ -1,11 +1,11 @@
 module Update.Update exposing (..)
 
 import Element exposing (empty)
-import Utils as U
 import Layout.El as El
-import Layout.Element exposing (El, Elid, Elem(Elmnt))
+import Layout.Element exposing (El, Elem(Elmnt), Elid)
 import Layout.Utils exposing (Picker(..))
 import Model.Model exposing (..)
+import Utils as U
 import View.Stylesheet exposing (Style, Variation)
 
 
@@ -73,7 +73,7 @@ onDeleteEl bringUpSubtree id model =
                 model.selected
                 model.layout
     in
-        { model | layout = newLayout } ! []
+    { model | layout = newLayout } ! []
 
 
 insertReplace : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
@@ -105,13 +105,13 @@ onClick id model =
         model_ =
             { model | openPicker = None }
     in
-        if id >= 0 then
-            if id == selected then
-                { model_ | selected = -1 } ! []
-            else
-                { model_ | selected = id } ! []
+    if id >= 0 then
+        if id == selected then
+            { model_ | selected = -1 } ! []
         else
-            model_ ! []
+            { model_ | selected = id } ! []
+    else
+        model_ ! []
 
 
 onClickPicker : Picker -> Model -> ( Model, Cmd Msg )
@@ -123,4 +123,4 @@ onClickPicker picker model =
             else
                 picker
     in
-        { model | openPicker = picker_ } ! []
+    { model | openPicker = picker_ } ! []

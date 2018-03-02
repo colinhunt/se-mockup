@@ -4,10 +4,10 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Element.Input as Input
-import Utils as U
 import Layout.Attr as Attr
-import Layout.Utils as Lutils exposing (Picker(..))
 import Layout.Element exposing (..)
+import Layout.Utils as Lutils exposing (Picker(..))
+import Utils as U
 import View.Stylesheet as Sty
 
 
@@ -84,7 +84,7 @@ mapChildren a node =
         StyListAttrListElmntElmnt f sty attrs els ->
             El node.id node.name <|
                 StyListAttrListElmntElmnt f sty attrs <|
-                    (a.childrenFn els)
+                    a.childrenFn els
 
         _ ->
             node
@@ -136,7 +136,7 @@ view extraAttrs rootEl =
                 StyListAttrListElmntElmnt f sty attrs els ->
                     f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewEls els)
     in
-        viewElR rootEl
+    viewElR rootEl
 
 
 viewTree :
@@ -165,30 +165,30 @@ viewTree onLabelClick selected node =
         elWithChildren children =
             column (Sty.TreeView Sty.TvNode) attributes <| label :: List.map (viewTree onLabelClick selected) children
     in
-        case node.elem of
-            ElmntElmnt f el ->
-                elWithChildren [ el ]
+    case node.elem of
+        ElmntElmnt f el ->
+            elWithChildren [ el ]
 
-            StrElmntElmnt f str el ->
-                elWithChildren [ el ]
+        StrElmntElmnt f str el ->
+            elWithChildren [ el ]
 
-            BoolElmntElmnt f bool el ->
-                elWithChildren [ el ]
+        BoolElmntElmnt f bool el ->
+            elWithChildren [ el ]
 
-            StyListAttrElmntElmnt f sty attrs el ->
-                elWithChildren [ el ]
+        StyListAttrElmntElmnt f sty attrs el ->
+            elWithChildren [ el ]
 
-            FltStyListAttrElmntElmnt f flt sty attrs el ->
-                elWithChildren [ el ]
+        FltStyListAttrElmntElmnt f flt sty attrs el ->
+            elWithChildren [ el ]
 
-            ListElmntElmntElmnt f els el ->
-                elWithChildren <| el :: els
+        ListElmntElmntElmnt f els el ->
+            elWithChildren <| el :: els
 
-            StyListAttrListElmntElmnt f sty attrs els ->
-                elWithChildren els
+        StyListAttrListElmntElmnt f sty attrs els ->
+            elWithChildren els
 
-            _ ->
-                elNoChildren
+        _ ->
+            elNoChildren
 
 
 viewCode :
@@ -221,108 +221,108 @@ viewCode onLabelClick noneMsg selected node =
                 visitChild prevLine child =
                     viewCodeR (acc ++ prevLine) (level + 1) child
             in
-                case node.elem of
-                    Elmnt f ->
-                        acc ++ line []
+            case node.elem of
+                Elmnt f ->
+                    acc ++ line []
 
-                    FltElmnt f flt ->
-                        acc ++ line [ toString flt ]
+                FltElmnt f flt ->
+                    acc ++ line [ toString flt ]
 
-                    StrElmnt f str ->
-                        acc ++ line [ U.quote str ]
+                StrElmnt f str ->
+                    acc ++ line [ U.quote str ]
 
-                    StyElmnt f sty ->
-                        acc ++ line [ toString sty ]
+                StyElmnt f sty ->
+                    acc ++ line [ toString sty ]
 
-                    ElmntElmnt f el_ ->
-                        visitChild (line [ " <|" ]) el_
+                ElmntElmnt f el_ ->
+                    visitChild (line [ " <|" ]) el_
 
-                    StrElmntElmnt f str el_ ->
-                        visitChild (line [ U.quote str, " <|" ]) el_
+                StrElmntElmnt f str el_ ->
+                    visitChild (line [ U.quote str, " <|" ]) el_
 
-                    BoolElmntElmnt f bool el_ ->
-                        visitChild (line [ toString bool, " <|" ]) el_
+                BoolElmntElmnt f bool el_ ->
+                    visitChild (line [ toString bool, " <|" ]) el_
 
-                    StyListAttrStrElmnt f sty attrs str ->
-                        acc ++ line [ toString sty, " ", Attr.viewCode attrs, " ", U.quote str ]
+                StyListAttrStrElmnt f sty attrs str ->
+                    acc ++ line [ toString sty, " ", Attr.viewCode attrs, " ", U.quote str ]
 
-                    StyListAttrElmntElmnt f sty attrs el_ ->
-                        visitChild (line [ toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
+                StyListAttrElmntElmnt f sty attrs el_ ->
+                    visitChild (line [ toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
 
-                    FltStyListAttrElmntElmnt f flt sty attrs el_ ->
-                        visitChild (line [ toString flt, " ", toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
+                FltStyListAttrElmntElmnt f flt sty attrs el_ ->
+                    visitChild (line [ toString flt, " ", toString sty, " ", Attr.viewCode attrs, " <|" ]) el_
 
-                    StyListAttrListElmntElmnt f sty attrs els ->
-                        let
-                            ( firstLine, lastLine ) =
-                                if List.isEmpty els then
-                                    ( line [ toString sty, " ", Attr.viewCode attrs, " []" ], [] )
-                                else
-                                    ( line [ toString sty, " ", Attr.viewCode attrs, " [" ], [ [ indnttn, "]" ] ] )
+                StyListAttrListElmntElmnt f sty attrs els ->
+                    let
+                        ( firstLine, lastLine ) =
+                            if List.isEmpty els then
+                                ( line [ toString sty, " ", Attr.viewCode attrs, " []" ], [] )
+                            else
+                                ( line [ toString sty, " ", Attr.viewCode attrs, " [" ], [ [ indnttn, "]" ] ] )
 
-                            childLines =
-                                els
-                                    |> List.map (viewCodeR [] (level + 1))
-                                    |> List.indexedMap
-                                        (\i lineGroups ->
-                                            if i + 1 < List.length els then
-                                                List.indexedMap
-                                                    (\j lineGroup ->
-                                                        if j + 1 == List.length lineGroups then
-                                                            lineGroup ++ [ "," ]
-                                                        else
-                                                            lineGroup
-                                                    )
-                                                    lineGroups
-                                            else
+                        childLines =
+                            els
+                                |> List.map (viewCodeR [] (level + 1))
+                                |> List.indexedMap
+                                    (\i lineGroups ->
+                                        if i + 1 < List.length els then
+                                            List.indexedMap
+                                                (\j lineGroup ->
+                                                    if j + 1 == List.length lineGroups then
+                                                        lineGroup ++ [ "," ]
+                                                    else
+                                                        lineGroup
+                                                )
                                                 lineGroups
-                                        )
-                                    |> List.concat
-                        in
-                            acc
-                                ++ firstLine
-                                ++ childLines
-                                ++ lastLine
+                                        else
+                                            lineGroups
+                                    )
+                                |> List.concat
+                    in
+                    acc
+                        ++ firstLine
+                        ++ childLines
+                        ++ lastLine
 
-                    ListElmntElmntElmnt f els el_ ->
-                        let
-                            ( firstLine, lastLine ) =
-                                if List.isEmpty els then
-                                    ( line [ "[]" ], [] )
-                                else
-                                    ( line [ "[" ], [ [ indnttn, "] <|" ] ] )
+                ListElmntElmntElmnt f els el_ ->
+                    let
+                        ( firstLine, lastLine ) =
+                            if List.isEmpty els then
+                                ( line [ "[]" ], [] )
+                            else
+                                ( line [ "[" ], [ [ indnttn, "] <|" ] ] )
 
-                            childLines =
-                                els
-                                    |> List.map (viewCodeR [] (level + 1))
-                                    |> List.indexedMap
-                                        (\i lineGroups ->
-                                            if i + 1 < List.length els then
-                                                List.indexedMap
-                                                    (\j lineGroup ->
-                                                        if j + 1 == List.length lineGroups then
-                                                            lineGroup ++ [ "," ]
-                                                        else
-                                                            lineGroup
-                                                    )
-                                                    lineGroups
-                                            else
+                        childLines =
+                            els
+                                |> List.map (viewCodeR [] (level + 1))
+                                |> List.indexedMap
+                                    (\i lineGroups ->
+                                        if i + 1 < List.length els then
+                                            List.indexedMap
+                                                (\j lineGroup ->
+                                                    if j + 1 == List.length lineGroups then
+                                                        lineGroup ++ [ "," ]
+                                                    else
+                                                        lineGroup
+                                                )
                                                 lineGroups
-                                        )
-                                    |> List.concat
-                        in
-                            acc
-                                ++ firstLine
-                                ++ childLines
-                                ++ visitChild lastLine el_
+                                        else
+                                            lineGroups
+                                    )
+                                |> List.concat
+                    in
+                    acc
+                        ++ firstLine
+                        ++ childLines
+                        ++ visitChild lastLine el_
     in
-        Input.multiline (Sty.CodeView Sty.CvTextArea)
-            [ height (px 300) ]
-            { onChange = noneMsg
-            , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
-            , label = Input.labelAbove <| bold "Code view"
-            , options = [ Input.disabled ]
-            }
+    Input.multiline (Sty.CodeView Sty.CvTextArea)
+        [ height (px 300) ]
+        { onChange = noneMsg
+        , value = String.join (String.fromChar '\n') <| List.map String.concat <| viewCodeR [] 0 node
+        , label = Input.labelAbove <| bold "Code view"
+        , options = [ Input.disabled ]
+        }
 
 
 viewInfo :
@@ -345,17 +345,24 @@ viewInfo a =
                 [ spacing 5 ]
                 [ Lutils.thingButton
                     { style = Sty.Button
-                    , onThingBttn = (a.onClickPicker <| ReplaceChild child.id)
-                    , showNewThings = (a.openPicker == ReplaceChild child.id)
-                    , newThings = (List.map (Lutils.newThingBttn a.onReplaceEl) <| allElems child.id)
+                    , onThingBttn = a.onClickPicker <| ReplaceChild child.id
+                    , showNewThings = a.openPicker == ReplaceChild child.id
+                    , newThings = List.map (Lutils.newThingBttn a.onReplaceEl) <| allElems child.id
                     , bttnTxt = "r"
                     }
                 , Lutils.thingButton
                     { style = Sty.Button
-                    , onThingBttn = (a.onDeleteEl { bringUpSubtree = False } child.id)
+                    , onThingBttn = a.onDeleteEl { bringUpSubtree = True } child.id
                     , showNewThings = False
                     , newThings = []
                     , bttnTxt = "d"
+                    }
+                , Lutils.thingButton
+                    { style = Sty.Button
+                    , onThingBttn = a.onDeleteEl { bringUpSubtree = False } child.id
+                    , showNewThings = False
+                    , newThings = []
+                    , bttnTxt = "dt"
                     }
                 , button Sty.NameButton [ onClick <| a.onSelectEl child.id ] <|
                     text child.name
@@ -397,6 +404,24 @@ viewInfo a =
                         allElems a.selected
                 }
 
+        deleteThisPreserveSubtreeButton =
+            Lutils.thingButton
+                { style = Sty.Button
+                , onThingBttn = a.onDeleteEl { bringUpSubtree = True } a.selected
+                , showNewThings = False
+                , newThings = []
+                , bttnTxt = "Delete this element and bring up subtree"
+                }
+
+        deleteThisAndSubtree =
+            Lutils.thingButton
+                { style = Sty.Button
+                , onThingBttn = a.onDeleteEl { bringUpSubtree = False } a.selected
+                , showNewThings = False
+                , newThings = []
+                , bttnTxt = "Delete this element and subtree"
+                }
+
         mbEl =
             find a.selected a.root
 
@@ -405,69 +430,69 @@ viewInfo a =
             let
                 onElemChg : Elem Sty.Style var msg -> msg
                 onElemChg =
-                    (El thisEl.id thisEl.name >> a.onReplaceEl)
+                    El thisEl.id thisEl.name >> a.onReplaceEl
 
                 key =
                     toString thisEl.id
             in
-                case thisEl.elem of
-                    Elmnt f ->
-                        []
+            case thisEl.elem of
+                Elmnt f ->
+                    []
 
-                    FltElmnt f flt ->
-                        [ Lutils.viewInfoFlt (onElemChg << FltElmnt f) flt key ]
+                FltElmnt f flt ->
+                    [ Lutils.viewInfoFlt (onElemChg << FltElmnt f) flt key ]
 
-                    StrElmnt f str ->
-                        [ Lutils.viewInfoStr (onElemChg << StrElmnt f) str key ]
+                StrElmnt f str ->
+                    [ Lutils.viewInfoStr (onElemChg << StrElmnt f) str key ]
 
-                    StyElmnt f sty ->
-                        []
+                StyElmnt f sty ->
+                    []
 
-                    ElmntElmnt f el ->
-                        [ viewInfoChild el ]
+                ElmntElmnt f el ->
+                    [ viewInfoChild el ]
 
-                    StrElmntElmnt f str el ->
-                        [ Lutils.viewInfoStr (onElemChg << (\str -> StrElmntElmnt f str el)) str key
-                        , viewInfoChild el
-                        ]
+                StrElmntElmnt f str el ->
+                    [ Lutils.viewInfoStr (onElemChg << (\str -> StrElmntElmnt f str el)) str key
+                    , viewInfoChild el
+                    ]
 
-                    BoolElmntElmnt f bool el ->
-                        [ Lutils.viewInfoBool (onElemChg << (\bool -> BoolElmntElmnt f bool el)) bool key
-                        , viewInfoChild el
-                        ]
+                BoolElmntElmnt f bool el ->
+                    [ Lutils.viewInfoBool (onElemChg << (\bool -> BoolElmntElmnt f bool el)) bool key
+                    , viewInfoChild el
+                    ]
 
-                    ListElmntElmntElmnt f els el ->
-                        [ viewInfoChild el, viewInfoChildren els ]
+                ListElmntElmntElmnt f els el ->
+                    [ viewInfoChild el, viewInfoChildren els ]
 
-                    StyListAttrStrElmnt f sty attrs str ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) a.onClickPicker a.openPicker attrs key
-                        , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
-                        ]
+                StyListAttrStrElmnt f sty attrs str ->
+                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) a.onClickPicker a.openPicker attrs key
+                    , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
+                    ]
 
-                    StyListAttrElmntElmnt f sty attrs el ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) a.onClickPicker a.openPicker attrs key
-                        , viewInfoChild el
-                        ]
+                StyListAttrElmntElmnt f sty attrs el ->
+                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) a.onClickPicker a.openPicker attrs key
+                    , viewInfoChild el
+                    ]
 
-                    FltStyListAttrElmntElmnt f flt sty attrs el ->
-                        [ Lutils.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
-                        , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) a.onClickPicker a.openPicker attrs key
-                        , viewInfoChild el
-                        ]
+                FltStyListAttrElmntElmnt f flt sty attrs el ->
+                    [ Lutils.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
+                    , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) a.onClickPicker a.openPicker attrs key
+                    , viewInfoChild el
+                    ]
 
-                    StyListAttrListElmntElmnt f sty attrs els ->
-                        [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) a.onClickPicker a.openPicker attrs key
-                        , viewInfoChildren els
-                        ]
+                StyListAttrListElmntElmnt f sty attrs els ->
+                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) a.onClickPicker a.openPicker attrs key
+                    , viewInfoChildren els
+                    ]
     in
-        case mbEl of
-            Just el ->
-                [ h1 (Sty.ElementInfo Sty.EiTitle) [ paddingLeft 5, paddingRight 5 ] <| text el.name ]
-                    ++ info el
-                    ++ [ replaceThisElement ]
+    case mbEl of
+        Just el ->
+            [ h1 (Sty.ElementInfo Sty.EiTitle) [ paddingLeft 5, paddingRight 5 ] <| text el.name ]
+                ++ info el
+                ++ [ replaceThisElement ]
 
-            Nothing ->
-                [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text "Nothing" ]
+        Nothing ->
+            [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text "Nothing" ]
 
 
 find : Elid -> El Sty.Style var msg -> Maybe (El Sty.Style var msg)
@@ -533,15 +558,15 @@ finds id els =
                 Nothing ->
                     first
     in
-        case maybeEl of
-            Just el ->
-                maybeEl
+    case maybeEl of
+        Just el ->
+            maybeEl
 
-            Nothing ->
-                if List.isEmpty rest then
-                    Nothing
-                else
-                    finds id rest
+        Nothing ->
+            if List.isEmpty rest then
+                Nothing
+            else
+                finds id rest
 
 
 deleteOnlyChild : Bool -> Elid -> El Sty.Style var msg -> El Sty.Style var msg
