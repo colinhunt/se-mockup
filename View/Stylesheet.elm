@@ -91,14 +91,17 @@ stylesheet =
         , style Button
             [ SColor.background unsetColor
             , SColor.text Color.darkGrey
+            , hover [ SColor.text Color.black ]
             ]
         , style NameButton <|
             thingName
                 ++ [ SColor.background unsetColor
+                   , Border.rounded 2
                    , variation SelectedEntry
                         [ SColor.background Color.charcoal
                         , SColor.text Color.white
                         ]
+                   , hover [ SColor.background Color.lightCharcoal ]
                    ]
         , style Input <|
             thingName

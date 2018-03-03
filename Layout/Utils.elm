@@ -21,6 +21,11 @@ type Picker
     | None
 
 
+type Direction
+    = Up
+    | Down
+
+
 textInput : (String -> msg) -> String -> Input.Label Sty.Style var msg -> String -> Element Sty.Style var msg
 textInput onChange str label key =
     Input.text Sty.Input

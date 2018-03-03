@@ -11,11 +11,6 @@ import Utils as U
 import View.Stylesheet exposing (..)
 
 
-button1 : List (Attribute variation msg) -> String -> Element Style variation msg
-button1 attrs label =
-    button Button (attrs ++ [ padding 5 ]) <| text label
-
-
 view : Model -> Html.Html Msg
 view model =
     Element.viewport stylesheet <|
