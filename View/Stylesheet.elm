@@ -2,17 +2,18 @@ module View.Stylesheet exposing (..)
 
 import Color
 import Style exposing (..)
-import Style.Color as SColor
-import Style.Font as Font
-import Style.Border as Border
 import Style.Background as Background
-import Style.Shadow as Shadow
+import Style.Border as Border
+import Style.Color as SColor
 import Style.Filter as Filter
+import Style.Font as Font
+import Style.Shadow as Shadow
 
 
 type Variation
     = Hover
     | Selected
+    | SelectedEntry
 
 
 type Style
@@ -33,6 +34,7 @@ type ElementInfoStyle
     = EiMain
     | EiTitle
     | EiThingInfo
+    | EiEntry
 
 
 type TreeViewStyle
@@ -92,7 +94,12 @@ stylesheet =
             ]
         , style NameButton <|
             thingName
-                ++ [ SColor.background unsetColor ]
+                ++ [ SColor.background unsetColor
+                   , variation SelectedEntry
+                        [ SColor.background Color.charcoal
+                        , SColor.text Color.white
+                        ]
+                   ]
         , style Input <|
             thingName
                 ++ [ SColor.text Color.orange

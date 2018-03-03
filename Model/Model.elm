@@ -16,6 +16,7 @@ type Msg
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
+    | OnSelectChild Elid
     | OnClickPicker Picker
     | OnSidebarClick
     | NoneMsg
@@ -25,6 +26,7 @@ type alias Model =
     { layout : El Style Variation Msg
     , mousedOver : List Elid
     , selected : Elid
+    , selectedChild : Elid
     , newId : Elid
     , openPicker : Picker
     }
@@ -46,6 +48,7 @@ initModel =
         }
     , mousedOver = []
     , selected = 0
+    , selectedChild = -1
     , newId = 10
     , openPicker = None
     }

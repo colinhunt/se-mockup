@@ -4,10 +4,10 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
 import Html
-import Utils as U
 import Layout.El as El
 import Layout.Element as Lyt exposing (El, Elid)
 import Model.Model exposing (..)
+import Utils as U
 import View.Stylesheet exposing (..)
 
 
@@ -39,19 +39,29 @@ sideBar model =
         ]
 
 
-viewElementInfo { selected, newId, openPicker, layout } =
-    column (ElementInfo EiMain) [ padding 1, paddingTop 20, width (px 300), yScrollbar, onClick OnSidebarClick ] <|
+viewElementInfo { selected, selectedChild, newId, openPicker, layout } =
+    column (ElementInfo EiMain)
+        [ padding 1
+        , paddingTop 20
+        , width (px 300)
+        , yScrollbar
+        , clipX
+        , onClick OnSidebarClick
+        ]
+    <|
         if selected > -1 then
             El.viewInfo
                 { onInsertChild = OnInsertChild
                 , onReplaceEl = OnReplaceEl
                 , onSelectEl = OnClick
+                , onSelectChild = OnSelectChild
                 , onDeleteEl = OnDeleteEl
                 , onClickPicker = OnClickPicker
                 , noneMsg = NoneMsg
                 , openPicker = openPicker
                 , newId = newId
                 , selected = selected
+                , selectedChild = selectedChild
                 , root = layout
                 }
         else
@@ -84,8 +94,8 @@ renderLayout model =
             , U.onClickNoProp <| OnClick id
             ]
     in
-        el None [ height fill, width fill ] <|
-            El.view extraAttrs model.layout
+    el None [ height fill, width fill ] <|
+        El.view extraAttrs model.layout
 
 
 viewCode : Model -> Element Style Variation Msg

@@ -1,12 +1,12 @@
 module Layout.Utils exposing (..)
 
-import Json.Decode as Json
 import Element exposing (..)
-import Element.Events exposing (onClick, onWithOptions)
 import Element.Attributes exposing (..)
+import Element.Events exposing (onClick, onWithOptions)
 import Element.Input as Input
-import Utils as U
+import Json.Decode as Json
 import Layout.Element exposing (Elid)
+import Utils as U
 import View.Stylesheet as Sty
 
 
@@ -78,6 +78,7 @@ thingInfo a =
                         , showNewThings = a.showNewThings
                         , newThings = a.newThings
                         , bttnTxt = a.newThingBttnTxt
+                        , pickerAlignment = alignLeft
                         }
                    ]
         ]
@@ -86,12 +87,12 @@ thingInfo a =
 newThingBttn : ({ r | name : String } -> msg) -> { r | name : String } -> Element Sty.Style var msg
 newThingBttn onThing newThing =
     el Sty.PickerButton
-            [ width (px 140)
-            , padding 2.5
-            , onClick <| onThing newThing
-            ]
-        <|
-            text newThing.name
+        [ width (px 140)
+        , padding 2.5
+        , onClick <| onThing newThing
+        ]
+    <|
+        text newThing.name
 
 
 thingButton :
@@ -100,22 +101,58 @@ thingButton :
     , showNewThings : Bool
     , newThings : List (Element Sty.Style var msg)
     , bttnTxt : String
+    , pickerAlignment : Attribute var msg
     }
     -> Element Sty.Style var msg
-thingButton a =
+thingButton props =
     (el Sty.None [] <|
-        button a.style
-            [ U.onClickNoProp a.onThingBttn ]
+        button props.style
+            [ U.onClickNoProp props.onThingBttn ]
         <|
-            text a.bttnTxt
+            text props.bttnTxt
     )
         |> below
-            [ when a.showNewThings <|
-                column Sty.ThingPicker
-                    [ width (px 140)
-                    , maxHeight (px 200)
-                    , yScrollbar
-                    , alignLeft
-                    ]
-                    a.newThings
+            [ when props.showNewThings <|
+                el Sty.None [ props.pickerAlignment ] <|
+                    column Sty.ThingPicker
+                        [ width (px 140)
+                        , maxHeight (px 200)
+                        , yScrollbar
+                        , alignLeft
+                        ]
+                        props.newThings
+            ]
+
+
+thingControl :
+    { title : Element Sty.Style var msg
+    , things :
+        { before : List (Element Sty.Style var msg)
+        , selected : Maybe { menu : Element Sty.Style var msg, thing : Element Sty.Style var msg }
+        , after : List (Element Sty.Style var msg)
+        }
+    , newThingButton : Element Sty.Style var msg
+    }
+    -> Element Sty.Style var msg
+thingControl props =
+    let
+        ( menu, selected ) =
+            case props.things.selected of
+                Just { menu, thing } ->
+                    ( menu, thing )
+
+                Nothing ->
+                    ( empty, empty )
+    in
+    within
+        [ el Sty.None [ alignRight, moveLeft 5 ] menu
+        ]
+    <|
+        column (Sty.ElementInfo Sty.EiThingInfo) [ padding 5 ] <|
+            [ props.title
+            , column Sty.None [ paddingLeft 10 ] <|
+                props.things.before
+                    ++ [ selected ]
+                    ++ props.things.after
+                    ++ [ props.newThingButton ]
             ]

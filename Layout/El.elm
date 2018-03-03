@@ -345,67 +345,129 @@ viewInfo :
     { onInsertChild : El Sty.Style var msg -> msg
     , onReplaceEl : El Sty.Style var msg -> msg
     , onSelectEl : Elid -> msg
+    , onSelectChild : Elid -> msg
     , onDeleteEl : { bringUpSubtree : Bool } -> Elid -> msg
     , onClickPicker : Picker -> msg
     , noneMsg : msg
     , openPicker : Picker
     , newId : Elid
     , selected : Elid
+    , selectedChild : Elid
     , root : El Sty.Style var msg
     }
-    -> List (Element Sty.Style var msg)
+    -> List (Element Sty.Style Sty.Variation msg)
 viewInfo a =
     let
         childEntry child =
             row Sty.None
                 [ spacing 5 ]
                 [ Lutils.thingButton
-                    { style = Sty.Button
-                    , onThingBttn = a.onClickPicker <| ReplaceChild child.id
-                    , showNewThings = a.openPicker == ReplaceChild child.id
-                    , newThings = List.map (Lutils.newThingBttn a.onReplaceEl) <| allElemsSorted child.id
-                    , bttnTxt = "r"
-                    }
-                , Lutils.thingButton
-                    { style = Sty.Button
-                    , onThingBttn = a.onDeleteEl { bringUpSubtree = True } child.id
+                    { style = Sty.NameButton
+                    , onThingBttn = a.onSelectEl child.id
                     , showNewThings = False
                     , newThings = []
-                    , bttnTxt = "d"
+                    , bttnTxt = "←"
+                    , pickerAlignment = alignLeft
                     }
-                , Lutils.thingButton
-                    { style = Sty.Button
-                    , onThingBttn = a.onDeleteEl { bringUpSubtree = False } child.id
-                    , showNewThings = False
-                    , newThings = []
-                    , bttnTxt = "dt"
-                    }
-                , button Sty.NameButton [ onClick <| a.onSelectEl child.id ] <|
+                , button Sty.NameButton
+                    [ U.onClickNoProp <| a.onSelectChild child.id
+                    , vary Sty.SelectedEntry <| a.selectedChild == child.id
+                    ]
+                  <|
                     text child.name
                 ]
 
-        viewInfoChild : El Sty.Style var msg -> Element Sty.Style var msg
+        viewInfoChild : El Sty.Style var msg -> Element Sty.Style Sty.Variation msg
         viewInfoChild child =
-            Lutils.thingInfo
-                { title = "Child:"
-                , newThingBttnTxt = ""
-                , onNewThingBttn = a.noneMsg
-                , showNewThings = False
-                , things = [ childEntry child ]
-                , newThings = []
+            viewInfoChildrenHelper
+                { title = text "Child:"
+                , children = [ child ]
+                , showNewThingButton = False
                 }
 
-        viewInfoChildren : List (El Sty.Style var msg) -> Element Sty.Style var msg
         viewInfoChildren children =
-            Lutils.thingInfo
-                { title = "Children:"
-                , newThingBttnTxt = "+"
-                , onNewThingBttn = a.onClickPicker AddChild
-                , showNewThings = a.openPicker == AddChild
-                , things = List.map childEntry children
-                , newThings =
-                    List.map (Lutils.newThingBttn a.onInsertChild) <|
-                        allElemsSorted a.newId
+            viewInfoChildrenHelper
+                { title = text "Children:"
+                , children = children
+                , showNewThingButton = True
+                }
+
+        viewInfoChildrenHelper :
+            { title : Element Sty.Style Sty.Variation msg
+            , children : List (El Sty.Style var msg)
+            , showNewThingButton : Bool
+            }
+            -> Element Sty.Style Sty.Variation msg
+        viewInfoChildrenHelper props =
+            let
+                childEntries =
+                    List.map childEntry props.children
+
+                partition before selected after =
+                    case after of
+                        first :: rest ->
+                            if first.id == a.selectedChild then
+                                ( before, Just first, rest )
+                            else
+                                partition (before ++ [ first ]) selected rest
+
+                        [] ->
+                            ( before, selected, after )
+
+                ( before, mbSelected, after ) =
+                    partition [] Nothing props.children
+
+                selectedWithMenu child =
+                    { menu =
+                        row Sty.None
+                            [ spacing 10 ]
+                            [ Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = a.onDeleteEl { bringUpSubtree = True } child.id
+                                , showNewThings = False
+                                , newThings = []
+                                , bttnTxt = "d"
+                                , pickerAlignment = alignLeft
+                                }
+                            , Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = a.onDeleteEl { bringUpSubtree = False } child.id
+                                , showNewThings = False
+                                , newThings = []
+                                , bttnTxt = "dt"
+                                , pickerAlignment = alignLeft
+                                }
+                            , Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = a.onClickPicker <| ReplaceChild child.id
+                                , showNewThings = a.openPicker == ReplaceChild child.id
+                                , newThings = List.map (Lutils.newThingBttn a.onReplaceEl) <| allElemsSorted child.id
+                                , bttnTxt = "r"
+                                , pickerAlignment = alignRight
+                                }
+                            ]
+                    , thing = childEntry child
+                    }
+            in
+            Lutils.thingControl
+                { title = props.title
+                , things =
+                    { before = before |> List.map childEntry
+                    , selected = mbSelected |> Maybe.map selectedWithMenu
+                    , after = after |> List.map childEntry
+                    }
+                , newThingButton =
+                    when props.showNewThingButton <|
+                        Lutils.thingButton
+                            { style = Sty.Button
+                            , onThingBttn = a.onClickPicker AddChild
+                            , showNewThings = a.openPicker == AddChild
+                            , newThings =
+                                List.map (Lutils.newThingBttn a.onInsertChild) <|
+                                    allElemsSorted a.newId
+                            , bttnTxt = "+"
+                            , pickerAlignment = alignLeft
+                            }
                 }
 
         replaceThisElement =
@@ -420,28 +482,10 @@ viewInfo a =
                         allElemsSorted a.selected
                 }
 
-        deleteThisPreserveSubtreeButton =
-            Lutils.thingButton
-                { style = Sty.Button
-                , onThingBttn = a.onDeleteEl { bringUpSubtree = True } a.selected
-                , showNewThings = False
-                , newThings = []
-                , bttnTxt = "Delete this element and bring up subtree"
-                }
-
-        deleteThisAndSubtree =
-            Lutils.thingButton
-                { style = Sty.Button
-                , onThingBttn = a.onDeleteEl { bringUpSubtree = False } a.selected
-                , showNewThings = False
-                , newThings = []
-                , bttnTxt = "Delete this element and subtree"
-                }
-
         mbEl =
             find a.selected a.root
 
-        info : El Sty.Style var msg -> List (Element Sty.Style var msg)
+        info : El Sty.Style var msg -> List (Element Sty.Style Sty.Variation msg)
         info thisEl =
             let
                 onElemChg : Elem Sty.Style var msg -> msg
@@ -478,7 +522,9 @@ viewInfo a =
                     ]
 
                 ListElmntElmntElmnt f els el ->
-                    [ viewInfoChild el, viewInfoChildren els ]
+                    [ viewInfoChild el
+                    , viewInfoChildren els
+                    ]
 
                 StyListAttrStrElmnt f sty attrs str ->
                     [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) a.onClickPicker a.openPicker attrs key

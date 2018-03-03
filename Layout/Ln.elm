@@ -3,8 +3,8 @@ module Layout.Ln exposing (..)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Layout.Element exposing (..)
-import View.Stylesheet as Sty
 import Layout.Utils as Lutils exposing (Picker(..))
+import View.Stylesheet as Sty
 
 
 viewInfo :
@@ -17,18 +17,19 @@ viewInfo :
 viewInfo onChange onClickPicker openPicker ln key =
     let
         onLnChg =
-            (Ln ln.name >> onChange)
+            Ln ln.name >> onChange
     in
-        row Sty.None [ spacing 2 ] <|
-            [ Lutils.thingButton
-                { style = Sty.NameButton
-                , onThingBttn = (onClickPicker <| ReplaceLength key)
-                , showNewThings = (openPicker == ReplaceLength key)
-                , newThings = (List.map (Lutils.newThingBttn onChange) allLngths)
-                , bttnTxt = ln.name
-                }
-            ]
-                ++ case ln.lngth of
+    row Sty.None [ spacing 2 ] <|
+        [ Lutils.thingButton
+            { style = Sty.NameButton
+            , onThingBttn = onClickPicker <| ReplaceLength key
+            , showNewThings = openPicker == ReplaceLength key
+            , newThings = List.map (Lutils.newThingBttn onChange) allLngths
+            , bttnTxt = ln.name
+            , pickerAlignment = alignLeft
+            }
+        ]
+            ++ (case ln.lngth of
                     Lng f ->
                         []
 
@@ -37,6 +38,7 @@ viewInfo onChange onClickPicker openPicker ln key =
 
                     IntLng f int ->
                         [ Lutils.viewInfoInt (onLnChg << IntLng f) int key ]
+               )
 
 
 view : Ln -> Length

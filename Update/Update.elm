@@ -30,11 +30,14 @@ update msg model =
         OnClick id ->
             onClick id model
 
+        OnSelectChild id ->
+            onSelectChild id model
+
         OnClickPicker picker ->
             onClickPicker picker model
 
         OnSidebarClick ->
-            { model | openPicker = None } ! []
+            { model | openPicker = None, selectedChild = -1 } ! []
 
         NoneMsg ->
             model ! []
@@ -112,6 +115,14 @@ onClick id model =
             { model_ | selected = id } ! []
     else
         model_ ! []
+
+
+onSelectChild : Elid -> Model -> ( Model, Cmd Msg )
+onSelectChild id model =
+    if id == model.selectedChild then
+        { model | selectedChild = -1 } ! []
+    else
+        { model | selectedChild = id } ! []
 
 
 onClickPicker : Picker -> Model -> ( Model, Cmd Msg )

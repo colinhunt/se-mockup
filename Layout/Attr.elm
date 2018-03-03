@@ -40,7 +40,7 @@ viewInfo :
     -> Picker
     -> String
     -> At var msg
-    -> Element Sty.Style var msg
+    -> Element Sty.Style Sty.Variation msg
 viewInfo onChange onClickPicker openPicker key at =
     let
         onAttrChg : Attr var msg -> msg
@@ -54,6 +54,7 @@ viewInfo onChange onClickPicker openPicker key at =
             , showNewThings = openPicker == ReplaceAttribute at.name
             , newThings = List.map (Lutils.newThingBttn onChange) allAttrs
             , bttnTxt = at.name
+            , pickerAlignment = alignLeft
             }
         ]
             ++ (case at.attr of
@@ -82,7 +83,7 @@ viewInfos :
     -> Picker
     -> List (At var msg)
     -> String
-    -> Element Sty.Style var msg
+    -> Element Sty.Style Sty.Variation msg
 viewInfos onChange onClickPicker openPicker attrs key =
     let
         onAttrsChg i newAttr =
@@ -123,6 +124,7 @@ viewInfos onChange onClickPicker openPicker attrs key =
                                 , showNewThings = False
                                 , newThings = []
                                 , bttnTxt = "d"
+                                , pickerAlignment = alignLeft
                                 }
                             , viewInfo
                                 (onAttrsChg i)
