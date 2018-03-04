@@ -4,6 +4,7 @@ import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (onClick, onWithOptions)
 import Element.Input as Input
+import Html.Attributes exposing (title)
 import Json.Decode as Json
 import Layout.Element exposing (Elid)
 import Utils as U
@@ -18,6 +19,8 @@ type Picker
     | AddAttribute
     | ReplaceAttribute String
     | ReplaceLength String
+    | InsertAbove
+    | InsertBelow Elid
     | None
 
 
@@ -84,6 +87,7 @@ thingInfo a =
                         , newThings = a.newThings
                         , bttnTxt = a.newThingBttnTxt
                         , pickerAlignment = alignLeft
+                        , labelTxt = ""
                         }
                    ]
         ]
@@ -106,14 +110,13 @@ thingButton :
     , showNewThings : Bool
     , newThings : List (Element Sty.Style var msg)
     , bttnTxt : String
+    , labelTxt : String
     , pickerAlignment : Attribute var msg
     }
     -> Element Sty.Style var msg
 thingButton props =
     (el Sty.None [] <|
-        button props.style
-            [ U.onClickNoProp props.onThingBttn ]
-        <|
+        button props.style [ U.onClickNoProp props.onThingBttn, toAttr <| title props.labelTxt ] <|
             text props.bttnTxt
     )
         |> below

@@ -55,6 +55,7 @@ viewInfo onChange onClickPicker openPicker key at =
             , newThings = List.map (Lutils.newThingBttn onChange) allAttrs
             , bttnTxt = at.name
             , pickerAlignment = alignLeft
+            , labelTxt = "replace"
             }
         ]
             ++ (case at.attr of
@@ -124,6 +125,7 @@ viewInfos onChange onClickPicker openPicker attrs key =
                                 , showNewThings = False
                                 , newThings = []
                                 , bttnTxt = "d"
+                                , labelTxt = "delete"
                                 , pickerAlignment = alignLeft
                                 }
                             , viewInfo

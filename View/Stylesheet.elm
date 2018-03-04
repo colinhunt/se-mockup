@@ -21,6 +21,7 @@ type Style
     | Main
     | Elmnt
     | Button
+    | ButtonLabel
     | ThingPicker
     | NameButton
     | PickerButton
@@ -93,6 +94,8 @@ stylesheet =
             , SColor.text Color.darkGrey
             , hover [ SColor.text Color.black ]
             ]
+        , style ButtonLabel
+            []
         , style NameButton <|
             thingName
                 ++ [ SColor.background unsetColor

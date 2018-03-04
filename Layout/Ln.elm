@@ -26,6 +26,7 @@ viewInfo onChange onClickPicker openPicker ln key =
             , showNewThings = openPicker == ReplaceLength key
             , newThings = List.map (Lutils.newThingBttn onChange) allLngths
             , bttnTxt = ln.name
+            , labelTxt = "replace"
             , pickerAlignment = alignLeft
             }
         ]

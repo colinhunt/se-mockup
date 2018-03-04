@@ -11,7 +11,7 @@ import View.Stylesheet as Sty exposing (Style, Variation)
 
 type Msg
     = OnInsertChild (El Style Variation Msg)
-    | OnReplaceEl (El Style Variation Msg)
+    | OnReplaceEl Elid (El Style Variation Msg)
     | OnDeleteEl { bringUpSubtree : Bool } Elid
     | OnMouseEnter Elid
     | OnMouseLeave

@@ -117,8 +117,8 @@ type alias StyListAttrListElmntElmntFn sty var msg =
     sty -> List (Attribute var msg) -> List (Element sty var msg) -> Element sty var msg
 
 
-allElems : Int -> List (El Sty.Style var msg)
-allElems id =
+allElems : Int -> List (El Sty.Style var msg) -> List (El Sty.Style var msg)
+allElems id children =
     [ { id = id, name = "empty", elem = Elmnt empty }
     , { id = id, name = "spacer", elem = FltElmnt spacer 10 }
     , { id = id, name = "text", elem = StrElmnt text "placeholder" }
@@ -129,43 +129,43 @@ allElems id =
     , { id = id, name = "sub", elem = StrElmnt sub "placeholder" }
     , { id = id, name = "super", elem = StrElmnt super "placeholder" }
     , { id = id, name = "hairline", elem = StyElmnt hairline Sty.None }
-    , { id = id, name = "screen", elem = ElmntElmnt screen { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "node", elem = StrElmntElmnt node "placeholder" { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "link", elem = StrElmntElmnt link "placeholder" { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "newTab", elem = StrElmntElmnt newTab "placeholder" { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "download", elem = StrElmntElmnt download "placeholder" { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "when", elem = BoolElmntElmnt when False { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
+    , { id = id, name = "screen", elem = ElmntElmnt screen (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "node", elem = StrElmntElmnt node "placeholder" (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "link", elem = StrElmntElmnt link "placeholder" (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "newTab", elem = StrElmntElmnt newTab "placeholder" (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "download", elem = StrElmntElmnt download "placeholder" (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "when", elem = BoolElmntElmnt when False (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
     , { id = id, name = "subheading", elem = StyListAttrStrElmnt subheading Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] "placeholder" }
-    , { id = id, name = "within", elem = ListElmntElmntElmnt within [ { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } ] { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "above", elem = ListElmntElmntElmnt above [ { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } ] { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "below", elem = ListElmntElmntElmnt below [ { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } ] { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "onRight", elem = ListElmntElmntElmnt onRight [ { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } ] { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "onLeft", elem = ListElmntElmntElmnt onLeft [ { id = id + 1, name = "text", elem = StrElmnt text "placeholder" } ] { id = id + 2, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "el", elem = StyListAttrElmntElmnt el Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "section", elem = StyListAttrElmntElmnt section Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "article", elem = StyListAttrElmntElmnt article Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "aside", elem = StyListAttrElmntElmnt aside Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "button", elem = StyListAttrElmntElmnt button Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h1", elem = StyListAttrElmntElmnt h1 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h2", elem = StyListAttrElmntElmnt h2 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h3", elem = StyListAttrElmntElmnt h3 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h4", elem = StyListAttrElmntElmnt h4 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h5", elem = StyListAttrElmntElmnt h5 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "h6", elem = StyListAttrElmntElmnt h6 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "full", elem = StyListAttrElmntElmnt full Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "search", elem = StyListAttrElmntElmnt search Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "header", elem = StyListAttrElmntElmnt header Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "footer", elem = StyListAttrElmntElmnt footer Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "mainContent", elem = StyListAttrElmntElmnt mainContent Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "modal", elem = StyListAttrElmntElmnt modal Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "circle", elem = FltStyListAttrElmntElmnt circle 10 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] { id = id + 4, name = "text", elem = StrElmnt text "placeholder" } }
-    , { id = id, name = "textLayout", elem = StyListAttrListElmntElmnt textLayout Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "paragraph", elem = StyListAttrListElmntElmnt paragraph Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "row", elem = StyListAttrListElmntElmnt row Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "column", elem = StyListAttrListElmntElmnt column Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "wrappedRow", elem = StyListAttrListElmntElmnt wrappedRow Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "wrappedColumn", elem = StyListAttrListElmntElmnt wrappedColumn Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
-    , { id = id, name = "sidebar", elem = StyListAttrListElmntElmnt sidebar Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] [ { id = id + 3, name = "text", elem = StrElmnt text "placeholder" } ] }
+    , { id = id, name = "within", elem = ListElmntElmntElmnt within children (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "above", elem = ListElmntElmntElmnt above children (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "below", elem = ListElmntElmntElmnt below children (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "onRight", elem = ListElmntElmntElmnt onRight children (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "onLeft", elem = ListElmntElmntElmnt onLeft children (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "el", elem = StyListAttrElmntElmnt el Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "section", elem = StyListAttrElmntElmnt section Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "article", elem = StyListAttrElmntElmnt article Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "aside", elem = StyListAttrElmntElmnt aside Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "button", elem = StyListAttrElmntElmnt button Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h1", elem = StyListAttrElmntElmnt h1 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h2", elem = StyListAttrElmntElmnt h2 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h3", elem = StyListAttrElmntElmnt h3 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h4", elem = StyListAttrElmntElmnt h4 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h5", elem = StyListAttrElmntElmnt h5 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "h6", elem = StyListAttrElmntElmnt h6 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "full", elem = StyListAttrElmntElmnt full Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "search", elem = StyListAttrElmntElmnt search Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "header", elem = StyListAttrElmntElmnt header Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "footer", elem = StyListAttrElmntElmnt footer Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "mainContent", elem = StyListAttrElmntElmnt mainContent Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "modal", elem = StyListAttrElmntElmnt modal Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "circle", elem = FltStyListAttrElmntElmnt circle 10 Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] (children |> List.head |> Maybe.withDefault { id = id + 1, name = "empty", elem = Elmnt empty }) }
+    , { id = id, name = "textLayout", elem = StyListAttrListElmntElmnt textLayout Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "paragraph", elem = StyListAttrListElmntElmnt paragraph Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "row", elem = StyListAttrListElmntElmnt row Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "column", elem = StyListAttrListElmntElmnt column Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "wrappedRow", elem = StyListAttrListElmntElmnt wrappedRow Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "wrappedColumn", elem = StyListAttrListElmntElmnt wrappedColumn Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
+    , { id = id, name = "sidebar", elem = StyListAttrListElmntElmnt sidebar Sty.None [ { name = "padding", attr = FltAttr padding 20 } ] children }
     ]
 
 

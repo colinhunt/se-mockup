@@ -30,9 +30,9 @@ ARG_LOOKUP = {
     'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
     'Length': { 'type': 'Ln', 'var_name': 'lng', 'default': '{ name = "px", lngth = FltLng px 10 }' },
     'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
-    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': lambda i: '[{}]'.format(placeholder(i)) },
+    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': 'children' },
     'ListAttributeVarMsg': { 'type': '(List (At var msg))', 'var_name': 'attrs', 'default': '[{ name = "padding", attr = FltAttr padding 20}]' },
-    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': placeholder },
+    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': '(children |> List.head |> Maybe.withDefault {id = id + 1, name = "empty", elem = Elmnt empty})' },
     'AttributeVarMsg': { 'type': '(At var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
 
 }
@@ -64,17 +64,8 @@ def excluded(fcn_name, fcn_sig, suffix):
     )
 
 def make_defaults(types):
-    defaults = []
-    for i, type in enumerate(types):
-        type_info = ARG_LOOKUP[type]
-        if type_info['var_name'] in ['el', 'els']:
-            defaults.append(type_info['default'](i + 1))
-        else:
-            defaults.append(type_info['default'])
+    return [ARG_LOOKUP[type]['default'] for type in types]
 
-    return defaults
-
-# def make_arg(part):
 
 print 'module Layout.Element exposing (..)'
 
@@ -218,8 +209,15 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
         extra_field_name = ''
         extra_field_type = ''
         extra_field_assign = ''
-    print 'all{}s'.format(kind.title()), ':', extra_field_type, 'List ({rec_name} {type_vars})'.format(rec_name=rec_name, type_vars=' '.join(['Sty.Style' if var == 'sty' else var for var in fcn_type.type_vars.split()]))
-    print 'all{}s'.format(kind.title()), extra_field_name, '=', '['
+    if kind == 'Elem':
+        extra_arg_2 = 'children'
+        extra_type_2 = 'List (El Sty.Style var msg) ->'
+    else:
+        extra_arg_2 = ''
+        extra_type_2 = ''
+
+    print 'all{}s'.format(kind.title()), ':', extra_field_type, extra_type_2, 'List ({rec_name} {type_vars})'.format(rec_name=rec_name, type_vars=' '.join(['Sty.Style' if var == 'sty' else var for var in fcn_type.type_vars.split()]))
+    print 'all{}s'.format(kind.title()), extra_field_name, extra_arg_2, '=', '['
     for i, fcn_type in enumerate(fcn_types):
         for j, fcn in enumerate(fcn_type.members):
             print '    {comma}{{ {extra_field} name = "{name}", {kind} = {fcn_type_name} {name} {defaults} }}'.format(

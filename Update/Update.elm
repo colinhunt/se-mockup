@@ -15,8 +15,8 @@ update msg model =
         OnInsertChild el ->
             onInsertChild el model
 
-        OnReplaceEl el ->
-            onReplaceEl (Debug.log "OnReplaceEl" el) model
+        OnReplaceEl id el ->
+            onReplaceEl (Debug.log "OnReplaceEl" el) id model
 
         OnDeleteEl { bringUpSubtree } id ->
             onDeleteEl bringUpSubtree id model
@@ -58,9 +58,9 @@ onInsertChild elem m =
         m
 
 
-onReplaceEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onReplaceEl elem m =
-    insertReplace (El.map (always elem) elem.id m.layout) m
+onReplaceEl : El Style Variation Msg -> Elid -> Model -> ( Model, Cmd Msg )
+onReplaceEl elem id m =
+    insertReplace (El.map (always elem) id m.layout) m
 
 
 onDeleteEl : Bool -> Elid -> Model -> ( Model, Cmd Msg )

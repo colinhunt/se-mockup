@@ -11,8 +11,8 @@ import Utils as U
 import View.Stylesheet as Sty
 
 
-allElemsSorted id =
-    allElems id
+allElemsSorted id children =
+    allElems id children
         |> List.sortWith
             (U.manualOrdering
                 [ "el"
@@ -343,7 +343,7 @@ viewCode onLabelClick noneMsg selected node =
 
 viewInfo :
     { onInsertChild : El Sty.Style var msg -> msg
-    , onReplaceEl : El Sty.Style var msg -> msg
+    , onReplaceEl : Elid -> El Sty.Style var msg -> msg
     , onSelectEl : Elid -> msg
     , onSelectChild : Elid -> msg
     , onDeleteEl : { bringUpSubtree : Bool } -> Elid -> msg
@@ -373,6 +373,7 @@ viewInfo props =
                     , showNewThings = False
                     , newThings = []
                     , bttnTxt = "➟"
+                    , labelTxt = "go to"
                     , pickerAlignment = alignLeft
                     }
                 ]
@@ -454,6 +455,7 @@ viewInfo props =
                                     , showNewThings = False
                                     , newThings = []
                                     , bttnTxt = "↑"
+                                    , labelTxt = "move up"
                                     , pickerAlignment = alignLeft
                                     }
                             , when (List.length props2.children > 1) <|
@@ -463,14 +465,27 @@ viewInfo props =
                                     , showNewThings = False
                                     , newThings = []
                                     , bttnTxt = "↓"
+                                    , labelTxt = "move down"
                                     , pickerAlignment = alignLeft
                                     }
+                            , Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = props.onClickPicker <| InsertBelow child.id
+                                , showNewThings = props.openPicker == InsertBelow child.id
+                                , newThings =
+                                    List.map (Lutils.newThingBttn <| props.onReplaceEl child.id) <|
+                                        allElemsSorted props.newId [ child ]
+                                , bttnTxt = "^"
+                                , labelTxt = "insert"
+                                , pickerAlignment = alignRight
+                                }
                             , Lutils.thingButton
                                 { style = Sty.Button
                                 , onThingBttn = props.onDeleteEl { bringUpSubtree = True } child.id
                                 , showNewThings = False
                                 , newThings = []
                                 , bttnTxt = "d"
+                                , labelTxt = "delete"
                                 , pickerAlignment = alignLeft
                                 }
                             , Lutils.thingButton
@@ -479,14 +494,19 @@ viewInfo props =
                                 , showNewThings = False
                                 , newThings = []
                                 , bttnTxt = "dt"
+                                , labelTxt = "delete tree"
                                 , pickerAlignment = alignLeft
                                 }
                             , Lutils.thingButton
                                 { style = Sty.Button
                                 , onThingBttn = props.onClickPicker <| ReplaceChild child.id
                                 , showNewThings = props.openPicker == ReplaceChild child.id
-                                , newThings = List.map (Lutils.newThingBttn props.onReplaceEl) <| allElemsSorted child.id
+                                , newThings =
+                                    List.map (Lutils.newThingBttn <| props.onReplaceEl child.id) <|
+                                        allElemsSorted child.id <|
+                                            getChildren child
                                 , bttnTxt = "r"
+                                , labelTxt = "replace"
                                 , pickerAlignment = alignRight
                                 }
                             ]
@@ -508,13 +528,14 @@ viewInfo props =
                             , showNewThings = props.openPicker == AddChild
                             , newThings =
                                 List.map (Lutils.newThingBttn props.onInsertChild) <|
-                                    allElemsSorted props.newId
+                                    allElemsSorted props.newId []
                             , bttnTxt = "+"
+                            , labelTxt = "add new"
                             , pickerAlignment = alignLeft
                             }
                 }
 
-        replaceThisElement =
+        replaceThisElement children =
             Lutils.thingInfo
                 { title = ""
                 , newThingBttnTxt = "replace this element..."
@@ -522,11 +543,23 @@ viewInfo props =
                 , showNewThings = props.openPicker == ReplaceElement
                 , things = []
                 , newThings =
-                    List.map (Lutils.newThingBttn props.onReplaceEl) <|
-                        allElemsSorted props.selected
+                    List.map (Lutils.newThingBttn <| props.onReplaceEl props.selected) <|
+                        allElemsSorted props.selected children
                 }
 
-        mbEl =
+        insertAboveThis this =
+            Lutils.thingInfo
+                { title = ""
+                , newThingBttnTxt = "insert element above..."
+                , onNewThingBttn = props.onClickPicker InsertAbove
+                , showNewThings = props.openPicker == InsertAbove
+                , things = []
+                , newThings =
+                    List.map (Lutils.newThingBttn <| props.onReplaceEl props.selected) <|
+                        allElemsSorted props.newId [ this ]
+                }
+
+        mbThis =
             find props.selected props.root
 
         info : El Sty.Style var msg -> List (Element Sty.Style Sty.Variation msg)
@@ -534,7 +567,7 @@ viewInfo props =
             let
                 onElemChg : Elem Sty.Style var msg -> msg
                 onElemChg =
-                    El thisEl.id thisEl.name >> props.onReplaceEl
+                    El thisEl.id thisEl.name >> props.onReplaceEl thisEl.id
 
                 key =
                     toString thisEl.id
@@ -552,6 +585,16 @@ viewInfo props =
                 StyElmnt f sty ->
                     []
 
+                StyListAttrStrElmnt f sty attrs str ->
+                    [ Attr.viewInfos
+                        (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str))
+                        props.onClickPicker
+                        props.openPicker
+                        attrs
+                        key
+                    , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
+                    ]
+
                 ElmntElmnt f el ->
                     [ viewInfoChild el ]
 
@@ -565,24 +608,37 @@ viewInfo props =
                     , viewInfoChild el
                     ]
 
-                StyListAttrStrElmnt f sty attrs str ->
-                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrStrElmnt f sty attrs str)) props.onClickPicker props.openPicker attrs key
-                    , Lutils.viewInfoStr (onElemChg << StyListAttrStrElmnt f sty attrs) str key
-                    ]
-
                 StyListAttrElmntElmnt f sty attrs el ->
-                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el)) props.onClickPicker props.openPicker attrs key
+                    [ Attr.viewInfos
+                        (onElemChg << (\attrs -> StyListAttrElmntElmnt f sty attrs el))
+                        props.onClickPicker
+                        props.openPicker
+                        attrs
+                        key
                     , viewInfoChild el
                     ]
 
                 FltStyListAttrElmntElmnt f flt sty attrs el ->
-                    [ Lutils.viewInfoFlt (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el)) flt key
-                    , Attr.viewInfos (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el)) props.onClickPicker props.openPicker attrs key
+                    [ Lutils.viewInfoFlt
+                        (onElemChg << (\flt -> FltStyListAttrElmntElmnt f flt sty attrs el))
+                        flt
+                        key
+                    , Attr.viewInfos
+                        (onElemChg << (\attrs -> FltStyListAttrElmntElmnt f flt sty attrs el))
+                        props.onClickPicker
+                        props.openPicker
+                        attrs
+                        key
                     , viewInfoChild el
                     ]
 
                 StyListAttrListElmntElmnt f sty attrs els ->
-                    [ Attr.viewInfos (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els)) props.onClickPicker props.openPicker attrs key
+                    [ Attr.viewInfos
+                        (onElemChg << (\attrs -> StyListAttrListElmntElmnt f sty attrs els))
+                        props.onClickPicker
+                        props.openPicker
+                        attrs
+                        key
                     , viewInfoChildren (onElemChg << StyListAttrListElmntElmnt f sty attrs) els
                     ]
 
@@ -591,11 +647,13 @@ viewInfo props =
                     , viewInfoChildren (onElemChg << (\els -> ListElmntElmntElmnt f els el)) els
                     ]
     in
-    case mbEl of
-        Just el ->
-            [ h1 (Sty.ElementInfo Sty.EiTitle) [ paddingLeft 5, paddingRight 5 ] <| text el.name ]
-                ++ info el
-                ++ [ replaceThisElement ]
+    case mbThis of
+        Just this ->
+            [ h1 (Sty.ElementInfo Sty.EiTitle) [ paddingLeft 5, paddingRight 5 ] <| text this.name ]
+                ++ info this
+                ++ [ replaceThisElement <| getChildren this
+                   , insertAboveThis this
+                   ]
 
         Nothing ->
             [ h1 (Sty.ElementInfo Sty.EiTitle) [] <| text "Nothing" ]
@@ -666,30 +724,7 @@ deleteOnlyChild bringUpSubtree id child =
     else if not bringUpSubtree then
         El child.id "empty" <| Elmnt empty
     else
-        case child.elem of
-            ElmntElmnt f el ->
-                el
-
-            StrElmntElmnt f str el ->
-                el
-
-            BoolElmntElmnt f bool el ->
-                el
-
-            ListElmntElmntElmnt f els el ->
-                el
-
-            StyListAttrElmntElmnt f sty attrs el ->
-                el
-
-            FltStyListAttrElmntElmnt f flt sty attrs el ->
-                el
-
-            StyListAttrListElmntElmnt f sty attrs els ->
-                List.head els |> Maybe.withDefault (El child.id "empty" <| Elmnt empty)
-
-            _ ->
-                El child.id "empty" <| Elmnt empty
+        getChildren child |> List.head |> Maybe.withDefault (El child.id "empty" <| Elmnt empty)
 
 
 deleteSibling : Bool -> Elid -> List (El Sty.Style var msg) -> List (El Sty.Style var msg)
@@ -702,29 +737,34 @@ deleteSibling bringUpSubtree id children =
                 else if not bringUpSubtree then
                     acc
                 else
-                    case child.elem of
-                        ElmntElmnt f el ->
-                            el :: acc
-
-                        StrElmntElmnt f str el ->
-                            el :: acc
-
-                        BoolElmntElmnt f bool el ->
-                            el :: acc
-
-                        ListElmntElmntElmnt f els el ->
-                            el :: acc
-
-                        StyListAttrElmntElmnt f sty attrs el ->
-                            el :: acc
-
-                        FltStyListAttrElmntElmnt f flt sty attrs el ->
-                            el :: acc
-
-                        StyListAttrListElmntElmnt f sty attrs els ->
-                            els ++ acc
-
-                        _ ->
-                            acc
+                    getChildren child ++ acc
             )
+            []
+
+
+getChildren : El Sty.Style var msg -> List (El Sty.Style var msg)
+getChildren elem =
+    case elem.elem of
+        ElmntElmnt f el ->
+            [ el ]
+
+        StrElmntElmnt f str el ->
+            [ el ]
+
+        BoolElmntElmnt f bool el ->
+            [ el ]
+
+        ListElmntElmntElmnt f els el ->
+            [ el ]
+
+        StyListAttrElmntElmnt f sty attrs el ->
+            [ el ]
+
+        FltStyListAttrElmntElmnt f flt sty attrs el ->
+            [ el ]
+
+        StyListAttrListElmntElmnt f sty attrs els ->
+            els
+
+        _ ->
             []
