@@ -342,7 +342,7 @@ viewCode onLabelClick noneMsg selected node =
 
 
 viewInfo :
-    { onInsertChild : El Sty.Style var msg -> msg
+    { onInsertChild : Int -> El Sty.Style var msg -> msg
     , onReplaceEl : Elid -> El Sty.Style var msg -> msg
     , onSelectEl : Elid -> msg
     , onSelectChild : Elid -> msg
@@ -444,7 +444,7 @@ viewInfo props =
                         Lutils.Down ->
                             children |> reorder []
 
-                selectedWithMenu child =
+                selectedWithMenu index child =
                     { menu =
                         row Sty.None
                             [ spacing 10 ]
@@ -481,6 +481,27 @@ viewInfo props =
                                 }
                             , Lutils.thingButton
                                 { style = Sty.Button
+                                , onThingBttn = props.onClickPicker <| ReplaceChild child.id
+                                , showNewThings = props.openPicker == ReplaceChild child.id
+                                , newThings =
+                                    List.map (Lutils.newThingBttn <| props.onReplaceEl child.id) <|
+                                        allElemsSorted child.id <|
+                                            getChildren child
+                                , bttnTxt = "r"
+                                , labelTxt = "replace"
+                                , pickerAlignment = alignRight
+                                }
+                            , Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = props.onInsertChild (index + 1) <| El props.newId child.name <| child.elem
+                                , showNewThings = False
+                                , newThings = []
+                                , bttnTxt = "©"
+                                , labelTxt = "copy"
+                                , pickerAlignment = alignLeft
+                                }
+                            , Lutils.thingButton
+                                { style = Sty.Button
                                 , onThingBttn = props.onDeleteEl { bringUpSubtree = True } child.id
                                 , showNewThings = False
                                 , newThings = []
@@ -497,18 +518,6 @@ viewInfo props =
                                 , labelTxt = "delete tree"
                                 , pickerAlignment = alignLeft
                                 }
-                            , Lutils.thingButton
-                                { style = Sty.Button
-                                , onThingBttn = props.onClickPicker <| ReplaceChild child.id
-                                , showNewThings = props.openPicker == ReplaceChild child.id
-                                , newThings =
-                                    List.map (Lutils.newThingBttn <| props.onReplaceEl child.id) <|
-                                        allElemsSorted child.id <|
-                                            getChildren child
-                                , bttnTxt = "r"
-                                , labelTxt = "replace"
-                                , pickerAlignment = alignRight
-                                }
                             ]
                     , thing = childEntry child
                     }
@@ -517,7 +526,7 @@ viewInfo props =
                 { title = props2.title
                 , things =
                     { before = before |> List.map childEntry
-                    , selected = mbSelected |> Maybe.map selectedWithMenu
+                    , selected = mbSelected |> Maybe.map (selectedWithMenu <| List.length before)
                     , after = after |> List.map childEntry
                     }
                 , newThingButton =
@@ -527,7 +536,7 @@ viewInfo props =
                             , onThingBttn = props.onClickPicker AddChild
                             , showNewThings = props.openPicker == AddChild
                             , newThings =
-                                List.map (Lutils.newThingBttn props.onInsertChild) <|
+                                List.map (Lutils.newThingBttn <| props.onInsertChild -1) <|
                                     allElemsSorted props.newId []
                             , bttnTxt = "+"
                             , labelTxt = "add new"

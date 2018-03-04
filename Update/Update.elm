@@ -12,8 +12,8 @@ import View.Stylesheet exposing (Style, Variation)
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        OnInsertChild el ->
-            onInsertChild el model
+        OnInsertChild index el ->
+            onInsertChild index el model
 
         OnReplaceEl id el ->
             onReplaceEl (Debug.log "OnReplaceEl" el) id model
@@ -43,13 +43,13 @@ update msg model =
             model ! []
 
 
-onInsertChild : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onInsertChild elem m =
+onInsertChild : Int -> El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onInsertChild index elem m =
     insertReplace
         (El.map
             (El.mapChildren
                 { childFn = identity
-                , childrenFn = \l -> l ++ [ elem ]
+                , childrenFn = \children -> List.take index children ++ [ elem ] ++ List.drop index children
                 }
             )
             m.selected
