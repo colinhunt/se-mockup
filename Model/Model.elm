@@ -13,6 +13,7 @@ type Msg
     = OnInsertChild Int (El Style Variation Msg)
     | OnReplaceEl Elid (El Style Variation Msg)
     | OnDeleteEl { bringUpSubtree : Bool } Elid
+    | OnCutEl (El Style Variation Msg)
     | OnMouseEnter Elid
     | OnMouseLeave
     | OnClick Elid
@@ -27,6 +28,7 @@ type alias Model =
     , mousedOver : List Elid
     , selected : Elid
     , selectedChild : Elid
+    , clipped : Maybe (El Style Variation Msg)
     , newId : Elid
     , openPicker : Picker
     }
@@ -49,6 +51,7 @@ initModel =
     , mousedOver = []
     , selected = 0
     , selectedChild = -1
+    , clipped = Nothing
     , newId = 10
     , openPicker = None
     }

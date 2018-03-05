@@ -347,12 +347,14 @@ viewInfo :
     , onSelectEl : Elid -> msg
     , onSelectChild : Elid -> msg
     , onDeleteEl : { bringUpSubtree : Bool } -> Elid -> msg
+    , onCutEl : El Sty.Style var msg -> msg
     , onClickPicker : Picker -> msg
     , noneMsg : msg
     , openPicker : Picker
     , newId : Elid
     , selected : Elid
     , selectedChild : Elid
+    , clipped : Maybe (El Sty.Style var msg)
     , root : El Sty.Style var msg
     }
     -> List (Element Sty.Style Sty.Variation msg)
@@ -470,6 +472,29 @@ viewInfo props =
                                     }
                             , Lutils.thingButton
                                 { style = Sty.Button
+                                , onThingBttn = props.onCutEl child
+                                , showNewThings = False
+                                , newThings = []
+                                , bttnTxt = "✂"
+                                , labelTxt = "cut"
+                                , pickerAlignment = alignLeft
+                                }
+                            , case props.clipped of
+                                Just clipped ->
+                                    Lutils.thingButton
+                                        { style = Sty.Button
+                                        , onThingBttn = props.onReplaceEl child.id clipped
+                                        , showNewThings = False
+                                        , newThings = []
+                                        , bttnTxt = "📋"
+                                        , labelTxt = "paste " ++ clipped.name
+                                        , pickerAlignment = alignLeft
+                                        }
+
+                                Nothing ->
+                                    empty
+                            , Lutils.thingButton
+                                { style = Sty.Button
                                 , onThingBttn = props.onClickPicker <| InsertBelow child.id
                                 , showNewThings = props.openPicker == InsertBelow child.id
                                 , newThings =
@@ -496,8 +521,8 @@ viewInfo props =
                                 , onThingBttn = props.onInsertChild (index + 1) <| El props.newId child.name <| child.elem
                                 , showNewThings = False
                                 , newThings = []
-                                , bttnTxt = "©"
-                                , labelTxt = "copy"
+                                , bttnTxt = "⧉"
+                                , labelTxt = "duplicate"
                                 , pickerAlignment = alignLeft
                                 }
                             , Lutils.thingButton
@@ -505,7 +530,7 @@ viewInfo props =
                                 , onThingBttn = props.onDeleteEl { bringUpSubtree = True } child.id
                                 , showNewThings = False
                                 , newThings = []
-                                , bttnTxt = "d"
+                                , bttnTxt = "🚫"
                                 , labelTxt = "delete"
                                 , pickerAlignment = alignLeft
                                 }
@@ -514,7 +539,7 @@ viewInfo props =
                                 , onThingBttn = props.onDeleteEl { bringUpSubtree = False } child.id
                                 , showNewThings = False
                                 , newThings = []
-                                , bttnTxt = "dt"
+                                , bttnTxt = "🚫𐇲"
                                 , labelTxt = "delete tree"
                                 , pickerAlignment = alignLeft
                                 }
@@ -531,17 +556,34 @@ viewInfo props =
                     }
                 , newThingButton =
                     when props2.showNewThingButton <|
-                        Lutils.thingButton
-                            { style = Sty.Button
-                            , onThingBttn = props.onClickPicker AddChild
-                            , showNewThings = props.openPicker == AddChild
-                            , newThings =
-                                List.map (Lutils.newThingBttn <| props.onInsertChild -1) <|
-                                    allElemsSorted props.newId []
-                            , bttnTxt = "+"
-                            , labelTxt = "add new"
-                            , pickerAlignment = alignLeft
-                            }
+                        row Sty.None
+                            [ spacing 5 ]
+                            [ Lutils.thingButton
+                                { style = Sty.Button
+                                , onThingBttn = props.onClickPicker AddChild
+                                , showNewThings = props.openPicker == AddChild
+                                , newThings =
+                                    List.map (Lutils.newThingBttn <| props.onInsertChild -1) <|
+                                        allElemsSorted props.newId []
+                                , bttnTxt = "+"
+                                , labelTxt = "add new"
+                                , pickerAlignment = alignLeft
+                                }
+                            , case props.clipped of
+                                Just clipped ->
+                                    Lutils.thingButton
+                                        { style = Sty.Button
+                                        , onThingBttn = props.onInsertChild -1 clipped
+                                        , showNewThings = False
+                                        , newThings = []
+                                        , bttnTxt = "📋"
+                                        , labelTxt = "paste " ++ clipped.name
+                                        , pickerAlignment = alignLeft
+                                        }
+
+                                Nothing ->
+                                    empty
+                            ]
                 }
 
         replaceThisElement children =

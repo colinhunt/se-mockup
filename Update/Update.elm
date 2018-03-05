@@ -21,6 +21,9 @@ update msg model =
         OnDeleteEl { bringUpSubtree } id ->
             onDeleteEl bringUpSubtree id model
 
+        OnCutEl el ->
+            onCutEl el model
+
         OnMouseEnter id ->
             onMouseEnter id model
 
@@ -45,11 +48,22 @@ update msg model =
 
 onInsertChild : Int -> El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onInsertChild index elem m =
+    let
+        childrenFn children =
+            let
+                index_ =
+                    if index < 0 then
+                        List.length children
+                    else
+                        index
+            in
+            List.take index_ children ++ [ elem ] ++ List.drop index_ children
+    in
     insertReplace
         (El.map
             (El.mapChildren
                 { childFn = identity
-                , childrenFn = \children -> List.take index children ++ [ elem ] ++ List.drop index children
+                , childrenFn = childrenFn
                 }
             )
             m.selected
@@ -65,18 +79,16 @@ onReplaceEl elem id m =
 
 onDeleteEl : Bool -> Elid -> Model -> ( Model, Cmd Msg )
 onDeleteEl bringUpSubtree id model =
-    let
-        newLayout =
-            El.map
-                (El.mapChildren
-                    { childFn = El.deleteOnlyChild bringUpSubtree id
-                    , childrenFn = El.deleteSibling bringUpSubtree id
-                    }
-                )
-                model.selected
-                model.layout
-    in
-    { model | layout = newLayout } ! []
+    { model | layout = deleteChild bringUpSubtree id model } ! []
+
+
+onCutEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
+onCutEl elem model =
+    { model
+        | layout = deleteChild False elem.id model
+        , clipped = Just elem
+    }
+        ! []
 
 
 insertReplace : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
@@ -135,3 +147,14 @@ onClickPicker picker model =
                 picker
     in
     { model | openPicker = picker_ } ! []
+
+
+deleteChild bringUpSubtree id model =
+    El.map
+        (El.mapChildren
+            { childFn = El.deleteOnlyChild bringUpSubtree id
+            , childrenFn = El.deleteSibling bringUpSubtree id
+            }
+        )
+        model.selected
+        model.layout

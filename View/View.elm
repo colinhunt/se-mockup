@@ -34,7 +34,7 @@ sideBar model =
         ]
 
 
-viewElementInfo { selected, selectedChild, newId, openPicker, layout } =
+viewElementInfo { selected, selectedChild, clipped, newId, openPicker, layout } =
     column (ElementInfo EiMain)
         [ padding 1
         , paddingTop 20
@@ -51,12 +51,14 @@ viewElementInfo { selected, selectedChild, newId, openPicker, layout } =
                 , onSelectEl = OnClick
                 , onSelectChild = OnSelectChild
                 , onDeleteEl = OnDeleteEl
+                , onCutEl = OnCutEl
                 , onClickPicker = OnClickPicker
                 , noneMsg = NoneMsg
                 , openPicker = openPicker
                 , newId = newId
                 , selected = selected
                 , selectedChild = selectedChild
+                , clipped = clipped
                 , root = layout
                 }
         else
