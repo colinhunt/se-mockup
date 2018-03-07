@@ -1,11 +1,12 @@
 module Layout.Utils exposing (..)
 
+import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (onClick, onWithOptions)
 import Element.Input as Input
 import Html.Attributes exposing (title)
-import Json.Decode as Json
+import Json.Decode as Decode
 import Layout.Element exposing (Elid)
 import Utils as U
 import View.Stylesheet as Sty
@@ -164,3 +165,17 @@ thingControl props =
                     ++ props.things.after
                     ++ [ props.newThingButton ]
             ]
+
+
+fnDecoder : Dict String fn -> Decode.Decoder fn
+fnDecoder fnDict =
+    Decode.string
+        |> Decode.andThen
+            (\fName ->
+                case Dict.get fName fnDict of
+                    Just fn ->
+                        Decode.succeed fn
+
+                    Nothing ->
+                        Decode.fail <| "No function found with name " ++ fName
+            )

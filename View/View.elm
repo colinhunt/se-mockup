@@ -91,7 +91,7 @@ renderLayout model =
             , U.onClickNoProp <| OnClick id
             ]
     in
-    el None [ height fill, width fill ] <|
+    el None [ height fill, width fill, onClick <| OnClick -1 ] <|
         El.view extraAttrs model.layout
 
 

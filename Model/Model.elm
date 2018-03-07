@@ -42,11 +42,27 @@ initModel =
         , elem =
             StyListAttrElmntElmnt el
                 Sty.None
-                [ { name = "padding", attr = FltAttr padding 20 }
-                , { name = "center", attr = Attr center }
-                , { name = "verticalCenter", attr = Attr verticalCenter }
+                [ { name = "padding"
+                  , attr = FltAttr padding 20
+                  }
+                , { name = "center"
+                  , attr = Attr center
+                  }
+                , { name = "verticalCenter"
+                  , attr = Attr verticalCenter
+                  }
+                , { name = "width"
+                  , attr =
+                        LngAttr width
+                            { name = "px"
+                            , lngth = FltLng px 200
+                            }
+                  }
                 ]
-                { id = 1, name = "text", elem = StrElmnt text "Click to edit!" }
+                { id = 1
+                , name = "text"
+                , elem = StrElmnt text "Click to edit!"
+                }
         }
     , mousedOver = []
     , selected = 0

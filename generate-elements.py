@@ -193,14 +193,6 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
         print
 
 
-    # for fcn_type in fcn_types:
-    #     for fcn in fcn_type.members:
-    #         fcn_name = 'new' + fcn.name.title()
-    #         print fcn_name, ':', ' -> '.join(fcn_type.arguments + [kind_full])
-    #         print ' '.join(['new' + fcn.name.title()] + fcn.arg_names + ['='])
-    #         print '    {} {} {}'.format(fcn_type.type_name, fcn.name, ' '.join(fcn.arg_names))
-    #         print
-    #         print
     if extra_rec_field:
         extra_field_name = extra_rec_field[0]
         extra_field_type = extra_rec_field[1] + '->'
