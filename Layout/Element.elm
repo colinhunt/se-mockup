@@ -1,5 +1,6 @@
 module Layout.Element exposing (..)
 
+import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import View.Stylesheet as Sty
@@ -297,3 +298,23 @@ allLngths =
     , { name = "percent", lngth = FltLng percent 10 }
     , { name = "fillPortion", lngth = IntLng fillPortion 10 }
     ]
+
+
+lngFns =
+    Dict.fromList
+        [ ( "content", content )
+        , ( "fill", fill )
+        ]
+
+
+fltLngFns =
+    Dict.fromList
+        [ ( "px", px )
+        , ( "percent", percent )
+        ]
+
+
+intLngFns =
+    Dict.fromList
+        [ ( "fillPortion", fillPortion )
+        ]
