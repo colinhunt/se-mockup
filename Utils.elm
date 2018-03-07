@@ -4,6 +4,10 @@ import Element.Events exposing (defaultOptions, onWithOptions)
 import Json.Decode as Json
 
 
+(=>) a b =
+    ( a, b )
+
+
 quote str =
     "\"" ++ str ++ "\""
 

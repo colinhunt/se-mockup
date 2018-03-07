@@ -109,24 +109,15 @@ onMouseLeave model =
 
 
 onClick : Elid -> Model -> ( Model, Cmd Msg )
-onClick id model =
+onClick id ({ mousedOver, selected } as model) =
     let
         mouseOver =
-            List.head model.mousedOver |> Maybe.withDefault -1
-
-        selected =
-            model.selected
-
-        model_ =
-            { model | openPicker = None }
+            List.head mousedOver |> Maybe.withDefault -1
     in
-    if id >= 0 then
-        if id == selected then
-            { model_ | selected = -1 } ! []
-        else
-            { model_ | selected = id } ! []
+    if id == selected || id < 0 then
+        { model | selected = -1, openPicker = None } ! []
     else
-        model_ ! []
+        { model | selected = id, openPicker = None } ! []
 
 
 onSelectChild : Elid -> Model -> ( Model, Cmd Msg )
