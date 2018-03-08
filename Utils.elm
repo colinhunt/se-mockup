@@ -6,6 +6,7 @@ import Json.Decode as Json
 
 (=>) a b =
     ( a, b )
+infixr 0 =>
 
 
 quote str =

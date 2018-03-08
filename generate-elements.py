@@ -24,22 +24,76 @@ def placeholder(i):
     return '{{ id = id + {}, name = "text", elem = StrElmnt text "placeholder" }}'.format(i)
 
 ARG_LOOKUP = {
-    'Sty': { 'type': 'sty', 'var_name': 'sty', 'default': 'Sty.None' },
-    'String': { 'type': 'String', 'var_name': 'str', 'default': '"placeholder"' },
-    'Float': { 'type': 'Float', 'var_name': 'flt', 'default': '10' },
-    'Bool': { 'type': 'Bool', 'var_name': 'bool', 'default': 'False' },
-    'Length': { 'type': 'Ln', 'var_name': 'lng', 'default': '{ name = "px", lngth = FltLng px 10 }' },
-    'Int': { 'type': 'Int', 'var_name': 'int', 'default': '10' },
-    'ListElementStyVarMsg': { 'type': '(List (El sty var msg))', 'var_name': 'els', 'default': 'children' },
-    'ListAttributeVarMsg': { 'type': '(List (At var msg))', 'var_name': 'attrs', 'default': '[{ name = "padding", attr = FltAttr padding 20}]' },
-    'ElementStyVarMsg': { 'type': '(El sty var msg)', 'var_name': 'el', 'default': '(children |> List.head |> Maybe.withDefault {id = id + 1, name = "empty", elem = Elmnt empty})' },
-    'AttributeVarMsg': { 'type': '(At var msg)', 'var_name': 'attr', 'default': '(StrAttr "default")' }
+    'Sty': { 
+        'type': 'sty', 
+        'var_name': 'sty', 
+        'default': 'Sty.None',
+        'encoder': '(always Encode.string "None")' },
+    'String': { 
+        'type': 'String', 
+        'var_name': 'str', 
+        'default': '"placeholder"',
+        'encoder': 'Encode.string' },
+    'Float': { 
+        'type': 'Float', 
+        'var_name': 'flt', 
+        'default': '10',
+        'encoder': 'Encode.float' },
+    'Bool': { 
+        'type': 'Bool', 
+        'var_name': 'bool', 
+        'default': 'False',
+        'encoder': 'Encode.bool' },
+    'Length': { 
+        'type': 'Ln', 
+        'var_name': 'lng', 
+        'default': '{ name = "px", lngth = FltLng px 10 }',
+        'encoder': 'lnEncoder' },
+    'Int': { 
+        'type': 'Int', 
+        'var_name': 'int', 
+        'default': '10',
+        'encoder': 'Encode.int' },
+    'ListElementStyVarMsg': { 
+        'type': '(List (El sty var msg))', 
+        'var_name': 'els', 
+        'default': 'children',
+        'encoder': 'Encode.list <| List.map elEncoder' },
+    'ListAttributeVarMsg': { 
+        'type': '(List (At var msg))', 
+        'var_name': 'attrs', 
+        'default': '[{ name = "padding", attr = FltAttr padding 20}]',
+        'encoder': 'Encode.list <| List.map atEncoder' },
+    'ElementStyVarMsg': { 
+        'type': '(El sty var msg)', 
+        'var_name': 'el', 
+        'default': '(children |> List.head |> Maybe.withDefault {id = id + 1, name = "empty", elem = Elmnt empty})',
+        'encoder': 'elEncoder' },
+    'AttributeVarMsg': { 
+        'type': '(At var msg)', 
+        'var_name': 'attr', 
+        'default': '(StrAttr "default")',
+        'encoder': 'atEncoder' }
 
 }
 
 def unique(sequence):
     seen = set()
     return [x for x in sequence if not (x in seen or seen.add(x))]
+
+def make_unique(strings):
+    seen = []
+    unique = []
+    for string in strings:
+        count = seen.count(string)
+        if count:
+            unique.append(string + str(count))
+        else:
+            unique.append(string)
+        seen.append(string)
+
+    return unique
+
 
 def excluded(fcn_name, fcn_sig, suffix):
     return (
@@ -72,6 +126,9 @@ print 'module Layout.Element exposing (..)'
 print 'import Element exposing (..)'
 print 'import Element.Attributes exposing (..)'
 print 'import View.Stylesheet as Sty'
+print 'import Dict exposing (Dict)'
+print 'import Json.Encode as Encode'
+print 'import Utils exposing ((=>))'
 
 print '''
 type alias Elid =
@@ -197,10 +254,12 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
         extra_field_name = extra_rec_field[0]
         extra_field_type = extra_rec_field[1] + '->'
         extra_field_assign = '{} = {},'.format(extra_field_name, extra_field_name)
+        extra_field_encode = '"{0}" => Encode.{1} thing.{0},'.format(extra_field_name, extra_rec_field[1].lower())
     else:
         extra_field_name = ''
         extra_field_type = ''
         extra_field_assign = ''
+        extra_field_encode = ''
     if kind == 'Elem':
         extra_arg_2 = 'children'
         extra_type_2 = 'List (El Sty.Style var msg) ->'
@@ -218,3 +277,32 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
                 comma=',' if (i,j) != (0,0) else '', extra_field=extra_field_assign
             )
     print ']'
+
+    print
+
+    for fcn_type in fcn_types:
+        print fcn_type.fcn_type_alias_name[:1].lower() + fcn_type.fcn_type_alias_name[1:] + 'Lookup', '= Dict.fromList ['
+        for i, fcn in enumerate(fcn_type.members):
+            print '    {1}"{0}" => {0}'.format(fcn.name, ',' if i > 0 else '')
+        print '    ]'
+
+    print
+
+    print rec_name.lower() + 'Encoder thing = Encode.object'
+    print '    [{extra_field} "name" => Encode.string thing.name, \n    "{kind}" => {kind}Encoder thing ]'.format(
+        kind=kind.lower(), extra_field=extra_field_encode)
+
+    print
+
+    print kind.lower() + 'Encoder {{name, {kind}}} = Encode.object <|'.format(kind=kind.lower())
+    print '    case', kind.lower(), 'of'
+    for fcn_type in fcn_types:
+        args = [ARG_LOOKUP[arg] for arg in fcn_type.type_name_parts[:-1]]
+        arg_names = make_unique([arg['var_name'] for arg in args])
+        print '        ', fcn_type.type_name, 'f', ' '.join(arg_names), '->'
+        print '            [ "kind" => Encode.string "{}"'.format(fcn_type.type_name)
+        print '            , "fn" => Encode.string name'
+        for arg_name, encoder in zip(arg_names, [arg['encoder'] for arg in args]):
+            print '            , "{arg_name}" => {encoder} {arg_name}'.format(
+                arg_name=arg_name, encoder=encoder)
+        print '            ]'

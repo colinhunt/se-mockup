@@ -51,13 +51,6 @@ initModel =
                 , { name = "verticalCenter"
                   , attr = Attr verticalCenter
                   }
-                , { name = "width"
-                  , attr =
-                        LngAttr width
-                            { name = "px"
-                            , lngth = FltLng px 200
-                            }
-                  }
                 ]
                 { id = 1
                 , name = "text"

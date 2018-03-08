@@ -1,7 +1,10 @@
 module Layout.Element exposing (..)
 
+import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Attributes exposing (..)
+import Json.Encode as Encode
+import Utils exposing ((=>))
 import View.Stylesheet as Sty
 
 
@@ -169,6 +172,208 @@ allElems id children =
     ]
 
 
+elmntFnLookup =
+    Dict.fromList
+        [ "empty" => empty
+        ]
+
+
+fltElmntFnLookup =
+    Dict.fromList
+        [ "spacer" => spacer
+        ]
+
+
+strElmntFnLookup =
+    Dict.fromList
+        [ "text" => text
+        , "bold" => bold
+        , "italic" => italic
+        , "strike" => strike
+        , "underline" => underline
+        , "sub" => sub
+        , "super" => super
+        ]
+
+
+styElmntFnLookup =
+    Dict.fromList
+        [ "hairline" => hairline
+        ]
+
+
+elmntElmntFnLookup =
+    Dict.fromList
+        [ "screen" => screen
+        ]
+
+
+strElmntElmntFnLookup =
+    Dict.fromList
+        [ "node" => node
+        , "link" => link
+        , "newTab" => newTab
+        , "download" => download
+        ]
+
+
+boolElmntElmntFnLookup =
+    Dict.fromList
+        [ "when" => when
+        ]
+
+
+styListAttrStrElmntFnLookup =
+    Dict.fromList
+        [ "subheading" => subheading
+        ]
+
+
+listElmntElmntElmntFnLookup =
+    Dict.fromList
+        [ "within" => within
+        , "above" => above
+        , "below" => below
+        , "onRight" => onRight
+        , "onLeft" => onLeft
+        ]
+
+
+styListAttrElmntElmntFnLookup =
+    Dict.fromList
+        [ "el" => el
+        , "section" => section
+        , "article" => article
+        , "aside" => aside
+        , "button" => button
+        , "h1" => h1
+        , "h2" => h2
+        , "h3" => h3
+        , "h4" => h4
+        , "h5" => h5
+        , "h6" => h6
+        , "full" => full
+        , "search" => search
+        , "header" => header
+        , "footer" => footer
+        , "mainContent" => mainContent
+        , "modal" => modal
+        ]
+
+
+fltStyListAttrElmntElmntFnLookup =
+    Dict.fromList
+        [ "circle" => circle
+        ]
+
+
+styListAttrListElmntElmntFnLookup =
+    Dict.fromList
+        [ "textLayout" => textLayout
+        , "paragraph" => paragraph
+        , "row" => row
+        , "column" => column
+        , "wrappedRow" => wrappedRow
+        , "wrappedColumn" => wrappedColumn
+        , "sidebar" => sidebar
+        ]
+
+
+elEncoder thing =
+    Encode.object
+        [ "id" => Encode.int thing.id
+        , "name" => Encode.string thing.name
+        , "elem" => elemEncoder thing
+        ]
+
+
+elemEncoder { name, elem } =
+    Encode.object <|
+        case elem of
+            Elmnt f ->
+                [ "kind" => Encode.string "Elmnt"
+                , "fn" => Encode.string name
+                ]
+
+            FltElmnt f flt ->
+                [ "kind" => Encode.string "FltElmnt"
+                , "fn" => Encode.string name
+                , "flt" => Encode.float flt
+                ]
+
+            StrElmnt f str ->
+                [ "kind" => Encode.string "StrElmnt"
+                , "fn" => Encode.string name
+                , "str" => Encode.string str
+                ]
+
+            StyElmnt f sty ->
+                [ "kind" => Encode.string "StyElmnt"
+                , "fn" => Encode.string name
+                , "sty" => always Encode.string "None" sty
+                ]
+
+            ElmntElmnt f el ->
+                [ "kind" => Encode.string "ElmntElmnt"
+                , "fn" => Encode.string name
+                , "el" => elEncoder el
+                ]
+
+            StrElmntElmnt f str el ->
+                [ "kind" => Encode.string "StrElmntElmnt"
+                , "fn" => Encode.string name
+                , "str" => Encode.string str
+                , "el" => elEncoder el
+                ]
+
+            BoolElmntElmnt f bool el ->
+                [ "kind" => Encode.string "BoolElmntElmnt"
+                , "fn" => Encode.string name
+                , "bool" => Encode.bool bool
+                , "el" => elEncoder el
+                ]
+
+            StyListAttrStrElmnt f sty attrs str ->
+                [ "kind" => Encode.string "StyListAttrStrElmnt"
+                , "fn" => Encode.string name
+                , "sty" => always Encode.string "None" sty
+                , "attrs" => Encode.list <| List.map atEncoder attrs
+                , "str" => Encode.string str
+                ]
+
+            ListElmntElmntElmnt f els el ->
+                [ "kind" => Encode.string "ListElmntElmntElmnt"
+                , "fn" => Encode.string name
+                , "els" => Encode.list <| List.map elEncoder els
+                , "el" => elEncoder el
+                ]
+
+            StyListAttrElmntElmnt f sty attrs el ->
+                [ "kind" => Encode.string "StyListAttrElmntElmnt"
+                , "fn" => Encode.string name
+                , "sty" => always Encode.string "None" sty
+                , "attrs" => Encode.list <| List.map atEncoder attrs
+                , "el" => elEncoder el
+                ]
+
+            FltStyListAttrElmntElmnt f flt sty attrs el ->
+                [ "kind" => Encode.string "FltStyListAttrElmntElmnt"
+                , "fn" => Encode.string name
+                , "flt" => Encode.float flt
+                , "sty" => always Encode.string "None" sty
+                , "attrs" => Encode.list <| List.map atEncoder attrs
+                , "el" => elEncoder el
+                ]
+
+            StyListAttrListElmntElmnt f sty attrs els ->
+                [ "kind" => Encode.string "StyListAttrListElmntElmnt"
+                , "fn" => Encode.string name
+                , "sty" => always Encode.string "None" sty
+                , "attrs" => Encode.list <| List.map atEncoder attrs
+                , "els" => Encode.list <| List.map elEncoder els
+                ]
+
+
 type Attr var msg
     = Attr (AttrFn var msg)
     | StrAttr (StrAttrFn var msg) String
@@ -256,6 +461,107 @@ allAttrs =
     ]
 
 
+attrFnLookup =
+    Dict.fromList
+        [ "center" => center
+        , "verticalCenter" => verticalCenter
+        , "verticalSpread" => verticalSpread
+        , "spread" => spread
+        , "alignTop" => alignTop
+        , "alignBottom" => alignBottom
+        , "alignLeft" => alignLeft
+        , "alignRight" => alignRight
+        , "hidden" => hidden
+        , "scrollbars" => scrollbars
+        , "yScrollbar" => yScrollbar
+        , "xScrollbar" => xScrollbar
+        , "clip" => clip
+        , "clipX" => clipX
+        , "clipY" => clipY
+        ]
+
+
+strAttrFnLookup =
+    Dict.fromList
+        [ "class" => class
+        , "id" => id
+        ]
+
+
+lngAttrFnLookup =
+    Dict.fromList
+        [ "width" => width
+        , "minWidth" => minWidth
+        , "maxWidth" => maxWidth
+        , "minHeight" => minHeight
+        , "maxHeight" => maxHeight
+        , "height" => height
+        ]
+
+
+fltAttrFnLookup =
+    Dict.fromList
+        [ "moveUp" => moveUp
+        , "moveDown" => moveDown
+        , "moveRight" => moveRight
+        , "moveLeft" => moveLeft
+        , "spacing" => spacing
+        , "padding" => padding
+        , "paddingLeft" => paddingLeft
+        , "paddingRight" => paddingRight
+        , "paddingTop" => paddingTop
+        , "paddingBottom" => paddingBottom
+        ]
+
+
+fltFltAttrFnLookup =
+    Dict.fromList
+        [ "spacingXY" => spacingXY
+        , "paddingXY" => paddingXY
+        ]
+
+
+atEncoder thing =
+    Encode.object
+        [ "name" => Encode.string thing.name
+        , "attr" => attrEncoder thing
+        ]
+
+
+attrEncoder { name, attr } =
+    Encode.object <|
+        case attr of
+            Attr f ->
+                [ "kind" => Encode.string "Attr"
+                , "fn" => Encode.string name
+                ]
+
+            StrAttr f str ->
+                [ "kind" => Encode.string "StrAttr"
+                , "fn" => Encode.string name
+                , "str" => Encode.string str
+                ]
+
+            LngAttr f lng ->
+                [ "kind" => Encode.string "LngAttr"
+                , "fn" => Encode.string name
+                , "lng" => lnEncoder lng
+                ]
+
+            FltAttr f flt ->
+                [ "kind" => Encode.string "FltAttr"
+                , "fn" => Encode.string name
+                , "flt" => Encode.float flt
+                ]
+
+            FltFltAttr f flt flt1 ->
+                [ "kind" => Encode.string "FltFltAttr"
+                , "fn" => Encode.string name
+                , "flt" => Encode.float flt
+                , "flt1" => Encode.float flt1
+                ]
+
+
 type Lngth
     = Lng LngFn
     | FltLng FltLngFn Float
@@ -297,3 +603,51 @@ allLngths =
     , { name = "percent", lngth = FltLng percent 10 }
     , { name = "fillPortion", lngth = IntLng fillPortion 10 }
     ]
+
+
+lngFnLookup =
+    Dict.fromList
+        [ "content" => content
+        , "fill" => fill
+        ]
+
+
+fltLngFnLookup =
+    Dict.fromList
+        [ "px" => px
+        , "percent" => percent
+        ]
+
+
+intLngFnLookup =
+    Dict.fromList
+        [ "fillPortion" => fillPortion
+        ]
+
+
+lnEncoder thing =
+    Encode.object
+        [ "name" => Encode.string thing.name
+        , "lngth" => lngthEncoder thing
+        ]
+
+
+lngthEncoder { name, lngth } =
+    Encode.object <|
+        case lngth of
+            Lng f ->
+                [ "kind" => Encode.string "Lng"
+                , "fn" => Encode.string name
+                ]
+
+            FltLng f flt ->
+                [ "kind" => Encode.string "FltLng"
+                , "fn" => Encode.string name
+                , "flt" => Encode.float flt
+                ]
+
+            IntLng f int ->
+                [ "kind" => Encode.string "IntLng"
+                , "fn" => Encode.string name
+                , "int" => Encode.int int
+                ]
