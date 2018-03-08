@@ -7,22 +7,8 @@ import Element.Events exposing (onClick, onWithOptions)
 import Element.Input as Input
 import Html.Attributes exposing (title)
 import Json.Decode as Decode
-import Layout.Element exposing (Elid)
 import Utils as U
 import View.Stylesheet as Sty
-
-
-type Picker
-    = ReplaceElement
-    | AddChild
-    | ReplaceChild Elid
-    | DeleteChild Elid
-    | AddAttribute
-    | ReplaceAttribute String
-    | ReplaceLength String
-    | InsertAbove
-    | InsertBelow Elid
-    | None
 
 
 type Direction

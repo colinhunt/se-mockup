@@ -5,7 +5,7 @@ import Element.Attributes exposing (..)
 import Element.Events as Events
 import Layout.El exposing (..)
 import Layout.Element exposing (..)
-import Layout.Utils exposing (Picker(..))
+import Model.Types exposing (Picker(..))
 import View.Stylesheet as Sty exposing (Style, Variation)
 
 

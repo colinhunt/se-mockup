@@ -3,7 +3,8 @@ module Layout.Ln exposing (..)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Layout.Element exposing (..)
-import Layout.Utils as Lutils exposing (Picker(..))
+import Layout.Utils as Lutils
+import Model.Types exposing (Picker(..))
 import View.Stylesheet as Sty
 
 

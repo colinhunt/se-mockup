@@ -3,7 +3,9 @@ module Layout.Element exposing (..)
 import Dict exposing (Dict)
 import Element exposing (..)
 import Element.Attributes exposing (..)
+import Json.Decode as Decode
 import Json.Encode as Encode
+import Layout.Utils exposing (fnDecoder)
 import Utils exposing ((=>))
 import View.Stylesheet as Sty
 
@@ -374,6 +376,65 @@ elemEncoder { name, elem } =
                 ]
 
 
+elDecoder =
+    Decode.map3 El
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.field "elem" <| Decode.lazy (\_ -> elemDecoder))
+
+
+elemDecoder =
+    Decode.oneOf
+        [ Decode.map Elmnt
+            (Decode.field "fn" <| fnDecoder elmntFnLookup)
+        , Decode.map2 FltElmnt
+            (Decode.field "fn" <| fnDecoder fltElmntFnLookup)
+            (Decode.field "flt" Decode.float)
+        , Decode.map2 StrElmnt
+            (Decode.field "fn" <| fnDecoder strElmntFnLookup)
+            (Decode.field "str" Decode.string)
+        , Decode.map2 StyElmnt
+            (Decode.field "fn" <| fnDecoder styElmntFnLookup)
+            (Decode.field "sty" <| Decode.succeed Sty.None)
+        , Decode.map2 ElmntElmnt
+            (Decode.field "fn" <| fnDecoder elmntElmntFnLookup)
+            (Decode.field "el" elDecoder)
+        , Decode.map3 StrElmntElmnt
+            (Decode.field "fn" <| fnDecoder strElmntElmntFnLookup)
+            (Decode.field "str" Decode.string)
+            (Decode.field "el" elDecoder)
+        , Decode.map3 BoolElmntElmnt
+            (Decode.field "fn" <| fnDecoder boolElmntElmntFnLookup)
+            (Decode.field "bool" Decode.bool)
+            (Decode.field "el" elDecoder)
+        , Decode.map4 StyListAttrStrElmnt
+            (Decode.field "fn" <| fnDecoder styListAttrStrElmntFnLookup)
+            (Decode.field "sty" <| Decode.succeed Sty.None)
+            (Decode.field "attrs" <| Decode.list atDecoder)
+            (Decode.field "str" Decode.string)
+        , Decode.map3 ListElmntElmntElmnt
+            (Decode.field "fn" <| fnDecoder listElmntElmntElmntFnLookup)
+            (Decode.field "els" <| Decode.list elDecoder)
+            (Decode.field "el" elDecoder)
+        , Decode.map4 StyListAttrElmntElmnt
+            (Decode.field "fn" <| fnDecoder styListAttrElmntElmntFnLookup)
+            (Decode.field "sty" <| Decode.succeed Sty.None)
+            (Decode.field "attrs" <| Decode.list atDecoder)
+            (Decode.field "el" elDecoder)
+        , Decode.map5 FltStyListAttrElmntElmnt
+            (Decode.field "fn" <| fnDecoder fltStyListAttrElmntElmntFnLookup)
+            (Decode.field "flt" Decode.float)
+            (Decode.field "sty" <| Decode.succeed Sty.None)
+            (Decode.field "attrs" <| Decode.list atDecoder)
+            (Decode.field "el" elDecoder)
+        , Decode.map4 StyListAttrListElmntElmnt
+            (Decode.field "fn" <| fnDecoder styListAttrListElmntElmntFnLookup)
+            (Decode.field "sty" <| Decode.succeed Sty.None)
+            (Decode.field "attrs" <| Decode.list atDecoder)
+            (Decode.field "els" <| Decode.list elDecoder)
+        ]
+
+
 type Attr var msg
     = Attr (AttrFn var msg)
     | StrAttr (StrAttrFn var msg) String
@@ -562,6 +623,32 @@ attrEncoder { name, attr } =
                 ]
 
 
+atDecoder =
+    Decode.map2 At
+        (Decode.field "name" Decode.string)
+        (Decode.field "attr" <| Decode.lazy (\_ -> attrDecoder))
+
+
+attrDecoder =
+    Decode.oneOf
+        [ Decode.map Attr
+            (Decode.field "fn" <| fnDecoder attrFnLookup)
+        , Decode.map2 StrAttr
+            (Decode.field "fn" <| fnDecoder strAttrFnLookup)
+            (Decode.field "str" Decode.string)
+        , Decode.map2 LngAttr
+            (Decode.field "fn" <| fnDecoder lngAttrFnLookup)
+            (Decode.field "lng" lnDecoder)
+        , Decode.map2 FltAttr
+            (Decode.field "fn" <| fnDecoder fltAttrFnLookup)
+            (Decode.field "flt" Decode.float)
+        , Decode.map3 FltFltAttr
+            (Decode.field "fn" <| fnDecoder fltFltAttrFnLookup)
+            (Decode.field "flt" Decode.float)
+            (Decode.field "flt1" Decode.float)
+        ]
+
+
 type Lngth
     = Lng LngFn
     | FltLng FltLngFn Float
@@ -651,3 +738,22 @@ lngthEncoder { name, lngth } =
                 , "fn" => Encode.string name
                 , "int" => Encode.int int
                 ]
+
+
+lnDecoder =
+    Decode.map2 Ln
+        (Decode.field "name" Decode.string)
+        (Decode.field "lngth" <| Decode.lazy (\_ -> lngthDecoder))
+
+
+lngthDecoder =
+    Decode.oneOf
+        [ Decode.map Lng
+            (Decode.field "fn" <| fnDecoder lngFnLookup)
+        , Decode.map2 FltLng
+            (Decode.field "fn" <| fnDecoder fltLngFnLookup)
+            (Decode.field "flt" Decode.float)
+        , Decode.map2 IntLng
+            (Decode.field "fn" <| fnDecoder intLngFnLookup)
+            (Decode.field "int" Decode.int)
+        ]

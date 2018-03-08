@@ -6,7 +6,8 @@ import Element.Events exposing (..)
 import Element.Input as Input
 import Layout.Attr as Attr
 import Layout.Element exposing (..)
-import Layout.Utils as Lutils exposing (Picker(..))
+import Layout.Utils as Lutils
+import Model.Types exposing (Picker(..))
 import Utils as U
 import View.Stylesheet as Sty
 

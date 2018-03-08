@@ -3,8 +3,8 @@ module Update.Update exposing (..)
 import Element exposing (empty)
 import Layout.El as El
 import Layout.Element exposing (El, Elem(Elmnt), Elid)
-import Layout.Utils exposing (Picker(..))
 import Model.Model exposing (..)
+import Model.Types exposing (Picker(..))
 import Utils as U
 import View.Stylesheet exposing (Style, Variation)
 

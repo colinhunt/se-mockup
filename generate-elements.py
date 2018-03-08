@@ -28,52 +28,72 @@ ARG_LOOKUP = {
         'type': 'sty', 
         'var_name': 'sty', 
         'default': 'Sty.None',
-        'encoder': '(always Encode.string "None")' },
+        'encoder': '(always Encode.string "None")',
+        'decoder': '<| Decode.succeed Sty.None'
+    },
     'String': { 
         'type': 'String', 
         'var_name': 'str', 
         'default': '"placeholder"',
-        'encoder': 'Encode.string' },
-    'Float': { 
+        'encoder': 'Encode.string',
+        'decoder': 'Decode.string',
+    },
+    'Float': {
         'type': 'Float', 
         'var_name': 'flt', 
         'default': '10',
-        'encoder': 'Encode.float' },
+        'encoder': 'Encode.float',
+        'decoder': 'Decode.float',
+    },
     'Bool': { 
         'type': 'Bool', 
         'var_name': 'bool', 
         'default': 'False',
-        'encoder': 'Encode.bool' },
+        'encoder': 'Encode.bool',
+        'decoder': 'Decode.bool',
+    },
     'Length': { 
         'type': 'Ln', 
         'var_name': 'lng', 
         'default': '{ name = "px", lngth = FltLng px 10 }',
-        'encoder': 'lnEncoder' },
+        'encoder': 'lnEncoder',
+        'decoder': 'lnDecoder',
+    },
     'Int': { 
         'type': 'Int', 
         'var_name': 'int', 
         'default': '10',
-        'encoder': 'Encode.int' },
+        'encoder': 'Encode.int',
+        'decoder': 'Decode.int',
+    },
     'ListElementStyVarMsg': { 
         'type': '(List (El sty var msg))', 
         'var_name': 'els', 
         'default': 'children',
-        'encoder': 'Encode.list <| List.map elEncoder' },
+        'encoder': 'Encode.list <| List.map elEncoder',
+        'decoder': '<| Decode.list elDecoder',
+    },
     'ListAttributeVarMsg': { 
         'type': '(List (At var msg))', 
         'var_name': 'attrs', 
         'default': '[{ name = "padding", attr = FltAttr padding 20}]',
-        'encoder': 'Encode.list <| List.map atEncoder' },
+        'encoder': 'Encode.list <| List.map atEncoder',
+        'decoder': '<| Decode.list atDecoder',
+    },
     'ElementStyVarMsg': { 
         'type': '(El sty var msg)', 
         'var_name': 'el', 
         'default': '(children |> List.head |> Maybe.withDefault {id = id + 1, name = "empty", elem = Elmnt empty})',
-        'encoder': 'elEncoder' },
+        'encoder': 'elEncoder',
+        'decoder': 'elDecoder',
+    },
     'AttributeVarMsg': { 
         'type': '(At var msg)', 
         'var_name': 'attr', 
         'default': '(StrAttr "default")',
-        'encoder': 'atEncoder' }
+        'encoder': 'atEncoder',
+        'decoder': 'atDecoder',
+    }
 
 }
 
@@ -93,6 +113,10 @@ def make_unique(strings):
         seen.append(string)
 
     return unique
+
+
+def fn_lookup_name(fcn_type_alias_name):
+    return fcn_type_alias_name[:1].lower() + fcn_type_alias_name[1:] + 'Lookup'
 
 
 def excluded(fcn_name, fcn_sig, suffix):
@@ -128,7 +152,9 @@ print 'import Element.Attributes exposing (..)'
 print 'import View.Stylesheet as Sty'
 print 'import Dict exposing (Dict)'
 print 'import Json.Encode as Encode'
+print 'import Json.Decode as Decode'
 print 'import Utils exposing ((=>))'
+print 'import Layout.Utils exposing (fnDecoder)'
 
 print '''
 type alias Elid =
@@ -255,11 +281,13 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
         extra_field_type = extra_rec_field[1] + '->'
         extra_field_assign = '{} = {},'.format(extra_field_name, extra_field_name)
         extra_field_encode = '"{0}" => Encode.{1} thing.{0},'.format(extra_field_name, extra_rec_field[1].lower())
+        extra_field_decode = '(Decode.field "{0}" Decode.{1})'.format(extra_field_name, extra_rec_field[1].lower())
     else:
         extra_field_name = ''
         extra_field_type = ''
         extra_field_assign = ''
         extra_field_encode = ''
+        extra_field_decode = ''
     if kind == 'Elem':
         extra_arg_2 = 'children'
         extra_type_2 = 'List (El Sty.Style var msg) ->'
@@ -281,7 +309,7 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
     print
 
     for fcn_type in fcn_types:
-        print fcn_type.fcn_type_alias_name[:1].lower() + fcn_type.fcn_type_alias_name[1:] + 'Lookup', '= Dict.fromList ['
+        print fn_lookup_name(fcn_type.fcn_type_alias_name), '= Dict.fromList ['
         for i, fcn in enumerate(fcn_type.members):
             print '    {1}"{0}" => {0}'.format(fcn.name, ',' if i > 0 else '')
         print '    ]'
@@ -306,3 +334,26 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
             print '            , "{arg_name}" => {encoder} {arg_name}'.format(
                 arg_name=arg_name, encoder=encoder)
         print '            ]'
+
+    print
+
+    print rec_name.lower() + 'Decoder = Decode.map' + (str(3) if extra_rec_field else str(2)), rec_name
+    print '    ', extra_field_decode
+    print '    (Decode.field "name" Decode.string)'
+    print '    (Decode.field "{kind}" <| Decode.lazy (\_ -> {kind}Decoder))'.format(kind=kind.lower())
+
+    print
+
+    print kind.lower() + 'Decoder = Decode.oneOf'
+    for i, fcn_type in enumerate(fcn_types):
+        args = [ARG_LOOKUP[arg] for arg in fcn_type.type_name_parts[:-1]]
+        arg_names = make_unique([arg['var_name'] for arg in args])
+        print '        {token} Decode.map{num} {type}'.format(
+            type=fcn_type.type_name, num=len(args) + 1 if len(args) else '', token='[' if i == 0 else ',')
+        print '            (Decode.field "fn" <| fnDecoder {})'.format(fn_lookup_name(fcn_type.fcn_type_alias_name))
+        for arg_name, decoder in zip(arg_names, [arg['decoder'] for arg in args]):
+            print '            (Decode.field "{arg_name}" {decoder})'.format(
+                arg_name=arg_name, decoder=decoder)
+    print '        ]'
+
+    print
