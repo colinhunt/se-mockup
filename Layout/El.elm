@@ -142,16 +142,16 @@ view extraAttrs rootEl =
                     f (viewEls els) (viewElR el_)
 
                 StyListAttrStrElmnt f sty attrs str ->
-                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) str
+                    f Sty.Element (Attr.viewAll attrs (extraAttrs curEl.id)) str
 
                 StyListAttrElmntElmnt f sty attrs el_ ->
-                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
+                    f Sty.Element (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
 
                 FltStyListAttrElmntElmnt f flt sty attrs el_ ->
-                    f flt Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
+                    f flt Sty.Element (Attr.viewAll attrs (extraAttrs curEl.id)) (viewElR el_)
 
                 StyListAttrListElmntElmnt f sty attrs els ->
-                    f Sty.Elmnt (Attr.viewAll attrs (extraAttrs curEl.id)) (viewEls els)
+                    f Sty.Element (Attr.viewAll attrs (extraAttrs curEl.id)) (viewEls els)
     in
     viewElR rootEl
 

@@ -28,7 +28,7 @@ ARG_LOOKUP = {
         'type': 'sty', 
         'var_name': 'sty', 
         'default': 'Sty.None',
-        'encoder': '(always Encode.string "None")',
+        'encoder': '(always <| Encode.string "None")',
         'decoder': '<| Decode.succeed Sty.None'
     },
     'String': { 
@@ -71,7 +71,7 @@ ARG_LOOKUP = {
         'var_name': 'els', 
         'default': 'children',
         'encoder': 'Encode.list <| List.map elEncoder',
-        'decoder': '<| Decode.list elDecoder',
+        'decoder': '<| Decode.list <| Decode.lazy (\_ -> elDecoder)',
     },
     'ListAttributeVarMsg': { 
         'type': '(List (At var msg))', 
@@ -85,7 +85,7 @@ ARG_LOOKUP = {
         'var_name': 'el', 
         'default': '(children |> List.head |> Maybe.withDefault {id = id + 1, name = "empty", elem = Elmnt empty})',
         'encoder': 'elEncoder',
-        'decoder': 'elDecoder',
+        'decoder': '<| Decode.lazy (\_ -> elDecoder)',
     },
     'AttributeVarMsg': { 
         'type': '(At var msg)', 
@@ -337,12 +337,15 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
 
     print
 
-    print rec_name.lower() + 'Decoder = Decode.map' + (str(3) if extra_rec_field else str(2)), rec_name
-    print '    ', extra_field_decode
-    print '    (Decode.field "name" Decode.string)'
-    print '    (Decode.field "{kind}" <| Decode.lazy (\_ -> {kind}Decoder))'.format(kind=kind.lower())
-
-    print
+    print """
+    {- 
+    The decoder pairs must be defined in this order and the lazy 
+    decoding must go in the first one or we get runtime errors.
+    
+    Caused and fix as suggested by 
+    https://github.com/elm-lang/elm-compiler/issues/1560
+    -}
+    """
 
     print kind.lower() + 'Decoder = Decode.oneOf'
     for i, fcn_type in enumerate(fcn_types):
@@ -357,3 +360,11 @@ for file_path, kind, rec_name, extra_rec_field, suffix in FILE_PATHS:
     print '        ]'
 
     print
+
+    print rec_name.lower() + 'Decoder = Decode.map' + (str(3) if extra_rec_field else str(2)), rec_name
+    print '    ', extra_field_decode
+    print '    (Decode.field "name" Decode.string)'
+    print '    (Decode.field "{kind}" {kind}Decoder)'.format(kind=kind.lower())
+
+    print
+

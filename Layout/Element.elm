@@ -312,7 +312,7 @@ elemEncoder { name, elem } =
             StyElmnt f sty ->
                 [ "kind" => Encode.string "StyElmnt"
                 , "fn" => Encode.string name
-                , "sty" => always Encode.string "None" sty
+                , "sty" => (always <| Encode.string "None") sty
                 ]
 
             ElmntElmnt f el ->
@@ -338,7 +338,7 @@ elemEncoder { name, elem } =
             StyListAttrStrElmnt f sty attrs str ->
                 [ "kind" => Encode.string "StyListAttrStrElmnt"
                 , "fn" => Encode.string name
-                , "sty" => always Encode.string "None" sty
+                , "sty" => (always <| Encode.string "None") sty
                 , "attrs" => Encode.list <| List.map atEncoder attrs
                 , "str" => Encode.string str
                 ]
@@ -353,7 +353,7 @@ elemEncoder { name, elem } =
             StyListAttrElmntElmnt f sty attrs el ->
                 [ "kind" => Encode.string "StyListAttrElmntElmnt"
                 , "fn" => Encode.string name
-                , "sty" => always Encode.string "None" sty
+                , "sty" => (always <| Encode.string "None") sty
                 , "attrs" => Encode.list <| List.map atEncoder attrs
                 , "el" => elEncoder el
                 ]
@@ -362,7 +362,7 @@ elemEncoder { name, elem } =
                 [ "kind" => Encode.string "FltStyListAttrElmntElmnt"
                 , "fn" => Encode.string name
                 , "flt" => Encode.float flt
-                , "sty" => always Encode.string "None" sty
+                , "sty" => (always <| Encode.string "None") sty
                 , "attrs" => Encode.list <| List.map atEncoder attrs
                 , "el" => elEncoder el
                 ]
@@ -370,17 +370,20 @@ elemEncoder { name, elem } =
             StyListAttrListElmntElmnt f sty attrs els ->
                 [ "kind" => Encode.string "StyListAttrListElmntElmnt"
                 , "fn" => Encode.string name
-                , "sty" => always Encode.string "None" sty
+                , "sty" => (always <| Encode.string "None") sty
                 , "attrs" => Encode.list <| List.map atEncoder attrs
                 , "els" => Encode.list <| List.map elEncoder els
                 ]
 
 
-elDecoder =
-    Decode.map3 El
-        (Decode.field "id" Decode.int)
-        (Decode.field "name" Decode.string)
-        (Decode.field "elem" <| Decode.lazy (\_ -> elemDecoder))
+
+{-
+   The decoder pairs must be defined in this order and the lazy
+   decoding must go in the first one or we get runtime errors.
+
+   Caused and fix as suggested by
+   https://github.com/elm-lang/elm-compiler/issues/1560
+-}
 
 
 elemDecoder =
@@ -398,15 +401,15 @@ elemDecoder =
             (Decode.field "sty" <| Decode.succeed Sty.None)
         , Decode.map2 ElmntElmnt
             (Decode.field "fn" <| fnDecoder elmntElmntFnLookup)
-            (Decode.field "el" elDecoder)
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map3 StrElmntElmnt
             (Decode.field "fn" <| fnDecoder strElmntElmntFnLookup)
             (Decode.field "str" Decode.string)
-            (Decode.field "el" elDecoder)
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map3 BoolElmntElmnt
             (Decode.field "fn" <| fnDecoder boolElmntElmntFnLookup)
             (Decode.field "bool" Decode.bool)
-            (Decode.field "el" elDecoder)
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map4 StyListAttrStrElmnt
             (Decode.field "fn" <| fnDecoder styListAttrStrElmntFnLookup)
             (Decode.field "sty" <| Decode.succeed Sty.None)
@@ -414,25 +417,32 @@ elemDecoder =
             (Decode.field "str" Decode.string)
         , Decode.map3 ListElmntElmntElmnt
             (Decode.field "fn" <| fnDecoder listElmntElmntElmntFnLookup)
-            (Decode.field "els" <| Decode.list elDecoder)
-            (Decode.field "el" elDecoder)
+            (Decode.field "els" <| Decode.list <| Decode.lazy (\_ -> elDecoder))
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map4 StyListAttrElmntElmnt
             (Decode.field "fn" <| fnDecoder styListAttrElmntElmntFnLookup)
             (Decode.field "sty" <| Decode.succeed Sty.None)
             (Decode.field "attrs" <| Decode.list atDecoder)
-            (Decode.field "el" elDecoder)
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map5 FltStyListAttrElmntElmnt
             (Decode.field "fn" <| fnDecoder fltStyListAttrElmntElmntFnLookup)
             (Decode.field "flt" Decode.float)
             (Decode.field "sty" <| Decode.succeed Sty.None)
             (Decode.field "attrs" <| Decode.list atDecoder)
-            (Decode.field "el" elDecoder)
+            (Decode.field "el" <| Decode.lazy (\_ -> elDecoder))
         , Decode.map4 StyListAttrListElmntElmnt
             (Decode.field "fn" <| fnDecoder styListAttrListElmntElmntFnLookup)
             (Decode.field "sty" <| Decode.succeed Sty.None)
             (Decode.field "attrs" <| Decode.list atDecoder)
-            (Decode.field "els" <| Decode.list elDecoder)
+            (Decode.field "els" <| Decode.list <| Decode.lazy (\_ -> elDecoder))
         ]
+
+
+elDecoder =
+    Decode.map3 El
+        (Decode.field "id" Decode.int)
+        (Decode.field "name" Decode.string)
+        (Decode.field "elem" elemDecoder)
 
 
 type Attr var msg
@@ -623,10 +633,14 @@ attrEncoder { name, attr } =
                 ]
 
 
-atDecoder =
-    Decode.map2 At
-        (Decode.field "name" Decode.string)
-        (Decode.field "attr" <| Decode.lazy (\_ -> attrDecoder))
+
+{-
+   The decoder pairs must be defined in this order and the lazy
+   decoding must go in the first one or we get runtime errors.
+
+   Caused and fix as suggested by
+   https://github.com/elm-lang/elm-compiler/issues/1560
+-}
 
 
 attrDecoder =
@@ -647,6 +661,12 @@ attrDecoder =
             (Decode.field "flt" Decode.float)
             (Decode.field "flt1" Decode.float)
         ]
+
+
+atDecoder =
+    Decode.map2 At
+        (Decode.field "name" Decode.string)
+        (Decode.field "attr" attrDecoder)
 
 
 type Lngth
@@ -740,10 +760,14 @@ lngthEncoder { name, lngth } =
                 ]
 
 
-lnDecoder =
-    Decode.map2 Ln
-        (Decode.field "name" Decode.string)
-        (Decode.field "lngth" <| Decode.lazy (\_ -> lngthDecoder))
+
+{-
+   The decoder pairs must be defined in this order and the lazy
+   decoding must go in the first one or we get runtime errors.
+
+   Caused and fix as suggested by
+   https://github.com/elm-lang/elm-compiler/issues/1560
+-}
 
 
 lngthDecoder =
@@ -757,3 +781,9 @@ lngthDecoder =
             (Decode.field "fn" <| fnDecoder intLngFnLookup)
             (Decode.field "int" Decode.int)
         ]
+
+
+lnDecoder =
+    Decode.map2 Ln
+        (Decode.field "name" Decode.string)
+        (Decode.field "lngth" lngthDecoder)

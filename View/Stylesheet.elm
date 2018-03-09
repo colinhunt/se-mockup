@@ -19,7 +19,7 @@ type Variation
 type Style
     = None
     | Main
-    | Elmnt
+    | Element
     | Button
     | ButtonLabel
     | ThingPicker
@@ -86,7 +86,7 @@ stylesheet =
         [ style None [] -- blank style
         , style Main
             [ Font.typeface [ Font.sansSerif ] ]
-        , style Elmnt <|
+        , style Element <|
             elemBase
                 []
         , style Button
