@@ -1,0 +1,28 @@
+{
+  "name": "se-mockup",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.html",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "elm-test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/colinhunt/se-mockup.git"
+  },
+  "keywords": [
+    "elm",
+    "wireframe",
+    "mockup",
+    "style-elements"
+  ],
+  "author": "Colin Hunt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/colinhunt/se-mockup/issues"
+  },
+  "homepage": "https://colinhunt.github.io/se-mockup/"
+}
