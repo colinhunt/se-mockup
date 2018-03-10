@@ -37,3 +37,11 @@ install: # install specific versions of elm & elm-test
 
 script:
   - elm-test --verbose
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  github_token: $github_token
+  local_dir: build
+  on:
+    branch: master
