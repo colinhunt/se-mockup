@@ -37,6 +37,7 @@ install: # install specific versions of elm & elm-test
 
 script:
   - elm-test --verbose
+  - bash build.sh
 
 deploy:
   provider: pages
