@@ -6,9 +6,6 @@
   "directories": {
     "test": "tests"
   },
-  "scripts": {
-    "test": "elm-test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/colinhunt/se-mockup.git"
