@@ -47,3 +47,5 @@ deploy:
   keep-history: true
   on:
     branch: master
+  edge:
+    branch: v1.8.47
