@@ -1,6 +1,8 @@
 # [Haywire](https://colinhunt.github.io/se-mockup/) for Elm Style-Elements
 *(working title)*
 
+[![Build Status](https://travis-ci.org/colinhunt/se-mockup.svg?branch=master)](https://travis-ci.org/colinhunt/se-mockup)
+
 Create UI wireframes for elm apps using elements from the excellent 
 [mdgriffith/style-elements](http://package.elm-lang.org/packages/mdgriffith/style-elements/4.3.0/) library.
 See your layouts rendered in real-time exactly as they would appear in your app.
