@@ -9558,6 +9558,422 @@ var _elm_lang$window$Window$subMap = F2(
 	});
 _elm_lang$core$Native_Platform.effectManagers['Window'] = {pkg: 'elm-lang/window', init: _elm_lang$window$Window$init, onEffects: _elm_lang$window$Window$onEffects, onSelfMsg: _elm_lang$window$Window$onSelfMsg, tag: 'sub', subMap: _elm_lang$window$Window$subMap};
 
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue = F2(
+	function (encoder, x) {
+		var _p0 = encoder;
+		if (_p0.ctor === 'Opaque') {
+			return _p0._0(x);
+		} else {
+			return _elm_lang$core$Json_Encode$object(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Tuple$mapSecond(
+						function (toValue) {
+							return toValue(x);
+						}),
+					_p0._0));
+		}
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$maybeValue = F2(
+	function (encoder, maybeX) {
+		var _p1 = maybeX;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Json_Encode$null;
+		} else {
+			return A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, encoder, _p1._0);
+		}
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Object = function (a) {
+	return {ctor: 'Object', _0: a};
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$object = _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Object;
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$at = F2(
+	function (keyPath, encoder) {
+		var _p2 = keyPath;
+		if (_p2.ctor === '[]') {
+			return encoder;
+		} else {
+			return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: _p2._0,
+						_1: _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue(
+							A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$at, _p2._1, encoder))
+					},
+					_1: {ctor: '[]'}
+				});
+		}
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$withField = F4(
+	function (name, getter, valueEncoder, objectEncoder) {
+		var _p3 = objectEncoder;
+		if (_p3.ctor === 'Object') {
+			return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Object(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					_p3._0,
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: name,
+							_1: function (_p4) {
+								return A2(
+									_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue,
+									valueEncoder,
+									getter(_p4));
+							}
+						},
+						_1: {ctor: '[]'}
+					}));
+		} else {
+			return objectEncoder;
+		}
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Opaque = function (a) {
+	return {ctor: 'Opaque', _0: a};
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque = _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Opaque;
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$nullable = function (encoder) {
+	return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$maybeValue(encoder));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$contramap = F2(
+	function (f, encoder) {
+		var _p5 = encoder;
+		if (_p5.ctor === 'Opaque') {
+			return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Opaque(
+				function (_p6) {
+					return _p5._0(
+						f(_p6));
+				});
+		} else {
+			return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$Object(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Tuple$mapSecond(
+						function (toValue) {
+							return function (_p7) {
+								return toValue(
+									f(_p7));
+							};
+						}),
+					_p5._0));
+		}
+	});
+
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decoder = function (_p0) {
+	var _p1 = _p0;
+	return _p1._1;
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decodeString = function (_p2) {
+	var _p3 = _p2;
+	return _elm_lang$core$Json_Decode$decodeString(_p3._1);
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decodeValue = function (_p4) {
+	var _p5 = _p4;
+	return _elm_lang$core$Json_Decode$decodeValue(_p5._1);
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$encodeValue = function (_p6) {
+	var _p7 = _p6;
+	return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue(_p7._0);
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$encodeString = F2(
+	function (coder, indentation) {
+		return function (_p8) {
+			return A2(
+				_elm_lang$core$Json_Encode$encode,
+				indentation,
+				A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$encodeValue, coder, _p8));
+		};
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair = F2(
+	function (a, b) {
+		return {ctor: 'CoderPair', _0: a, _1: b};
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$string = A2(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(_elm_lang$core$Json_Encode$string),
+	_elm_lang$core$Json_Decode$string);
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$bool = A2(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(_elm_lang$core$Json_Encode$bool),
+	_elm_lang$core$Json_Decode$bool);
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$int = A2(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(_elm_lang$core$Json_Encode$int),
+	_elm_lang$core$Json_Decode$int);
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$float = A2(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(_elm_lang$core$Json_Encode$float),
+	_elm_lang$core$Json_Decode$float);
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$nullable = function (_p9) {
+	var _p10 = _p9;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$nullable(_p10._0),
+		_elm_lang$core$Json_Decode$nullable(_p10._1));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$list = function (_p11) {
+	var _p12 = _p11;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p13) {
+				return _elm_lang$core$Json_Encode$list(
+					A2(
+						_elm_lang$core$List$map,
+						_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue(_p12._0),
+						_p13));
+			}),
+		_elm_lang$core$Json_Decode$list(_p12._1));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$object = function (constructor) {
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$object(
+			{ctor: '[]'}),
+		_elm_lang$core$Json_Decode$succeed(constructor));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$withField = F4(
+	function (name, getter, _p15, _p14) {
+		var _p16 = _p15;
+		var _p17 = _p14;
+		var decoder = A3(
+			_elm_lang$core$Json_Decode$map2,
+			F2(
+				function (x, y) {
+					return x(y);
+				}),
+			_p17._1,
+			A2(_elm_lang$core$Json_Decode$field, name, _p16._1));
+		var encoder = A4(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$withField, name, getter, _p16._0, _p17._0);
+		return A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair, encoder, decoder);
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$at = F2(
+	function (keyPath, _p18) {
+		var _p19 = _p18;
+		return A2(
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+			A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$at, keyPath, _p19._0),
+			A2(_elm_lang$core$Json_Decode$at, keyPath, _p19._1));
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$dict = function (_p20) {
+	var _p21 = _p20;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p22) {
+				return _elm_lang$core$Json_Encode$object(
+					A2(
+						_elm_lang$core$List$map,
+						_elm_lang$core$Tuple$mapSecond(
+							_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue(_p21._0)),
+						_elm_lang$core$Dict$toList(_p22)));
+			}),
+		_elm_lang$core$Json_Decode$dict(_p21._1));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$keyValuePairs = function (_p23) {
+	var _p24 = _p23;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p25) {
+				return _elm_lang$core$Json_Encode$object(
+					A2(
+						_elm_lang$core$List$map,
+						_elm_lang$core$Tuple$mapSecond(
+							_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue(_p24._0)),
+						_p25));
+			}),
+		_elm_lang$core$Json_Decode$keyValuePairs(_p24._1));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$tuple = function (_p26) {
+	var _p27 = _p26;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p28) {
+				var _p29 = _p28;
+				return _elm_lang$core$Json_Encode$list(
+					{
+						ctor: '::',
+						_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p27._0._0, _p29._0),
+						_1: {
+							ctor: '::',
+							_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p27._1._0, _p29._1),
+							_1: {ctor: '[]'}
+						}
+					});
+			}),
+		A3(
+			_elm_lang$core$Json_Decode$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			A2(_elm_lang$core$Json_Decode$index, 0, _p27._0._1),
+			A2(_elm_lang$core$Json_Decode$index, 1, _p27._1._1)));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$tuple3 = function (_p30) {
+	var _p31 = _p30;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p32) {
+				var _p33 = _p32;
+				return _elm_lang$core$Json_Encode$list(
+					{
+						ctor: '::',
+						_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p31._0._0, _p33._0),
+						_1: {
+							ctor: '::',
+							_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p31._1._0, _p33._1),
+							_1: {
+								ctor: '::',
+								_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p31._2._0, _p33._2),
+								_1: {ctor: '[]'}
+							}
+						}
+					});
+			}),
+		A4(
+			_elm_lang$core$Json_Decode$map3,
+			F3(
+				function (v0, v1, v2) {
+					return {ctor: '_Tuple3', _0: v0, _1: v1, _2: v2};
+				}),
+			A2(_elm_lang$core$Json_Decode$index, 0, _p31._0._1),
+			A2(_elm_lang$core$Json_Decode$index, 1, _p31._1._1),
+			A2(_elm_lang$core$Json_Decode$index, 2, _p31._2._1)));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$tuple4 = function (_p34) {
+	var _p35 = _p34;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p36) {
+				var _p37 = _p36;
+				return _elm_lang$core$Json_Encode$list(
+					{
+						ctor: '::',
+						_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p35._0._0, _p37._0),
+						_1: {
+							ctor: '::',
+							_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p35._1._0, _p37._1),
+							_1: {
+								ctor: '::',
+								_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p35._2._0, _p37._2),
+								_1: {
+									ctor: '::',
+									_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p35._3._0, _p37._3),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					});
+			}),
+		A5(
+			_elm_lang$core$Json_Decode$map4,
+			F4(
+				function (v0, v1, v2, v3) {
+					return {ctor: '_Tuple4', _0: v0, _1: v1, _2: v2, _3: v3};
+				}),
+			A2(_elm_lang$core$Json_Decode$index, 0, _p35._0._1),
+			A2(_elm_lang$core$Json_Decode$index, 1, _p35._1._1),
+			A2(_elm_lang$core$Json_Decode$index, 2, _p35._2._1),
+			A2(_elm_lang$core$Json_Decode$index, 3, _p35._3._1)));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$tuple5 = function (_p38) {
+	var _p39 = _p38;
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (_p40) {
+				var _p41 = _p40;
+				return _elm_lang$core$Json_Encode$list(
+					{
+						ctor: '::',
+						_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p39._0._0, _p41._0),
+						_1: {
+							ctor: '::',
+							_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p39._1._0, _p41._1),
+							_1: {
+								ctor: '::',
+								_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p39._2._0, _p41._2),
+								_1: {
+									ctor: '::',
+									_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p39._3._0, _p41._3),
+									_1: {
+										ctor: '::',
+										_0: A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue, _p39._4._0, _p41._4),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					});
+			}),
+		A6(
+			_elm_lang$core$Json_Decode$map5,
+			F5(
+				function (v0, v1, v2, v3, v4) {
+					return {ctor: '_Tuple5', _0: v0, _1: v1, _2: v2, _3: v3, _4: v4};
+				}),
+			A2(_elm_lang$core$Json_Decode$index, 0, _p39._0._1),
+			A2(_elm_lang$core$Json_Decode$index, 1, _p39._1._1),
+			A2(_elm_lang$core$Json_Decode$index, 2, _p39._2._1),
+			A2(_elm_lang$core$Json_Decode$index, 3, _p39._3._1),
+			A2(_elm_lang$core$Json_Decode$index, 4, _p39._4._1)));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$value = A2(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(_elm_lang$core$Basics$identity),
+	_elm_lang$core$Json_Decode$value);
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$bimap = F3(
+	function (ba, ab, _p42) {
+		var _p43 = _p42;
+		return A2(
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+				function (_p44) {
+					return A2(
+						_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$encodeValue,
+						_p43._0,
+						ba(_p44));
+				}),
+			A2(_elm_lang$core$Json_Decode$map, ab, _p43._1));
+	});
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$lazy = function (getCoder) {
+	return A2(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(
+			function (x) {
+				return A2(
+					_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$encodeValue,
+					getCoder(
+						{ctor: '_Tuple0'}),
+					x);
+			}),
+		A2(
+			_elm_lang$core$Json_Decode$andThen,
+			function (_p45) {
+				return _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decoder(
+					getCoder(_p45));
+			},
+			_elm_lang$core$Json_Decode$succeed(
+				{ctor: '_Tuple0'})));
+};
+var _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$custom = F2(
+	function (toValue, decoder) {
+		return A2(
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$CoderPair,
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional_Encoder$opaque(toValue),
+			decoder);
+	});
+
 var _mdgriffith$style_elements$Style_Internal_Model$StyleSheet = F3(
 	function (a, b, c) {
 		return {style: a, variations: b, css: c};
@@ -23270,6 +23686,21 @@ var _mdgriffith$style_elements$Style_Shadow$glow = F2(
 			});
 	});
 
+var _user$project$Data_Ports$save = _elm_lang$core$Native_Platform.outgoingPort(
+	'save',
+	function (v) {
+		return v;
+	});
+var _user$project$Data_Ports$load = _elm_lang$core$Native_Platform.outgoingPort(
+	'load',
+	function (v) {
+		return _elm_lang$core$Native_List.toArray(v).map(
+			function (v) {
+				return v;
+			});
+	});
+var _user$project$Data_Ports$onLoad = _elm_lang$core$Native_Platform.incomingPort('onLoad', _elm_lang$core$Json_Decode$value);
+
 var _user$project$Utils$manualOrdering = function (ordering) {
 	var order = F3(
 		function (ordering, a, b) {
@@ -26690,6 +27121,43 @@ var _user$project$Layout_Element$elDecoder = A4(
 	A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'elem', _user$project$Layout_Element$elemDecoder));
 
+var _user$project$Model_Types$State = F2(
+	function (a, b) {
+		return {layout: a, newId: b};
+	});
+var _user$project$Model_Types$NoneMsg = {ctor: 'NoneMsg'};
+var _user$project$Model_Types$OnLoadState = function (a) {
+	return {ctor: 'OnLoadState', _0: a};
+};
+var _user$project$Model_Types$OnSidebarClick = {ctor: 'OnSidebarClick'};
+var _user$project$Model_Types$OnClickPicker = function (a) {
+	return {ctor: 'OnClickPicker', _0: a};
+};
+var _user$project$Model_Types$OnSelectChild = function (a) {
+	return {ctor: 'OnSelectChild', _0: a};
+};
+var _user$project$Model_Types$OnClick = function (a) {
+	return {ctor: 'OnClick', _0: a};
+};
+var _user$project$Model_Types$OnMouseLeave = {ctor: 'OnMouseLeave'};
+var _user$project$Model_Types$OnMouseEnter = function (a) {
+	return {ctor: 'OnMouseEnter', _0: a};
+};
+var _user$project$Model_Types$OnCutEl = function (a) {
+	return {ctor: 'OnCutEl', _0: a};
+};
+var _user$project$Model_Types$OnDeleteEl = F2(
+	function (a, b) {
+		return {ctor: 'OnDeleteEl', _0: a, _1: b};
+	});
+var _user$project$Model_Types$OnReplaceEl = F2(
+	function (a, b) {
+		return {ctor: 'OnReplaceEl', _0: a, _1: b};
+	});
+var _user$project$Model_Types$OnInsertChild = F2(
+	function (a, b) {
+		return {ctor: 'OnInsertChild', _0: a, _1: b};
+	});
 var _user$project$Model_Types$None = {ctor: 'None'};
 var _user$project$Model_Types$InsertBelow = function (a) {
 	return {ctor: 'InsertBelow', _0: a};
@@ -26710,6 +27178,98 @@ var _user$project$Model_Types$ReplaceChild = function (a) {
 };
 var _user$project$Model_Types$AddChild = {ctor: 'AddChild'};
 var _user$project$Model_Types$ReplaceElement = {ctor: 'ReplaceElement'};
+
+var _user$project$Data_Storage$elidCoder = _jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$int;
+var _user$project$Data_Storage$elCoder = A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$custom, _user$project$Layout_Element$elEncoder, _user$project$Layout_Element$elDecoder);
+var _user$project$Data_Storage$keyToString = function (_p0) {
+	var _p1 = _p0;
+	return _p1._0;
+};
+var _user$project$Data_Storage$keyedValue = F2(
+	function (key, coder) {
+		return A2(
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$at,
+			{
+				ctor: '::',
+				_0: _user$project$Data_Storage$keyToString(key),
+				_1: {ctor: '[]'}
+			},
+			coder);
+	});
+var _user$project$Data_Storage$loadState = _user$project$Data_Ports$load(
+	{
+		ctor: '::',
+		_0: 'state',
+		_1: {ctor: '[]'}
+	});
+var _user$project$Data_Storage$State = F2(
+	function (a, b) {
+		return {layout: a, newId: b};
+	});
+var _user$project$Data_Storage$stateCoder = A4(
+	_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$withField,
+	'newId',
+	function (_) {
+		return _.newId;
+	},
+	_user$project$Data_Storage$elidCoder,
+	A4(
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$withField,
+		'layout',
+		function (_) {
+			return _.layout;
+		},
+		_user$project$Data_Storage$elCoder,
+		_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$object(_user$project$Data_Storage$State)));
+var _user$project$Data_Storage$decodeState = function (json) {
+	return _user$project$Model_Types$OnLoadState(
+		A2(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decodeValue, _user$project$Data_Storage$stateCoder, json));
+};
+var _user$project$Data_Storage$onLoad = _user$project$Data_Ports$onLoad(
+	function (json) {
+		var items = _elm_lang$core$Dict$toList(
+			A2(
+				_elm_lang$core$Result$withDefault,
+				_elm_lang$core$Dict$empty,
+				A2(
+					_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$decodeValue,
+					_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$dict(_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$value),
+					json)));
+		var _p2 = items;
+		if (_p2.ctor === '::') {
+			var _p4 = _p2._0._0;
+			var _p3 = _p4;
+			if (_p3 === 'state') {
+				return _user$project$Data_Storage$decodeState(_p2._0._1);
+			} else {
+				return A2(
+					_elm_lang$core$Debug$log,
+					A2(_elm_lang$core$Basics_ops['++'], 'Storage.onLoad: unrecognized key ', _p4),
+					_user$project$Model_Types$NoneMsg);
+			}
+		} else {
+			return A2(
+				_elm_lang$core$Debug$log,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'Storage.onLoad could not find anything to load in ',
+					_elm_lang$core$Basics$toString(json)),
+				_user$project$Model_Types$NoneMsg);
+		}
+	});
+var _user$project$Data_Storage$StorageKey = function (a) {
+	return {ctor: 'StorageKey', _0: a};
+};
+var _user$project$Data_Storage$saveState = function (state) {
+	return _user$project$Data_Ports$save(
+		A2(
+			_jamesmacaulay$elm_json_bidirectional$Json_Bidirectional$encodeValue,
+			A2(
+				_user$project$Data_Storage$keyedValue,
+				_user$project$Data_Storage$StorageKey('state'),
+				_user$project$Data_Storage$stateCoder),
+			state));
+};
 
 var _user$project$Layout_Ln$viewCode = function (ln) {
 	var _p0 = ln.lngth;
@@ -28841,86 +29401,87 @@ var _user$project$Layout_El$viewInfo = function (props) {
 	}
 };
 
-var _user$project$Model_Model$initModel = {
-	layout: {
-		id: 0,
-		name: 'el',
-		elem: A4(
-			_user$project$Layout_Element$StyListAttrElmntElmnt,
-			_mdgriffith$style_elements$Element$el,
-			_user$project$View_Stylesheet$None,
-			{
-				ctor: '::',
-				_0: {
-					name: 'padding',
-					attr: A2(_user$project$Layout_Element$FltAttr, _mdgriffith$style_elements$Element_Attributes$padding, 20)
-				},
-				_1: {
+var _user$project$Model_Model$init = A2(
+	_elm_lang$core$Platform_Cmd_ops['!'],
+	{
+		layout: {
+			id: 0,
+			name: 'el',
+			elem: A4(
+				_user$project$Layout_Element$StyListAttrElmntElmnt,
+				_mdgriffith$style_elements$Element$el,
+				_user$project$View_Stylesheet$None,
+				{
 					ctor: '::',
 					_0: {
-						name: 'center',
-						attr: _user$project$Layout_Element$Attr(_mdgriffith$style_elements$Element_Attributes$center)
+						name: 'padding',
+						attr: A2(_user$project$Layout_Element$FltAttr, _mdgriffith$style_elements$Element_Attributes$padding, 20)
 					},
 					_1: {
 						ctor: '::',
 						_0: {
-							name: 'verticalCenter',
-							attr: _user$project$Layout_Element$Attr(_mdgriffith$style_elements$Element_Attributes$verticalCenter)
+							name: 'center',
+							attr: _user$project$Layout_Element$Attr(_mdgriffith$style_elements$Element_Attributes$center)
 						},
-						_1: {ctor: '[]'}
+						_1: {
+							ctor: '::',
+							_0: {
+								name: 'verticalCenter',
+								attr: _user$project$Layout_Element$Attr(_mdgriffith$style_elements$Element_Attributes$verticalCenter)
+							},
+							_1: {ctor: '[]'}
+						}
 					}
-				}
-			},
-			{
-				id: 1,
-				name: 'text',
-				elem: A2(_user$project$Layout_Element$StrElmnt, _mdgriffith$style_elements$Element$text, 'Click to edit!')
-			})
+				},
+				{
+					id: 1,
+					name: 'text',
+					elem: A2(_user$project$Layout_Element$StrElmnt, _mdgriffith$style_elements$Element$text, 'Click to edit!')
+				})
+		},
+		mousedOver: {ctor: '[]'},
+		selected: 0,
+		selectedChild: -1,
+		clipped: _elm_lang$core$Maybe$Nothing,
+		newId: 10,
+		openPicker: _user$project$Model_Types$None
 	},
-	mousedOver: {ctor: '[]'},
-	selected: 0,
-	selectedChild: -1,
-	clipped: _elm_lang$core$Maybe$Nothing,
-	newId: 10,
-	openPicker: _user$project$Model_Types$None
-};
+	{
+		ctor: '::',
+		_0: _user$project$Data_Storage$loadState,
+		_1: {ctor: '[]'}
+	});
 var _user$project$Model_Model$Model = F7(
 	function (a, b, c, d, e, f, g) {
 		return {layout: a, mousedOver: b, selected: c, selectedChild: d, clipped: e, newId: f, openPicker: g};
 	});
-var _user$project$Model_Model$NoneMsg = {ctor: 'NoneMsg'};
-var _user$project$Model_Model$OnSidebarClick = {ctor: 'OnSidebarClick'};
-var _user$project$Model_Model$OnClickPicker = function (a) {
-	return {ctor: 'OnClickPicker', _0: a};
-};
-var _user$project$Model_Model$OnSelectChild = function (a) {
-	return {ctor: 'OnSelectChild', _0: a};
-};
-var _user$project$Model_Model$OnClick = function (a) {
-	return {ctor: 'OnClick', _0: a};
-};
-var _user$project$Model_Model$OnMouseLeave = {ctor: 'OnMouseLeave'};
-var _user$project$Model_Model$OnMouseEnter = function (a) {
-	return {ctor: 'OnMouseEnter', _0: a};
-};
-var _user$project$Model_Model$OnCutEl = function (a) {
-	return {ctor: 'OnCutEl', _0: a};
-};
-var _user$project$Model_Model$OnDeleteEl = F2(
-	function (a, b) {
-		return {ctor: 'OnDeleteEl', _0: a, _1: b};
-	});
-var _user$project$Model_Model$OnReplaceEl = F2(
-	function (a, b) {
-		return {ctor: 'OnReplaceEl', _0: a, _1: b};
-	});
-var _user$project$Model_Model$OnInsertChild = F2(
-	function (a, b) {
-		return {ctor: 'OnInsertChild', _0: a, _1: b};
-	});
 
-var _user$project$Update_Update$deleteChild = F3(
-	function (bringUpSubtree, id, model) {
+var _user$project$Subscriptions_Subscriptions$subscriptions = function (model) {
+	return _user$project$Data_Storage$onLoad;
+};
+
+var _user$project$Update_Update$onLoadState = F2(
+	function (result, model) {
+		var _p0 = result;
+		if (_p0.ctor === 'Ok') {
+			return A2(
+				_elm_lang$core$Platform_Cmd_ops['!'],
+				_elm_lang$core$Native_Utils.update(
+					model,
+					{layout: _p0._0.layout, newId: _p0._0.newId}),
+				{ctor: '[]'});
+		} else {
+			return A2(
+				_elm_lang$core$Debug$log,
+				_p0._0,
+				A2(
+					_elm_lang$core$Platform_Cmd_ops['!'],
+					model,
+					{ctor: '[]'}));
+		}
+	});
+var _user$project$Update_Update$deleteChild = F4(
+	function (bringUpSubtree, id, selected, layout) {
 		return A3(
 			_user$project$Layout_El$map,
 			_user$project$Layout_El$mapChildren(
@@ -28928,8 +29489,8 @@ var _user$project$Update_Update$deleteChild = F3(
 					childFn: A2(_user$project$Layout_El$deleteOnlyChild, bringUpSubtree, id),
 					childrenFn: A2(_user$project$Layout_El$deleteSibling, bringUpSubtree, id)
 				}),
-			model.selected,
-			model.layout);
+			selected,
+			layout);
 	});
 var _user$project$Update_Update$onClickPicker = F2(
 	function (picker, model) {
@@ -28956,22 +29517,22 @@ var _user$project$Update_Update$onSelectChild = F2(
 			{ctor: '[]'});
 	});
 var _user$project$Update_Update$onClick = F2(
-	function (id, _p0) {
-		var _p1 = _p0;
+	function (id, _p1) {
 		var _p2 = _p1;
+		var _p3 = _p2;
 		var mouseOver = A2(
 			_elm_lang$core$Maybe$withDefault,
 			-1,
-			_elm_lang$core$List$head(_p1.mousedOver));
-		return (_elm_lang$core$Native_Utils.eq(id, _p1.selected) || (_elm_lang$core$Native_Utils.cmp(id, 0) < 0)) ? A2(
+			_elm_lang$core$List$head(_p2.mousedOver));
+		return (_elm_lang$core$Native_Utils.eq(id, _p2.selected) || (_elm_lang$core$Native_Utils.cmp(id, 0) < 0)) ? A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			_elm_lang$core$Native_Utils.update(
-				_p2,
+				_p3,
 				{selected: -1, openPicker: _user$project$Model_Types$None}),
 			{ctor: '[]'}) : A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			_elm_lang$core$Native_Utils.update(
-				_p2,
+				_p3,
 				{selected: id, openPicker: _user$project$Model_Types$None}),
 			{ctor: '[]'});
 	});
@@ -28997,50 +29558,61 @@ var _user$project$Update_Update$onMouseEnter = F2(
 			{ctor: '[]'});
 	});
 var _user$project$Update_Update$insertReplace = F2(
-	function (newLayout, m) {
+	function (model, newLayout) {
+		var newModel = _elm_lang$core$Native_Utils.update(
+			model,
+			{layout: newLayout, newId: model.newId + 10});
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
-			_elm_lang$core$Native_Utils.update(
-				m,
-				{layout: newLayout, newId: m.newId + 10}),
-			{ctor: '[]'});
+			newModel,
+			{
+				ctor: '::',
+				_0: _user$project$Data_Storage$saveState(
+					{layout: newModel.layout, newId: newModel.newId}),
+				_1: {ctor: '[]'}
+			});
 	});
 var _user$project$Update_Update$onCutEl = F2(
 	function (elem, model) {
+		var _p4 = A2(
+			_user$project$Update_Update$insertReplace,
+			model,
+			A4(_user$project$Update_Update$deleteChild, false, elem.id, model.selected, model.layout));
+		var newModel = _p4._0;
+		var cmd = _p4._1;
 		return A2(
 			_elm_lang$core$Platform_Cmd_ops['!'],
 			_elm_lang$core$Native_Utils.update(
-				model,
+				newModel,
 				{
-					layout: A3(_user$project$Update_Update$deleteChild, false, elem.id, model),
 					clipped: _elm_lang$core$Maybe$Just(elem)
 				}),
-			{ctor: '[]'});
+			{
+				ctor: '::',
+				_0: cmd,
+				_1: {ctor: '[]'}
+			});
 	});
 var _user$project$Update_Update$onDeleteEl = F3(
 	function (bringUpSubtree, id, model) {
 		return A2(
-			_elm_lang$core$Platform_Cmd_ops['!'],
-			_elm_lang$core$Native_Utils.update(
-				model,
-				{
-					layout: A3(_user$project$Update_Update$deleteChild, bringUpSubtree, id, model)
-				}),
-			{ctor: '[]'});
+			_user$project$Update_Update$insertReplace,
+			model,
+			A4(_user$project$Update_Update$deleteChild, bringUpSubtree, id, model.selected, model.layout));
 	});
 var _user$project$Update_Update$onReplaceEl = F3(
-	function (elem, id, m) {
+	function (elem, id, model) {
 		return A2(
 			_user$project$Update_Update$insertReplace,
+			model,
 			A3(
 				_user$project$Layout_El$map,
 				_elm_lang$core$Basics$always(elem),
 				id,
-				m.layout),
-			m);
+				model.layout));
 	});
 var _user$project$Update_Update$onInsertChild = F3(
-	function (index, elem, m) {
+	function (index, elem, model) {
 		var childrenFn = function (children) {
 			var index_ = (_elm_lang$core$Native_Utils.cmp(index, 0) < 0) ? _elm_lang$core$List$length(children) : index;
 			return A2(
@@ -29057,40 +29629,40 @@ var _user$project$Update_Update$onInsertChild = F3(
 		};
 		return A2(
 			_user$project$Update_Update$insertReplace,
+			model,
 			A3(
 				_user$project$Layout_El$map,
 				_user$project$Layout_El$mapChildren(
 					{childFn: _elm_lang$core$Basics$identity, childrenFn: childrenFn}),
-				m.selected,
-				m.layout),
-			m);
+				model.selected,
+				model.layout));
 	});
 var _user$project$Update_Update$update = F2(
 	function (msg, model) {
-		var _p3 = msg;
-		switch (_p3.ctor) {
+		var _p5 = msg;
+		switch (_p5.ctor) {
 			case 'OnInsertChild':
-				return A3(_user$project$Update_Update$onInsertChild, _p3._0, _p3._1, model);
+				return A3(_user$project$Update_Update$onInsertChild, _p5._0, _p5._1, model);
 			case 'OnReplaceEl':
 				return A3(
 					_user$project$Update_Update$onReplaceEl,
-					A2(_elm_lang$core$Debug$log, 'OnReplaceEl', _p3._1),
-					_p3._0,
+					A2(_elm_lang$core$Debug$log, 'OnReplaceEl', _p5._1),
+					_p5._0,
 					model);
 			case 'OnDeleteEl':
-				return A3(_user$project$Update_Update$onDeleteEl, _p3._0.bringUpSubtree, _p3._1, model);
+				return A3(_user$project$Update_Update$onDeleteEl, _p5._0.bringUpSubtree, _p5._1, model);
 			case 'OnCutEl':
-				return A2(_user$project$Update_Update$onCutEl, _p3._0, model);
+				return A2(_user$project$Update_Update$onCutEl, _p5._0, model);
 			case 'OnMouseEnter':
-				return A2(_user$project$Update_Update$onMouseEnter, _p3._0, model);
+				return A2(_user$project$Update_Update$onMouseEnter, _p5._0, model);
 			case 'OnMouseLeave':
 				return _user$project$Update_Update$onMouseLeave(model);
 			case 'OnClick':
-				return A2(_user$project$Update_Update$onClick, _p3._0, model);
+				return A2(_user$project$Update_Update$onClick, _p5._0, model);
 			case 'OnSelectChild':
-				return A2(_user$project$Update_Update$onSelectChild, _p3._0, model);
+				return A2(_user$project$Update_Update$onSelectChild, _p5._0, model);
 			case 'OnClickPicker':
-				return A2(_user$project$Update_Update$onClickPicker, _p3._0, model);
+				return A2(_user$project$Update_Update$onClickPicker, _p5._0, model);
 			case 'OnSidebarClick':
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -29098,6 +29670,8 @@ var _user$project$Update_Update$update = F2(
 						model,
 						{openPicker: _user$project$Model_Types$None, selectedChild: -1}),
 					{ctor: '[]'});
+			case 'OnLoadState':
+				return A2(_user$project$Update_Update$onLoadState, _p5._0, model);
 			default:
 				return A2(
 					_elm_lang$core$Platform_Cmd_ops['!'],
@@ -29123,8 +29697,8 @@ var _user$project$View_View$viewCode = function (_p0) {
 		},
 		A4(
 			_user$project$Layout_El$viewCode,
-			_user$project$Model_Model$OnClick,
-			_elm_lang$core$Basics$always(_user$project$Model_Model$NoneMsg),
+			_user$project$Model_Types$OnClick,
+			_elm_lang$core$Basics$always(_user$project$Model_Types$NoneMsg),
 			_p1.selected,
 			_p1.layout));
 };
@@ -29150,14 +29724,14 @@ var _user$project$View_View$renderLayout = function (model) {
 				_1: {
 					ctor: '::',
 					_0: _mdgriffith$style_elements$Element_Events$onMouseEnter(
-						_user$project$Model_Model$OnMouseEnter(id)),
+						_user$project$Model_Types$OnMouseEnter(id)),
 					_1: {
 						ctor: '::',
-						_0: _mdgriffith$style_elements$Element_Events$onMouseLeave(_user$project$Model_Model$OnMouseLeave),
+						_0: _mdgriffith$style_elements$Element_Events$onMouseLeave(_user$project$Model_Types$OnMouseLeave),
 						_1: {
 							ctor: '::',
 							_0: _user$project$Utils$onClickNoProp(
-								_user$project$Model_Model$OnClick(id)),
+								_user$project$Model_Types$OnClick(id)),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -29177,7 +29751,7 @@ var _user$project$View_View$renderLayout = function (model) {
 				_1: {
 					ctor: '::',
 					_0: _mdgriffith$style_elements$Element_Events$onClick(
-						_user$project$Model_Model$OnClick(-1)),
+						_user$project$Model_Types$OnClick(-1)),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -29211,7 +29785,7 @@ var _user$project$View_View$viewTree = function (_p2) {
 			_0: _mdgriffith$style_elements$Element$bold('Tree view'),
 			_1: {
 				ctor: '::',
-				_0: A3(_user$project$Layout_El$viewTree, _user$project$Model_Model$OnClick, _p3.selected, _p3.layout),
+				_0: A3(_user$project$Layout_El$viewTree, _user$project$Model_Types$OnClick, _p3.selected, _p3.layout),
 				_1: {ctor: '[]'}
 			}
 		});
@@ -29240,7 +29814,7 @@ var _user$project$View_View$viewElementInfo = function (_p4) {
 							_0: _mdgriffith$style_elements$Element_Attributes$clipX,
 							_1: {
 								ctor: '::',
-								_0: _mdgriffith$style_elements$Element_Events$onClick(_user$project$Model_Model$OnSidebarClick),
+								_0: _mdgriffith$style_elements$Element_Events$onClick(_user$project$Model_Types$OnSidebarClick),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -29249,7 +29823,7 @@ var _user$project$View_View$viewElementInfo = function (_p4) {
 			}
 		},
 		(_elm_lang$core$Native_Utils.cmp(_p6, -1) > 0) ? _user$project$Layout_El$viewInfo(
-			{onInsertChild: _user$project$Model_Model$OnInsertChild, onReplaceEl: _user$project$Model_Model$OnReplaceEl, onSelectEl: _user$project$Model_Model$OnClick, onSelectChild: _user$project$Model_Model$OnSelectChild, onDeleteEl: _user$project$Model_Model$OnDeleteEl, onCutEl: _user$project$Model_Model$OnCutEl, onClickPicker: _user$project$Model_Model$OnClickPicker, noneMsg: _user$project$Model_Model$NoneMsg, openPicker: _p5.openPicker, newId: _p5.newId, selected: _p6, selectedChild: _p5.selectedChild, clipped: _p5.clipped, root: _p5.layout}) : {
+			{onInsertChild: _user$project$Model_Types$OnInsertChild, onReplaceEl: _user$project$Model_Types$OnReplaceEl, onSelectEl: _user$project$Model_Types$OnClick, onSelectChild: _user$project$Model_Types$OnSelectChild, onDeleteEl: _user$project$Model_Types$OnDeleteEl, onCutEl: _user$project$Model_Types$OnCutEl, onClickPicker: _user$project$Model_Types$OnClickPicker, noneMsg: _user$project$Model_Types$NoneMsg, openPicker: _p5.openPicker, newId: _p5.newId, selected: _p6, selectedChild: _p5.selectedChild, clipped: _p5.clipped, root: _p5.layout}) : {
 			ctor: '::',
 			_0: _mdgriffith$style_elements$Element$text('Select an element to begin.'),
 			_1: {ctor: '[]'}
@@ -29318,17 +29892,7 @@ var _user$project$View_View$view = function (model) {
 };
 
 var _user$project$Main$main = _elm_lang$html$Html$program(
-	{
-		init: A2(
-			_elm_lang$core$Platform_Cmd_ops['!'],
-			_user$project$Model_Model$initModel,
-			{ctor: '[]'}),
-		view: _user$project$View_View$view,
-		update: _user$project$Update_Update$update,
-		subscriptions: function (_p0) {
-			return _elm_lang$core$Platform_Sub$none;
-		}
-	})();
+	{init: _user$project$Model_Model$init, view: _user$project$View_View$view, update: _user$project$Update_Update$update, subscriptions: _user$project$Subscriptions_Subscriptions$subscriptions})();
 
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
