@@ -15,7 +15,6 @@ by elminating the compile/reload overhead.
 
 ## Disclaimer
 This is in early-alpha stage and likely contains many ~bugs~surprises.
-Your work may be lost or corrupted at any time. 
-Save/load is currently not implemented but is impending!
+Your work may be lost or corrupted at any time.
 
 More documentation to come.
