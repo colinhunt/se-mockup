@@ -1,26 +1,14 @@
 module Model.Model exposing (..)
 
+import Data.Storage
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events as Events
+import Json.Decode exposing (Value)
 import Layout.El exposing (..)
 import Layout.Element exposing (..)
-import Model.Types exposing (Picker(..))
+import Model.Types exposing (Msg, Picker(..))
 import View.Stylesheet as Sty exposing (Style, Variation)
-
-
-type Msg
-    = OnInsertChild Int (El Style Variation Msg)
-    | OnReplaceEl Elid (El Style Variation Msg)
-    | OnDeleteEl { bringUpSubtree : Bool } Elid
-    | OnCutEl (El Style Variation Msg)
-    | OnMouseEnter Elid
-    | OnMouseLeave
-    | OnClick Elid
-    | OnSelectChild Elid
-    | OnClickPicker Picker
-    | OnSidebarClick
-    | NoneMsg
 
 
 type alias Model =
@@ -34,8 +22,8 @@ type alias Model =
     }
 
 
-initModel : Model
-initModel =
+init : ( Model, Cmd Msg )
+init =
     { layout =
         { id = 0
         , name = "el"
@@ -64,3 +52,4 @@ initModel =
     , newId = 10
     , openPicker = None
     }
+        ! [ Data.Storage.loadState ]

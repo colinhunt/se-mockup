@@ -7,6 +7,7 @@ import Html
 import Layout.El as El
 import Layout.Element as Lyt exposing (El, Elid)
 import Model.Model exposing (..)
+import Model.Types exposing (Msg(..))
 import Utils as U
 import View.Stylesheet exposing (..)
 
