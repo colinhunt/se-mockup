@@ -44,8 +44,9 @@ deploy:
   skip_cleanup: true
   github_token: $github_token
   local_dir: build
-  keep-history: true
+  keep-history: true  # or it tries a force push that fails due to insufficient privileges
   on:
     branch: master
+  # https://github.com/travis-ci/travis-ci/issues/9312
   edge:
     branch: v1.8.47

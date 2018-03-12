@@ -1,10 +1,12 @@
 module Update.Update exposing (..)
 
+import Data.Storage
 import Element exposing (empty)
+import Json.Decode exposing (Value)
 import Layout.El as El
 import Layout.Element exposing (El, Elem(Elmnt), Elid)
-import Model.Model exposing (..)
-import Model.Types exposing (Picker(..))
+import Model.Model exposing (Model)
+import Model.Types exposing (Msg(..), Picker(..), State)
 import Utils as U
 import View.Stylesheet exposing (Style, Variation)
 
@@ -42,12 +44,15 @@ update msg model =
         OnSidebarClick ->
             { model | openPicker = None, selectedChild = -1 } ! []
 
+        OnLoadState result ->
+            onLoadState result model
+
         NoneMsg ->
             model ! []
 
 
 onInsertChild : Int -> El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-onInsertChild index elem m =
+onInsertChild index elem model =
     let
         childrenFn children =
             let
@@ -59,45 +64,46 @@ onInsertChild index elem m =
             in
             List.take index_ children ++ [ elem ] ++ List.drop index_ children
     in
-    insertReplace
-        (El.map
+    insertReplace model <|
+        El.map
             (El.mapChildren
                 { childFn = identity
                 , childrenFn = childrenFn
                 }
             )
-            m.selected
-            m.layout
-        )
-        m
+            model.selected
+            model.layout
 
 
 onReplaceEl : El Style Variation Msg -> Elid -> Model -> ( Model, Cmd Msg )
-onReplaceEl elem id m =
-    insertReplace (El.map (always elem) id m.layout) m
+onReplaceEl elem id model =
+    insertReplace model <| El.map (always elem) id model.layout
 
 
 onDeleteEl : Bool -> Elid -> Model -> ( Model, Cmd Msg )
 onDeleteEl bringUpSubtree id model =
-    { model | layout = deleteChild bringUpSubtree id model } ! []
+    insertReplace model <| deleteChild bringUpSubtree id model.selected model.layout
 
 
 onCutEl : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
 onCutEl elem model =
-    { model
-        | layout = deleteChild False elem.id model
-        , clipped = Just elem
-    }
-        ! []
+    let
+        ( newModel, cmd ) =
+            insertReplace model <| deleteChild False elem.id model.selected model.layout
+    in
+    { newModel | clipped = Just elem } ! [ cmd ]
 
 
-insertReplace : El Style Variation Msg -> Model -> ( Model, Cmd Msg )
-insertReplace newLayout m =
-    { m
-        | layout = newLayout
-        , newId = m.newId + 10
-    }
-        ! []
+insertReplace : Model -> El Style Variation Msg -> ( Model, Cmd Msg )
+insertReplace model newLayout =
+    let
+        newModel =
+            { model
+                | layout = newLayout
+                , newId = model.newId + 10
+            }
+    in
+    newModel ! [ Data.Storage.saveState { layout = newModel.layout, newId = newModel.newId } ]
 
 
 onMouseEnter id model =
@@ -140,12 +146,22 @@ onClickPicker picker model =
     { model | openPicker = picker_ } ! []
 
 
-deleteChild bringUpSubtree id model =
+deleteChild bringUpSubtree id selected layout =
     El.map
         (El.mapChildren
             { childFn = El.deleteOnlyChild bringUpSubtree id
             , childrenFn = El.deleteSibling bringUpSubtree id
             }
         )
-        model.selected
-        model.layout
+        selected
+        layout
+
+
+onLoadState : Result String State -> Model -> ( Model, Cmd Msg )
+onLoadState result model =
+    case result of
+        Result.Ok { layout, newId } ->
+            { model | layout = layout, newId = newId } ! []
+
+        Result.Err msg ->
+            Debug.log msg <| model ! []
