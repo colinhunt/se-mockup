@@ -1,10 +1,10 @@
-port module Data.Storage exposing (loadState, onLoad, saveState)
+port module Data.Storage exposing (loadState, onLoad, saveLayout)
 
 import Data.Ports
 import Dict
 import Json.Bidirectional exposing (..)
 import Layout.Element exposing (El, Elid, elDecoder, elEncoder)
-import Model.Types exposing (Msg(..))
+import Model.Types exposing (Layout, Msg(..))
 import View.Stylesheet exposing (Style, Variation)
 
 
@@ -18,9 +18,9 @@ type StorageKey
     = StorageKey String
 
 
-saveState : State msg -> Cmd msg
-saveState state =
-    Data.Ports.save <| encodeValue (keyedValue (StorageKey "state") stateCoder) state
+saveLayout : Layout -> Cmd msg
+saveLayout layout =
+    Data.Ports.save <| encodeValue (keyedValue (StorageKey layout.title) layoutCoder) layout
 
 
 loadState : Cmd msg
@@ -38,11 +38,12 @@ keyedValue key coder =
     at [ keyToString key ] coder
 
 
-stateCoder : Coder (State msg)
-stateCoder =
-    object State
+layoutCoder : Coder Layout
+layoutCoder =
+    object Layout
         |> withField "layout" .layout elCoder
         |> withField "newId" .newId elidCoder
+        |> withField "title" .title string
 
 
 elCoder : Coder (El Style Variation msg)
@@ -84,5 +85,5 @@ onLoad =
 
 decodeState : Value -> Msg
 decodeState json =
-    decodeValue stateCoder json
+    decodeValue layoutCoder json
         |> OnLoadState

@@ -26,9 +26,13 @@ type Style
     | NameButton
     | PickerButton
     | Input
+    | InputNormal
+    | Modal
+    | ModalBackdrop
     | ElementInfo ElementInfoStyle
     | TreeView TreeViewStyle
     | CodeView CodeViewStyle
+    | TopMenu TopMenuStyle
 
 
 type ElementInfoStyle
@@ -47,6 +51,14 @@ type TreeViewStyle
 type CodeViewStyle
     = CvMain
     | CvTextArea
+
+
+type TopMenuStyle
+    = TmMain
+    | TmTitleBar
+    | TmTitle
+    | TmStatus
+    | TmButtonRow
 
 
 paleBlue =
@@ -80,19 +92,26 @@ elemBase styles =
         ++ styles
 
 
+font =
+    Font.typeface [ Font.sansSerif ]
+
+
 stylesheet : StyleSheet Style Variation
 stylesheet =
     Style.styleSheet
         [ style None [] -- blank style
         , style Main
-            [ Font.typeface [ Font.sansSerif ] ]
+            [ font ]
         , style Element <|
             elemBase
                 []
         , style Button
             [ SColor.background unsetColor
             , SColor.text Color.darkGrey
+            , Border.rounded 2
             , hover [ SColor.text Color.black ]
+            , cursor "pointer"
+            , pseudo "active" [ SColor.background Color.darkGray ]
             ]
         , style ButtonLabel
             []
@@ -111,6 +130,19 @@ stylesheet =
                 ++ [ SColor.text Color.orange
                    , SColor.background unsetColor
                    ]
+        , style Modal <|
+            [ font
+            , SColor.background Color.white
+            , SColor.border Color.darkGray
+            , Border.all 1
+            , Shadow.deep
+            ]
+        , style ModalBackdrop
+            [ SColor.background transparentCobalt ]
+        , style InputNormal
+            [ Border.all 1
+            , SColor.border Color.gray
+            ]
         , style (ElementInfo EiMain)
             [ SColor.border Color.grey
             , Border.right 1
@@ -156,5 +188,9 @@ stylesheet =
         , style (CodeView CvTextArea)
             [ Font.typeface [ Font.monospace ]
             , prop "white-space" "pre"
+            ]
+        , style (TopMenu TmMain)
+            [ Border.all 1
+            , SColor.border Color.grey
             ]
         ]

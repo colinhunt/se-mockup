@@ -4,8 +4,8 @@ import Layout.Element exposing (El, Elid)
 import View.Stylesheet as Sty exposing (Style, Variation)
 
 
-type alias State =
-    { layout : El Style Variation Msg, newId : Elid }
+type alias Layout =
+    { layout : El Style Variation Msg, newId : Elid, title : String }
 
 
 type Msg
@@ -19,7 +19,11 @@ type Msg
     | OnSelectChild Elid
     | OnClickPicker Picker
     | OnSidebarClick
-    | OnLoadState (Result String State)
+    | OnLoadState (Result String Layout)
+    | OnNewLayout
+    | OnUndo
+    | OnRedo
+    | OnSaveAsNameChange String
     | NoneMsg
 
 
@@ -33,4 +37,16 @@ type Picker
     | ReplaceLength String
     | InsertAbove
     | InsertBelow Elid
-    | None
+    | NewLayout
+    | LoadLayout
+    | SaveLayout
+    | DownloadLayout
+    | NonePicker
+
+
+type StorageStatus
+    = Unavailable
+    | LimitExceeded
+    | Saving
+    | Saved
+    | NoneStatus

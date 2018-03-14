@@ -6,7 +6,7 @@ import Json.Decode exposing (Value)
 import Layout.El as El
 import Layout.Element exposing (El, Elem(Elmnt), Elid)
 import Model.Model exposing (Model)
-import Model.Types exposing (Msg(..), Picker(..), State)
+import Model.Types exposing (Layout, Msg(..), Picker(..))
 import Utils as U
 import View.Stylesheet exposing (Style, Variation)
 
@@ -42,10 +42,22 @@ update msg model =
             onClickPicker picker model
 
         OnSidebarClick ->
-            { model | openPicker = None, selectedChild = -1 } ! []
+            { model | openPicker = NonePicker, selectedChild = -1 } ! []
 
         OnLoadState result ->
-            onLoadState result model
+            onLoadLayout result model
+
+        OnNewLayout ->
+            onNewLayout model
+
+        OnUndo ->
+            onUndo model
+
+        OnRedo ->
+            onRedo model
+
+        OnSaveAsNameChange name ->
+            onSaveAsNameChange name model
 
         NoneMsg ->
             model ! []
@@ -103,7 +115,13 @@ insertReplace model newLayout =
                 , newId = model.newId + 10
             }
     in
-    newModel ! [ Data.Storage.saveState { layout = newModel.layout, newId = newModel.newId } ]
+    newModel
+        ! [ Data.Storage.saveLayout
+                { layout = newModel.layout
+                , newId = newModel.newId
+                , title = model.title
+                }
+          ]
 
 
 onMouseEnter id model =
@@ -121,9 +139,9 @@ onClick id ({ mousedOver, selected } as model) =
             List.head mousedOver |> Maybe.withDefault -1
     in
     if id == selected || id < 0 then
-        { model | selected = -1, openPicker = None } ! []
+        { model | selected = -1, openPicker = NonePicker } ! []
     else
-        { model | selected = id, openPicker = None } ! []
+        { model | selected = id, openPicker = NonePicker } ! []
 
 
 onSelectChild : Elid -> Model -> ( Model, Cmd Msg )
@@ -139,7 +157,7 @@ onClickPicker picker model =
     let
         picker_ =
             if model.openPicker == picker then
-                None
+                NonePicker
             else
                 picker
     in
@@ -157,11 +175,34 @@ deleteChild bringUpSubtree id selected layout =
         layout
 
 
-onLoadState : Result String State -> Model -> ( Model, Cmd Msg )
-onLoadState result model =
+onLoadLayout : Result String Layout -> Model -> ( Model, Cmd Msg )
+onLoadLayout result model =
     case result of
-        Result.Ok { layout, newId } ->
-            { model | layout = layout, newId = newId } ! []
+        Result.Ok { layout, newId, title } ->
+            { model | layout = layout, newId = newId, title = title } ! []
 
+        --            { model | layout = layout, newId = newId, title = title } ! [Data.Storage.saveState { last = title }]
         Result.Err msg ->
             Debug.log msg <| model ! []
+
+
+onNewLayout model =
+    { model | openPicker = NonePicker }
+        ! [ Data.Storage.saveLayout
+                { layout = model.layout
+                , newId = model.newId
+                , title = model.saveAsName
+                }
+          ]
+
+
+onUndo model =
+    model ! []
+
+
+onRedo model =
+    model ! []
+
+
+onSaveAsNameChange name model =
+    { model | saveAsName = name } ! []

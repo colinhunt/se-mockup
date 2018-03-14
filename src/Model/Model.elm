@@ -7,8 +7,12 @@ import Element.Events as Events
 import Json.Decode exposing (Value)
 import Layout.El exposing (..)
 import Layout.Element exposing (..)
-import Model.Types exposing (Msg, Picker(..))
+import Model.Types exposing (Msg, Picker(..), StorageStatus(..))
 import View.Stylesheet as Sty exposing (Style, Variation)
+
+
+productName =
+    "Haywire"
 
 
 type alias Model =
@@ -19,6 +23,9 @@ type alias Model =
     , clipped : Maybe (El Style Variation Msg)
     , newId : Elid
     , openPicker : Picker
+    , title : String
+    , status : StorageStatus
+    , saveAsName : String
     }
 
 
@@ -50,6 +57,9 @@ init =
     , selectedChild = -1
     , clipped = Nothing
     , newId = 10
-    , openPicker = None
+    , openPicker = NonePicker
+    , title = "state"
+    , status = NoneStatus
+    , saveAsName = ""
     }
         ! [ Data.Storage.loadState ]
