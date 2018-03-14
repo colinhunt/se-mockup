@@ -93,7 +93,11 @@ elemBase styles =
 
 
 font =
-    Font.typeface [ Font.sansSerif ]
+    Font.typeface [ Font.font "Trebuchet MS" ]
+
+
+iconColor =
+    Color.darkCharcoal
 
 
 stylesheet : StyleSheet Style Variation
@@ -109,7 +113,10 @@ stylesheet =
             [ SColor.background unsetColor
             , SColor.text Color.darkGrey
             , Border.rounded 2
-            , hover [ SColor.text Color.black ]
+            , hover
+                [ SColor.text Color.black
+                , SColor.background Color.gray
+                ]
             , cursor "pointer"
             , pseudo "active" [ SColor.background Color.darkGray ]
             ]

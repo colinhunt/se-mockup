@@ -1,5 +1,6 @@
 module View.View exposing (..)
 
+import Color exposing (Color)
 import Element exposing (..)
 import Element.Attributes exposing (..)
 import Element.Events exposing (..)
@@ -8,8 +9,11 @@ import Html
 import Html.Attributes exposing (title)
 import Layout.El as El
 import Layout.Element as Lyt exposing (El, Elid)
+import Material.Icons.Content as Icons
+import Material.Icons.File as Icons
 import Model.Model exposing (..)
 import Model.Types exposing (Msg(..), Picker(..))
+import Svg exposing (Svg, svg)
 import Utils as U exposing (onClickNoProp)
 import View.Stylesheet exposing (..)
 
@@ -56,23 +60,35 @@ topMenu :
     -> Element Style Variation Msg
 topMenu props =
     let
-        menuButton :
-            { content : Element Style Variation Msg
+        iconButton :
+            { icon : Color -> Int -> Svg Msg
             , toolTip : String
             , onClick : Msg
+            , size : Int
+            , padding : Int
             }
             -> Element Style Variation Msg
-        menuButton props =
+        iconButton props =
             el Button
-                [ height (px 32)
-                , width (px 32)
-                , center
-                , verticalCenter
-                , toAttr <| title props.toolTip
+                [ toAttr <| title props.toolTip
                 , onClick props.onClick
+                , height (px <| toFloat <| props.size + props.padding)
+                , width (px <| toFloat <| props.size + props.padding)
                 ]
             <|
-                el None [ center, verticalCenter ] props.content
+                el None
+                    [ center
+                    , verticalCenter
+                    , height (px <| toFloat props.size)
+                    , width (px <| toFloat props.size)
+                    ]
+                <|
+                    html <|
+                        svg [ Html.Attributes.height props.size, Html.Attributes.width props.size ] <|
+                            [ props.icon iconColor props.size ]
+
+        menuButton props =
+            iconButton { icon = props.icon, toolTip = props.toolTip, onClick = props.onClick, size = 24, padding = 10 }
     in
     column (TopMenu TmMain)
         [ paddingLeft 5, paddingRight 5, paddingTop 5 ]
@@ -84,37 +100,37 @@ topMenu props =
                 props.status
             ]
         , row (TopMenu TmButtonRow)
-            []
+            [ verticalCenter ]
             [ menuButton
-                { content = text "🗋"
+                { icon = Icons.add
                 , toolTip = "New layout"
                 , onClick = OnNewLayout
                 }
             , menuButton
-                { content = text "🗁"
+                { icon = Icons.folder_open
                 , toolTip = "Load layout"
                 , onClick = OnClickPicker LoadLayout
                 }
             , menuButton
-                { content = text "🖫"
+                { icon = Icons.save
                 , toolTip = "Save layout as..."
                 , onClick = OnClickPicker SaveLayout
                 }
-            , when False <|
+            , when True <|
                 menuButton
-                    { content = text "⭳"
+                    { icon = Icons.file_download
                     , toolTip = "Download layout"
                     , onClick = OnClickPicker DownloadLayout
                     }
-            , when props.canUndo <|
+            , when True <|
                 menuButton
-                    { content = text "↺"
+                    { icon = Icons.undo
                     , toolTip = "Undo"
                     , onClick = OnUndo
                     }
-            , when props.canRedo <|
+            , when True <|
                 menuButton
-                    { content = text "↻"
+                    { icon = Icons.redo
                     , toolTip = "Redo"
                     , onClick = OnRedo
                     }
