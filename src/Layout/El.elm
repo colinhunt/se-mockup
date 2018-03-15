@@ -716,7 +716,7 @@ find id node =
     if node.id == id then
         Just node
     else
-        case Debug.log "find" node.elem of
+        case node.elem of
             Elmnt f ->
                 Nothing
 

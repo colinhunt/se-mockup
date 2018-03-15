@@ -1,11 +1,21 @@
 module Model.Types exposing (..)
 
 import Layout.Element exposing (El, Elid)
+import Set exposing (Set)
 import View.Stylesheet as Sty exposing (Style, Variation)
 
 
+type alias State =
+    { savedLayouts : Set String
+    , lastLayout : String
+    }
+
+
 type alias Layout =
-    { layout : El Style Variation Msg, newId : Elid, title : String }
+    { layout : El Style Variation Msg
+    , newId : Elid
+    , title : String
+    }
 
 
 type Msg
@@ -19,11 +29,14 @@ type Msg
     | OnSelectChild Elid
     | OnClickPicker Picker
     | OnSidebarClick
-    | OnLoadState (Result String Layout)
+    | OnLoadState (Result String State)
+    | OnLoadLayout (Result String Layout)
     | OnNewLayout
+    | OnSaveAsLayout
     | OnUndo
     | OnRedo
     | OnSaveAsNameChange String
+    | SaveState
     | NoneMsg
 
 
@@ -45,8 +58,13 @@ type Picker
 
 
 type StorageStatus
-    = Unavailable
-    | LimitExceeded
-    | Saving
+    = LoadingState
+    | LoadingLayout
+    | LayoutLoaded
+    | SavingState
+    | SavingLayout
     | Saved
+    | Error String
+    | Unavailable
+    | LimitExceeded
     | NoneStatus

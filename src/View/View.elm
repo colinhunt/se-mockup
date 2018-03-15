@@ -160,7 +160,7 @@ saveLayoutModal name =
                             , label = Input.placeholder { text = "Enter a name...", label = Input.hiddenLabel "" }
                             , options = []
                             }
-                        , button None [ padding 5, width (px 70), alignRight, onClick OnNewLayout ] <|
+                        , button None [ padding 5, width (px 70), alignRight, onClick OnSaveAsLayout ] <|
                             text "save"
                         ]
                     ]

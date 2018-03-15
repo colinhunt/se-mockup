@@ -6,14 +6,15 @@ import Json.Decode exposing (Value)
 import Layout.El as El
 import Layout.Element exposing (El, Elem(Elmnt), Elid)
 import Model.Model exposing (Model)
-import Model.Types exposing (Layout, Msg(..), Picker(..))
+import Model.Types exposing (Layout, Msg(..), Picker(..), State, StorageStatus(..))
+import Set exposing (Set)
 import Utils as U
 import View.Stylesheet exposing (Style, Variation)
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
+    case Debug.log "msg" msg of
         OnInsertChild index el ->
             onInsertChild index el model
 
@@ -45,7 +46,13 @@ update msg model =
             { model | openPicker = NonePicker, selectedChild = -1 } ! []
 
         OnLoadState result ->
+            onLoadState result model
+
+        OnLoadLayout result ->
             onLoadLayout result model
+
+        OnSaveAsLayout ->
+            onSaveAsLayout model
 
         OnNewLayout ->
             onNewLayout model
@@ -58,6 +65,9 @@ update msg model =
 
         OnSaveAsNameChange name ->
             onSaveAsNameChange name model
+
+        SaveState ->
+            saveState model
 
         NoneMsg ->
             model ! []
@@ -107,12 +117,13 @@ onCutEl elem model =
 
 
 insertReplace : Model -> El Style Variation Msg -> ( Model, Cmd Msg )
-insertReplace model newLayout =
+insertReplace ({ state } as model) newLayout =
     let
         newModel =
             { model
                 | layout = newLayout
                 , newId = model.newId + 10
+                , status = SavingLayout
             }
     in
     newModel
@@ -175,25 +186,69 @@ deleteChild bringUpSubtree id selected layout =
         layout
 
 
+onLoadState : Result String State -> Model -> ( Model, Cmd Msg )
+onLoadState result ({ state } as model) =
+    case result of
+        Result.Ok loadedState ->
+            if not <| String.isEmpty loadedState.lastLayout then
+                { model | state = loadedState, status = LoadingLayout }
+                    ! [ Data.Storage.loadLayout loadedState.lastLayout ]
+            else
+                let
+                    newState =
+                        { state | lastLayout = model.title }
+                in
+                { model | state = newState, status = SavingState }
+                    ! [ Data.Storage.saveState newState
+                      , Data.Storage.saveLayout
+                            { layout = model.layout
+                            , newId = model.newId
+                            , title = model.title
+                            }
+                      ]
+
+        Result.Err msg ->
+            Debug.log msg <| { model | status = SavingState } ! [ Data.Storage.saveState model.state ]
+
+
 onLoadLayout : Result String Layout -> Model -> ( Model, Cmd Msg )
-onLoadLayout result model =
+onLoadLayout result ({ state } as model) =
     case result of
         Result.Ok { layout, newId, title } ->
-            { model | layout = layout, newId = newId, title = title } ! []
+            let
+                newState =
+                    { state | lastLayout = title }
+            in
+            { model
+                | state = newState
+                , layout = layout
+                , newId = newId
+                , title = title
+                , status = LayoutLoaded
+            }
+                ! [ Data.Storage.saveState newState ]
 
-        --            { model | layout = layout, newId = newId, title = title } ! [Data.Storage.saveState { last = title }]
         Result.Err msg ->
-            Debug.log msg <| model ! []
+            Debug.log msg <| { model | status = Error msg } ! []
+
+
+onSaveAsLayout ({ state, layout, newId, saveAsName } as model) =
+    let
+        newState =
+            { state | savedLayouts = Set.insert saveAsName state.savedLayouts }
+    in
+    { model | openPicker = NonePicker, status = SavingLayout, state = newState }
+        ! [ Data.Storage.saveLayout
+                { layout = layout
+                , newId = newId
+                , title = saveAsName
+                }
+          , Data.Storage.saveState newState
+          ]
 
 
 onNewLayout model =
-    { model | openPicker = NonePicker }
-        ! [ Data.Storage.saveLayout
-                { layout = model.layout
-                , newId = model.newId
-                , title = model.saveAsName
-                }
-          ]
+    model ! []
 
 
 onUndo model =
@@ -206,3 +261,11 @@ onRedo model =
 
 onSaveAsNameChange name model =
     { model | saveAsName = name } ! []
+
+
+saveState ({ state } as model) =
+    let
+        newState =
+            { state | lastLayout = model.title }
+    in
+    { model | state = newState, status = SavingState } ! [ Data.Storage.saveState newState ]

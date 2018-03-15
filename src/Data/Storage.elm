@@ -1,17 +1,22 @@
-port module Data.Storage exposing (loadState, onLoad, saveLayout)
+port module Data.Storage
+    exposing
+        ( loadLayout
+        , loadState
+        , onLoad
+        , saveLayout
+        , saveState
+        )
 
 import Data.Ports
 import Dict
 import Json.Bidirectional exposing (..)
+import Json.Decode as Decode
+import Json.Encode as Encode
 import Layout.Element exposing (El, Elid, elDecoder, elEncoder)
-import Model.Types exposing (Layout, Msg(..))
+import Model.Types exposing (Layout, Msg(..), State)
+import Set
+import Utils exposing ((=>))
 import View.Stylesheet exposing (Style, Variation)
-
-
-type alias State msg =
-    { layout : El Style Variation msg
-    , newId : Elid
-    }
 
 
 type StorageKey
@@ -20,12 +25,28 @@ type StorageKey
 
 saveLayout : Layout -> Cmd msg
 saveLayout layout =
-    Data.Ports.save <| encodeValue (keyedValue (StorageKey layout.title) layoutCoder) layout
+    Data.Ports.save <| encodeValue (keyedValue (StorageKey <| "layout/" ++ layout.title) layoutCoder) layout
+
+
+saveState : State -> Cmd msg
+saveState state =
+    Data.Ports.save <| encodeValue (keyedValue (StorageKey <| "state/state") stateCoder) state
 
 
 loadState : Cmd msg
 loadState =
-    Data.Ports.load [ "state" ]
+    Data.Ports.load [ "state/state" ]
+
+
+loadLayout : String -> Cmd msg
+loadLayout title =
+    Data.Ports.load [ "layout/" ++ title ]
+
+
+
+--loadLastLayout : Cmd msg
+--loadLastLayout =
+--    Task.perform Data.Ports.load [ "state" ]
 
 
 keyToString : StorageKey -> String
@@ -36,6 +57,26 @@ keyToString (StorageKey key) =
 keyedValue : StorageKey -> Coder a -> Coder a
 keyedValue key coder =
     at [ keyToString key ] coder
+
+
+stateEncoder : State -> Value
+stateEncoder state =
+    Encode.object
+        [ "savedLayouts" => Encode.list <| List.map Encode.string <| Set.toList state.savedLayouts
+        , "lastLayout" => Encode.string state.lastLayout
+        ]
+
+
+stateDecoder : Decode.Decoder State
+stateDecoder =
+    Decode.map2 State
+        (Decode.field "savedLayouts" <| Decode.map Set.fromList <| Decode.list Decode.string)
+        (Decode.field "lastLayout" Decode.string)
+
+
+stateCoder : Coder State
+stateCoder =
+    custom stateEncoder stateDecoder
 
 
 layoutCoder : Coder Layout
@@ -68,15 +109,23 @@ onLoad =
             in
             case items of
                 ( key, value ) :: rest ->
-                    case key of
-                        "state" ->
-                            decodeState value
+                    case String.split "/" key of
+                        kind :: id ->
+                            case kind of
+                                "state" ->
+                                    decodeState value
 
-                        _ ->
-                            NoneMsg |> Debug.log ("Storage.onLoad: unrecognized key " ++ key)
+                                "layout" ->
+                                    decodeLayout value
+
+                                _ ->
+                                    NoneMsg |> Debug.log ("Storage.onLoad: unrecognized key " ++ key)
+
+                        [] ->
+                            NoneMsg |> Debug.log ("Storage.onLoad: invalid key " ++ key)
 
                 [] ->
-                    NoneMsg
+                    SaveState
                         |> Debug.log
                             ("Storage.onLoad could not find anything to load in "
                                 ++ toString json
@@ -85,5 +134,11 @@ onLoad =
 
 decodeState : Value -> Msg
 decodeState json =
-    decodeValue layoutCoder json
+    decodeValue stateCoder json
         |> OnLoadState
+
+
+decodeLayout : Value -> Msg
+decodeLayout json =
+    decodeValue layoutCoder json
+        |> OnLoadLayout

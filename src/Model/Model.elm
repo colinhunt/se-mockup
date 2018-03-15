@@ -7,7 +7,8 @@ import Element.Events as Events
 import Json.Decode exposing (Value)
 import Layout.El exposing (..)
 import Layout.Element exposing (..)
-import Model.Types exposing (Msg, Picker(..), StorageStatus(..))
+import Model.Types exposing (Msg, Picker(..), State, StorageStatus(..))
+import Set exposing (Set)
 import View.Stylesheet as Sty exposing (Style, Variation)
 
 
@@ -17,6 +18,7 @@ productName =
 
 type alias Model =
     { layout : El Style Variation Msg
+    , state : State
     , mousedOver : List Elid
     , selected : Elid
     , selectedChild : Elid
@@ -52,14 +54,15 @@ init =
                 , elem = StrElmnt text "Click to edit!"
                 }
         }
+    , state = { savedLayouts = Set.empty, lastLayout = "" }
     , mousedOver = []
     , selected = 0
     , selectedChild = -1
     , clipped = Nothing
     , newId = 10
     , openPicker = NonePicker
-    , title = "state"
-    , status = NoneStatus
+    , title = "Welcome to " ++ productName
+    , status = LoadingState
     , saveAsName = ""
     }
         ! [ Data.Storage.loadState ]
