@@ -29,8 +29,9 @@ type Msg
     | OnSelectChild Elid
     | OnClickPicker Picker
     | OnSidebarClick
-    | OnLoadState (Result String State)
-    | OnLoadLayout (Result String Layout)
+    | OnStorageLoadState (Result String State)
+    | OnStorageLoadLayout (Result String Layout)
+    | OnLoadLayout String
     | OnNewLayout
     | OnSaveAsLayout
     | OnUndo

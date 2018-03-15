@@ -135,10 +135,10 @@ onLoad =
 decodeState : Value -> Msg
 decodeState json =
     decodeValue stateCoder json
-        |> OnLoadState
+        |> OnStorageLoadState
 
 
 decodeLayout : Value -> Msg
 decodeLayout json =
     decodeValue layoutCoder json
-        |> OnLoadLayout
+        |> OnStorageLoadLayout

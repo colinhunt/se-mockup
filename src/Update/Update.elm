@@ -45,17 +45,20 @@ update msg model =
         OnSidebarClick ->
             { model | openPicker = NonePicker, selectedChild = -1 } ! []
 
-        OnLoadState result ->
-            onLoadState result model
+        OnStorageLoadState result ->
+            onStorageLoadState result model
 
-        OnLoadLayout result ->
-            onLoadLayout result model
+        OnStorageLoadLayout result ->
+            onStorageLoadLayout result model
 
         OnSaveAsLayout ->
             onSaveAsLayout model
 
         OnNewLayout ->
             onNewLayout model
+
+        OnLoadLayout name ->
+            onLoadLayout name model
 
         OnUndo ->
             onUndo model
@@ -186,8 +189,8 @@ deleteChild bringUpSubtree id selected layout =
         layout
 
 
-onLoadState : Result String State -> Model -> ( Model, Cmd Msg )
-onLoadState result ({ state } as model) =
+onStorageLoadState : Result String State -> Model -> ( Model, Cmd Msg )
+onStorageLoadState result ({ state } as model) =
     case result of
         Result.Ok loadedState ->
             if not <| String.isEmpty loadedState.lastLayout then
@@ -211,8 +214,8 @@ onLoadState result ({ state } as model) =
             Debug.log msg <| { model | status = SavingState } ! [ Data.Storage.saveState model.state ]
 
 
-onLoadLayout : Result String Layout -> Model -> ( Model, Cmd Msg )
-onLoadLayout result ({ state } as model) =
+onStorageLoadLayout : Result String Layout -> Model -> ( Model, Cmd Msg )
+onStorageLoadLayout result ({ state } as model) =
     case result of
         Result.Ok { layout, newId, title } ->
             let
@@ -249,6 +252,10 @@ onSaveAsLayout ({ state, layout, newId, saveAsName } as model) =
 
 onNewLayout model =
     model ! []
+
+
+onLoadLayout name model =
+    { model | openPicker = NonePicker, status = LoadingLayout } ! [ Data.Storage.loadLayout name ]
 
 
 onUndo model =

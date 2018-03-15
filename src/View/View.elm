@@ -11,8 +11,10 @@ import Layout.El as El
 import Layout.Element as Lyt exposing (El, Elid)
 import Material.Icons.Content as Icons
 import Material.Icons.File as Icons
+import Material.Icons.Navigation as Icons
 import Model.Model exposing (..)
 import Model.Types exposing (Msg(..), Picker(..))
+import Set
 import Svg exposing (Svg, svg)
 import Utils as U exposing (onClickNoProp)
 import View.Stylesheet exposing (..)
@@ -26,7 +28,20 @@ view model =
             [ sideBar model
             , renderLayout model
             , when (model.openPicker == SaveLayout) <|
-                saveLayoutModal model.saveAsName
+                myModal <|
+                    dialogue
+                        { title = "Save layout as..."
+                        , content =
+                            saveAsContent model.saveAsName
+                        }
+            , when (model.openPicker == LoadLayout) <|
+                myModal <|
+                    dialogue
+                        { title = "Load layout..."
+                        , content =
+                            loadLayoutPicker <|
+                                Set.toList model.state.savedLayouts
+                        }
             ]
 
 
@@ -50,6 +65,34 @@ sideBar model =
         ]
 
 
+iconButton :
+    { icon : Color -> Int -> Svg Msg
+    , toolTip : String
+    , onClick : Msg
+    , size : Int
+    , padding : Int
+    }
+    -> Element Style Variation Msg
+iconButton props =
+    el Button
+        [ toAttr <| title props.toolTip
+        , onClick props.onClick
+        , height (px <| toFloat <| props.size + props.padding)
+        , width (px <| toFloat <| props.size + props.padding)
+        ]
+    <|
+        el None
+            [ center
+            , verticalCenter
+            , height (px <| toFloat props.size)
+            , width (px <| toFloat props.size)
+            ]
+        <|
+            html <|
+                svg [ Html.Attributes.height props.size, Html.Attributes.width props.size ] <|
+                    [ props.icon iconColor props.size ]
+
+
 topMenu :
     { title : Element Style Variation Msg
     , status : Element Style Variation Msg
@@ -60,35 +103,14 @@ topMenu :
     -> Element Style Variation Msg
 topMenu props =
     let
-        iconButton :
-            { icon : Color -> Int -> Svg Msg
-            , toolTip : String
-            , onClick : Msg
-            , size : Int
-            , padding : Int
-            }
-            -> Element Style Variation Msg
-        iconButton props =
-            el Button
-                [ toAttr <| title props.toolTip
-                , onClick props.onClick
-                , height (px <| toFloat <| props.size + props.padding)
-                , width (px <| toFloat <| props.size + props.padding)
-                ]
-            <|
-                el None
-                    [ center
-                    , verticalCenter
-                    , height (px <| toFloat props.size)
-                    , width (px <| toFloat props.size)
-                    ]
-                <|
-                    html <|
-                        svg [ Html.Attributes.height props.size, Html.Attributes.width props.size ] <|
-                            [ props.icon iconColor props.size ]
-
         menuButton props =
-            iconButton { icon = props.icon, toolTip = props.toolTip, onClick = props.onClick, size = 24, padding = 10 }
+            iconButton
+                { icon = props.icon
+                , toolTip = props.toolTip
+                , onClick = props.onClick
+                , size = 24
+                , padding = 10
+                }
     in
     column (TopMenu TmMain)
         [ paddingLeft 5, paddingRight 5, paddingTop 5 ]
@@ -138,32 +160,57 @@ topMenu props =
         ]
 
 
-saveLayoutModal name =
+myModal content =
     screen <|
         el ModalBackdrop [ height fill, width fill, onClick <| OnClickPicker NonePicker ] <|
             el Modal [ center, verticalCenter, moveUp 100, onClickNoProp NoneMsg ] <|
-                column None
-                    [ width (px 400) ]
-                    [ row None
-                        [ spread, padding 10 ]
-                        [ bold "Save layout as..."
-                        , el Button [ paddingLeft 5, paddingRight 5, onClick <| OnClickPicker NonePicker ] <|
-                            text "x"
-                        ]
-                    , column None
-                        [ padding 20, spacing 15 ]
-                        [ Input.text
-                            InputNormal
-                            [ padding 5 ]
-                            { onChange = OnSaveAsNameChange
-                            , value = name
-                            , label = Input.placeholder { text = "Enter a name...", label = Input.hiddenLabel "" }
-                            , options = []
-                            }
-                        , button None [ padding 5, width (px 70), alignRight, onClick OnSaveAsLayout ] <|
-                            text "save"
-                        ]
-                    ]
+                content
+
+
+dialogue : { title : String, content : Element Style Variation Msg } -> Element Style Variation Msg
+dialogue props =
+    column None
+        [ width (px 400), padding 10, spacing 20 ]
+        [ row None
+            [ spread ]
+            [ bold props.title
+            , iconButton
+                { icon = Icons.close
+                , toolTip = "Close"
+                , onClick = OnClickPicker NonePicker
+                , size = 20
+                , padding = 0
+                }
+            ]
+        , props.content
+        ]
+
+
+saveAsContent name =
+    column None
+        [ padding 10, spacing 15 ]
+        [ Input.text
+            InputNormal
+            [ padding 5 ]
+            { onChange = OnSaveAsNameChange
+            , value = name
+            , label = Input.placeholder { text = "Enter a name...", label = Input.hiddenLabel "" }
+            , options = []
+            }
+        , button None [ padding 5, width (px 70), alignRight, onClick OnSaveAsLayout ] <|
+            text "save"
+        ]
+
+
+loadLayoutPicker names =
+    column None
+        []
+    <|
+        List.map layoutEntry names
+
+
+layoutEntry name =
+    el Button [ onClick <| OnLoadLayout name ] <| text name
 
 
 viewElementInfo { selected, selectedChild, clipped, newId, openPicker, layout } =
